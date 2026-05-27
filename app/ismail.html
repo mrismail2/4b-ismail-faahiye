@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EduPay — Fasalka 4B</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f0f4ff;--bg2:#fff;--bg3:#f8faff;
+  --ink:#0f1523;--ink2:#3d4a6b;--ink3:#8896b3;
+  --border:#e2e8f8;
+  --primary:#2563eb;--primary-light:#eff6ff;--primary-dark:#1d4ed8;
+  --success:#059669;--success-light:#ecfdf5;
+  --danger:#dc2626;--danger-light:#fef2f2;
+  --warning:#d97706;--warning-light:#fffbeb;
+  --shadow:0 4px 24px rgba(37,99,235,.08);
+  --shadow-lg:0 12px 48px rgba(37,99,235,.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+
+/* LOGIN OVERLAY */
+#login-overlay{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#0f1523 0%,#1e3a8a 60%,#0f1523 100%);
+  padding:20px;
+}
+#login-overlay.hidden{display:none;}
+.login-card{
+  background:rgba(255,255,255,.05);backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.1);border-radius:28px;
+  padding:46px 38px;width:100%;max-width:390px;
+  box-shadow:0 32px 80px rgba(0,0,0,.5);
+}
+.brand-icon{width:68px;height:68px;margin:0 auto 14px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 8px 32px rgba(37,99,235,.4);}
+.brand-title{font-size:1.75rem;font-weight:800;color:#fff;letter-spacing:-.5px;text-align:center;}
+.brand-sub{font-size:.72rem;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;margin-top:3px;letter-spacing:1px;text-align:center;margin-bottom:28px;}
+.llbl{display:block;font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:6px;}
+.linput{width:100%;padding:13px 16px;margin-bottom:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:13px;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;}
+.linput::placeholder{color:rgba(255,255,255,.22);}
+.linput:focus{border-color:rgba(99,102,241,.6);}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;border-radius:13px;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(37,99,235,.35);transition:opacity .2s,transform .15s;}
+.login-btn:hover{opacity:.88;transform:translateY(-1px);}
+#login-err{margin-top:10px;padding:10px 14px;background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.3);border-radius:10px;color:#fca5a5;font-size:.8rem;text-align:center;display:none;}
+.login-hint{margin-top:16px;text-align:center;font-size:.68rem;color:rgba(255,255,255,.22);font-family:'JetBrains Mono',monospace;}
+
+/* MAIN APP */
+#main-app{display:none;}
+#main-app.visible{display:flex;flex-direction:column;min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(37,99,235,.06);}
+.tl{display:flex;align-items:center;gap:10px;}
+.ticon{width:32px;height:32px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;}
+.ttitle{font-size:.95rem;font-weight:800;letter-spacing:-.3px;}
+.tr{display:flex;align-items:center;gap:10px;}
+.uchip{display:flex;align-items:center;gap:7px;background:var(--primary-light);border:1px solid rgba(37,99,235,.15);border-radius:20px;padding:4px 12px 4px 7px;}
+.uav{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:700;color:#fff;}
+.unm{font-size:.75rem;font-weight:600;color:var(--primary);}
+.lout{padding:6px 12px;border-radius:9px;background:transparent;border:1px solid var(--border);font-family:'Outfit',sans-serif;font-size:.75rem;font-weight:600;color:var(--ink3);cursor:pointer;transition:all .15s;}
+.lout:hover{background:var(--danger-light);color:var(--danger);}
+
+/* CONTENT */
+.content{max-width:1100px;margin:0 auto;padding:24px 20px;width:100%;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.scard{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;}
+.sicon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.sicon.blue{background:var(--primary-light);}
+.sicon.green{background:var(--success-light);}
+.sicon.red{background:var(--danger-light);}
+.sicon.gold{background:#fffbeb;}
+.sval{font-size:1.5rem;font-weight:800;letter-spacing:-1px;line-height:1;}
+.slbl{font-size:.68rem;color:var(--ink3);font-weight:500;margin-top:2px;}
+
+/* PROGRESS BAR */
+.progress-wrap{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:20px;box-shadow:var(--shadow);}
+.progress-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.progress-label{font-size:.82rem;font-weight:700;}
+.progress-pct{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--success);font-weight:700;}
+.progress-bar{height:10px;background:var(--bg3);border-radius:99px;overflow:hidden;border:1px solid var(--border);}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--success),#34d399);border-radius:99px;transition:width .5s ease;}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.sbox{flex:1;min-width:160px;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:11px;padding:9px 13px;box-shadow:var(--shadow);}
+.sbox input{flex:1;border:none;outline:none;font-family:'Outfit',sans-serif;font-size:.85rem;color:var(--ink);background:transparent;}
+.sbox input::placeholder{color:var(--ink3);}
+.ftabs{display:flex;gap:3px;background:#fff;border:1px solid var(--border);border-radius:11px;padding:3px;box-shadow:var(--shadow);}
+.ftab{padding:6px 12px;border-radius:8px;font-size:.73rem;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--ink3);font-family:'Outfit',sans-serif;transition:all .15s;}
+.ftab.active{background:var(--primary);color:#fff;}
+.ftab:hover:not(.active){background:var(--bg3);}
+.tbtn{padding:8px 14px;border-radius:10px;font-family:'Outfit',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:#fff;color:var(--ink2);box-shadow:var(--shadow);white-space:nowrap;}
+.tbtn.primary{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 4px 14px rgba(37,99,235,.3);}
+.tbtn.primary:hover{background:var(--primary-dark);}
+
+/* ══════════════════════════════════════
+   STUDENT CARDS GRID — main view
+══════════════════════════════════════ */
+.cards-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:12px;
+}
+.stu-card{
+  background:#fff;
+  border:2px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;
+  box-shadow:var(--shadow);
+  transition:transform .2s,box-shadow .2s,border-color .2s;
+  position:relative;
+  overflow:hidden;
+}
+.stu-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+.stu-card.paid-card{border-color:var(--success);background:linear-gradient(135deg,#fff,#f0fdf4);}
+.stu-card.unpaid-card{border-color:var(--border);}
+
+/* Paid ribbon */
+.paid-ribbon{
+  position:absolute;top:10px;right:-22px;
+  background:var(--success);color:#fff;
+  font-size:.58rem;font-weight:800;
+  padding:3px 28px;
+  transform:rotate(35deg);
+  letter-spacing:.8px;
+}
+
+/* Card avatar */
+.card-av{
+  width:52px;height:52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;font-weight:800;color:#fff;
+  margin-bottom:10px;
+  box-shadow:0 4px 14px rgba(0,0,0,.15);
+  flex-shrink:0;
+}
+.card-num{
+  position:absolute;top:10px;left:10px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.62rem;color:var(--ink3);font-weight:500;
+}
+.card-id{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.62rem;color:var(--ink3);
+  margin-bottom:4px;
+}
+.card-name{
+  font-size:.82rem;font-weight:700;
+  line-height:1.3;margin-bottom:10px;
+  color:var(--ink);
+}
+.card-status{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:20px;
+  font-size:.68rem;font-weight:700;
+  margin-bottom:10px;
+}
+.card-status.paid{background:var(--success-light);color:var(--success);}
+.card-status.unpaid{background:var(--danger-light);color:var(--danger);}
+.sdot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+
+/* ONE-CLICK PAY BUTTON */
+.oneclick-btn{
+  width:100%;padding:10px;
+  background:linear-gradient(135deg,var(--success),#16a34a);
+  border:none;border-radius:10px;
+  color:#fff;font-family:'Outfit',sans-serif;
+  font-size:.8rem;font-weight:700;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(5,150,105,.3);
+  transition:opacity .15s,transform .1s;
+  letter-spacing:.2px;
+}
+.oneclick-btn:hover{opacity:.88;transform:scale(1.02);}
+.oneclick-btn:active{transform:scale(.97);}
+.oneclick-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+
+.paid-check{
+  width:100%;padding:9px;
+  background:var(--success-light);
+  border:1px solid rgba(5,150,105,.2);
+  border-radius:10px;
+  color:var(--success);font-family:'Outfit',sans-serif;
+  font-size:.8rem;font-weight:700;
+  cursor:default;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.card-actions{
+  display:flex;gap:5px;width:100%;margin-top:6px;
+}
+.ca-btn{
+  flex:1;padding:6px 4px;border-radius:8px;
+  font-family:'Outfit',sans-serif;font-size:.68rem;font-weight:600;
+  cursor:pointer;border:none;transition:all .15s;
+}
+.ca-btn.wa{background:#dcfce7;color:#15803d;}
+.ca-btn.wa:hover{background:#16a34a;color:#fff;}
+.ca-btn.det{background:var(--primary-light);color:var(--primary);}
+.ca-btn.det:hover{background:var(--primary);color:#fff;}
+.ca-btn.del{background:var(--danger-light);color:var(--danger);}
+.ca-btn.del:hover{background:var(--danger);color:#fff;}
+
+.empty-msg{
+  grid-column:1/-1;text-align:center;
+  padding:60px;color:var(--ink3);font-size:.88rem;
+}
+
+/* ══ MODALS ══ */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,21,35,.55);backdrop-filter:blur(5px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:22px;width:100%;max-width:460px;box-shadow:0 32px 80px rgba(0,0,0,.22);overflow:hidden;animation:mIn .22s cubic-bezier(.34,1.56,.64,1);}
+@keyframes mIn{from{opacity:0;transform:scale(.93) translateY(14px)}to{opacity:1;transform:none}}
+.mhdr{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.mtitle{font-size:1rem;font-weight:800;}
+.mclose{width:28px;height:28px;border-radius:50%;background:var(--bg3);border:none;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink3);transition:all .15s;}
+.mclose:hover{background:var(--danger-light);color:var(--danger);}
+.mbody{padding:20px 24px;}
+.mfooter{padding:12px 24px 20px;display:flex;gap:8px;justify-content:flex-end;}
+.mfield{margin-bottom:12px;}
+.mfield label{display:block;font-size:.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:5px;}
+.mfield input,.mfield select,.mfield textarea{width:100%;padding:10px 13px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--ink);font-family:'Outfit',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s,box-shadow .2s;}
+.mfield input:focus,.mfield select:focus,.mfield textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.mfield textarea{resize:vertical;min-height:90px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mbtn{padding:10px 20px;border-radius:10px;font-family:'Outfit',sans-serif;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .15s;border:none;}
+.mbtn.cancel{background:var(--bg3);color:var(--ink2);}
+.mbtn.cancel:hover{background:var(--border);}
+.mbtn.save{background:var(--primary);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3);}
+.mbtn.save:hover{background:var(--primary-dark);}
+.mbtn.wa{background:#25D366;color:#fff;}
+.mbtn.wa:hover{background:#128C7E;}
+
+/* Receipt */
+.receipt{background:linear-gradient(135deg,#0f1523,#1e3a8a);border-radius:14px;padding:20px;color:#fff;margin-bottom:12px;position:relative;overflow:hidden;}
+.receipt::before{content:'';position:absolute;top:-40px;right:-40px;width:130px;height:130px;background:rgba(255,255,255,.04);border-radius:50%;}
+.rhead{display:flex;justify-content:space-between;margin-bottom:16px;}
+.rlogo{font-size:.95rem;font-weight:800;}
+.rid{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.4);}
+.rname{font-size:1.3rem;font-weight:800;margin-bottom:2px;}
+.rsid{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:rgba(255,255,255,.4);margin-bottom:12px;}
+.rrow{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:.78rem;}
+.rrow:last-child{border-bottom:none;}
+.rl{color:rgba(255,255,255,.45);}
+.rv{font-weight:600;}
+.rstatus{margin-top:12px;text-align:center;padding:8px;border-radius:9px;font-size:.82rem;font-weight:700;}
+.rstatus.paid{background:rgba(5,150,105,.2);color:#34d399;}
+.rstatus.unpaid{background:rgba(220,38,38,.2);color:#f87171;}
+
+/* Pay hist */
+.phist{margin-top:12px;}
+.phist h4{font-size:.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;}
+.pitem{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--bg3);border-radius:8px;margin-bottom:4px;}
+.piinfo{font-size:.78rem;font-weight:500;}
+.pidate{font-size:.65rem;color:var(--ink3);font-family:'JetBrains Mono',monospace;}
+.piamt{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.85rem;color:var(--success);}
+
+/* WhatsApp */
+.wa-prev{background:#075E54;border-radius:12px;padding:16px;margin-top:12px;}
+.wa-prev h4{font-size:.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px;}
+.wa-bubble{background:#DCF8C6;color:#111;border-radius:12px 12px 12px 0;padding:11px 14px;font-size:.78rem;line-height:1.6;white-space:pre-wrap;word-break:break-word;}
+
+/* Toast */
+.toast{position:fixed;bottom:22px;right:22px;z-index:99999;padding:11px 17px;border-radius:11px;font-size:.82rem;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,.2);display:none;animation:tIn .22s ease;}
+@keyframes tIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.toast.show{display:block;}
+.toast.ok{background:var(--success);color:#fff;}
+.toast.err{background:var(--danger);color:#fff;}
+.toast.info{background:var(--primary);color:#fff;}
+
+/* Confirm overlay */
+#confirm-overlay{position:fixed;inset:0;background:rgba(15,21,35,.6);backdrop-filter:blur(4px);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px;}
+#confirm-overlay.open{display:flex;}
+.confirm-box{background:#fff;border-radius:20px;padding:30px;max-width:360px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.25);animation:mIn .2s ease;}
+.confirm-icon{font-size:2.5rem;margin-bottom:12px;}
+.confirm-title{font-size:1.1rem;font-weight:800;margin-bottom:6px;}
+.confirm-sub{font-size:.85rem;color:var(--ink3);margin-bottom:22px;line-height:1.5;}
+.confirm-btns{display:flex;gap:10px;justify-content:center;}
+.cbtn{padding:11px 26px;border-radius:11px;font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;border:none;transition:all .15s;}
+.cbtn.no{background:var(--bg3);color:var(--ink2);}
+.cbtn.no:hover{background:var(--border);}
+.cbtn.yes{background:var(--success);color:#fff;box-shadow:0 4px 14px rgba(5,150,105,.3);}
+.cbtn.yes:hover{background:#047857;}
+
+@media(max-width:600px){
+  .content{padding:14px;}
+  .topbar{padding:0 14px;}
+  .cards-grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;}
+  .row2{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-overlay">
+  <div class="login-card">
+    <div class="brand-icon">🎓</div>
+    <div class="brand-title">EduPay</div>
+    <div class="brand-sub">// FASALKA 4B — LACAGAHA IMTIXAANKA</div>
+    <label class="llbl">Magaca Macalinka</label>
+    <input class="linput" id="l-name" type="text" placeholder="Magacaaga..." autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <label class="llbl">Password</label>
+    <input class="linput" id="l-pwd" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="login-btn" onclick="doLogin()">Gal →</button>
+    <div id="login-err">❌ Magaca ama password-ka waa khalad.</div>
+    <div class="login-hint">Farhan Xarbi • Ismail Faahiye</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main-app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="tl">
+      <div class="ticon">🎓</div>
+      <div class="ttitle">EduPay — Fasalka 4B</div>
+    </div>
+    <div class="tr">
+      <div class="uchip"><div class="uav" id="u-av">IF</div><span class="unm" id="u-nm">Ismail</span></div>
+      <button class="lout" onclick="doLogout()">Ka Bax</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="scard"><div class="sicon blue">👥</div><div><div class="sval" id="st-total">0</div><div class="slbl">Wadarta Ardayda</div></div></div>
+      <div class="scard"><div class="sicon green">✅</div><div><div class="sval" id="st-paid">0</div><div class="slbl">Bixiyay</div></div></div>
+      <div class="scard"><div class="sicon red">❌</div><div><div class="sval" id="st-unpaid">0</div><div class="slbl">Ma Bixin</div></div></div>
+      <div class="scard"><div class="sicon gold">💰</div><div><div class="sval" id="st-amt">$0</div><div class="slbl">La Ururiyay</div></div></div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-wrap">
+      <div class="progress-head">
+        <div class="progress-label">📊 Horumarinta Bixinta</div>
+        <div class="progress-pct" id="prog-pct">0%</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="sbox">
+        <span>🔍</span>
+        <input id="s-inp" type="text" placeholder="Raadi magac ama ID..." oninput="renderCards()"/>
+      </div>
+      <div class="ftabs">
+        <button class="ftab active" onclick="setF('all',this)">Dhammaan</button>
+        <button class="ftab" onclick="setF('paid',this)">✅ Bixiyay</button>
+        <button class="ftab" onclick="setF('unpaid',this)">❌ Ma Bixin</button>
+      </div>
+      <button class="tbtn primary" onclick="openAdd()">+ Arday</button>
+    </div>
+
+    <!-- CARDS -->
+    <div class="cards-grid" id="cards-grid">
+      <div class="empty-msg">⏳ Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">💳</div>
+    <div class="confirm-title" id="conf-title">Lacag Bixin?</div>
+    <div class="confirm-sub" id="conf-sub">Miyaad xaqiijisaa lacagta?</div>
+    <div class="confirm-btns">
+      <button class="cbtn no" onclick="closeConfirm()">Jooji</button>
+      <button class="cbtn yes" id="conf-yes" onclick="confirmPay()">✓ Haa, Bixin</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD -->
+<div class="modal-overlay" id="m-add">
+  <div class="modal">
+    <div class="mhdr"><div class="mtitle">➕ Arday Cusub</div><button class="mclose" onclick="closeM('m-add')">✕</button></div>
+    <div class="mbody">
+      <div class="row2">
+        <div class="mfield"><label>Magaca Hore</label><input id="a-fn" type="text" placeholder="Axmed"/></div>
+        <div class="mfield"><label>Magaca Dambe</label><input id="a-ln" type="text" placeholder="Cali"/></div>
+      </div>
+      <div class="row2">
+        <div class="mfield"><label>Lacagta ($)</label><input id="a-amt" type="number" value="5" min="0"/></div>
+        <div class="mfield"><label>Fasalka</label><input id="a-cls" type="text" value="4B"/></div>
+      </div>
+      <div class="mfield"><label>Telefoon WhatsApp</label><input id="a-ph" type="tel" placeholder="+252611234567"/></div>
+    </div>
+    <div class="mfooter">
+      <button class="mbtn cancel" onclick="closeM('m-add')">Jooji</button>
+      <button class="mbtn save" onclick="saveStudent()">💾 Kaydi</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RECEIPT -->
+<div class="modal-overlay" id="m-receipt">
+  <div class="modal">
+    <div class="mhdr"><div class="mtitle">🧾 Khaarka Arday</div><button class="mclose" onclick="closeM('m-receipt')">✕</button></div>
+    <div class="mbody"><div id="receipt-body"></div></div>
+    <div class="mfooter"><button class="mbtn cancel" onclick="closeM('m-receipt')">Xidh</button></div>
+  </div>
+</div>
+
+<!-- MODAL: WHATSAPP -->
+<div class="modal-overlay" id="m-wa">
+  <div class="modal">
+    <div class="mhdr"><div class="mtitle">📱 WhatsApp U Dir</div><button class="mclose" onclick="closeM('m-wa')">✕</button></div>
+    <div class="mbody">
+      <div class="mfield"><label>Telefoon Number</label><input id="wa-ph" type="tel" placeholder="+252611234567"/></div>
+      <div class="mfield"><label>Fariinta</label><textarea id="wa-msg" rows="6"></textarea></div>
+      <div class="wa-prev"><h4>👁 Preview</h4><div class="wa-bubble" id="wa-prev-txt"></div></div>
+    </div>
+    <div class="mfooter">
+      <button class="mbtn cancel" onclick="closeM('m-wa')">Jooji</button>
+      <button class="mbtn wa" onclick="sendWA()">📤 Dir</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════ CONFIG ═══════════════
+const SB  = 'https://ruwubnzfbfuhxovrecgl.supabase.co/rest/v1';
+const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1d3VibnpmYmZ1aHhvdnJlY2dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM3NzUsImV4cCI6MjA5NTM2OTc3NX0.xs-TBKIWcfXYdphXBaJMAXKUVHPtXUeBoYFlYITDtIU';
+const H   = {'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+
+const TEACHERS={
+  'farhan xarbi':  {pwd:'farhan123',display:'Farhan Xarbi',  init:'FX'},
+  'ismail faahiye':{pwd:'ismail123',display:'Ismail Faahiye',init:'IF'},
+};
+
+// ═══════════════ STATE ═══════════════
+let me=null, all=[], filter='all', pendingId=null;
+
+// ═══════════════ API ═══════════════
+async function GET(t,q=''){const r=await fetch(`${SB}/${t}?${q}`,{headers:H});return r.json();}
+async function POST(t,b){const r=await fetch(`${SB}/${t}`,{method:'POST',headers:H,body:JSON.stringify(b)});return{ok:r.ok,data:await r.json()};}
+async function PATCH(t,q,b){const r=await fetch(`${SB}/${t}?${q}`,{method:'PATCH',headers:H,body:JSON.stringify(b)});return{ok:r.ok};}
+async function DEL(t,q){await fetch(`${SB}/${t}?${q}`,{method:'DELETE',headers:H});}
+
+// ═══════════════ UTILS ═══════════════
+const AVC=['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#14b8a6','#f97316','#06b6d4'];
+function avc(s=''){let h=0;for(let i=0;i<s.length;i++)h=s.charCodeAt(i)+((h<<5)-h);return AVC[Math.abs(h)%AVC.length];}
+function ini(n=''){return n.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmt(n){return Number(n||0).toLocaleString();}
+
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show '+type;
+  setTimeout(()=>{t.className='toast';},3000);
+}
+
+// ═══════════════ LOGIN ═══════════════
+function doLogin(){
+  const name=document.getElementById('l-name').value.trim().toLowerCase();
+  const pwd =document.getElementById('l-pwd').value.trim();
+  const t=TEACHERS[name];
+  if(!t||t.pwd!==pwd){document.getElementById('login-err').style.display='block';return;}
+  me={name:t.display,init:t.init};
+  document.getElementById('u-av').textContent=t.init;
+  document.getElementById('u-nm').textContent=t.display;
+  document.getElementById('login-overlay').classList.add('hidden');
+  document.getElementById('main-app').classList.add('visible');
+  document.getElementById('login-err').style.display='none';
+  load();
+}
+function doLogout(){
+  me=null;all=[];
+  document.getElementById('login-overlay').classList.remove('hidden');
+  document.getElementById('main-app').classList.remove('visible');
+  document.getElementById('l-name').value='';
+  document.getElementById('l-pwd').value='';
+}
+
+// ═══════════════ LOAD ═══════════════
+async function load(){
+  try{
+    const d=await GET('exam_students','order=student_id.asc');
+    if(!Array.isArray(d)){toast('Khalad: '+JSON.stringify(d),'err');return;}
+    all=d;
+    renderStats();renderCards();
+  }catch(e){toast('Network khalad: '+e.message,'err');}
+}
+
+// ═══════════════ STATS & PROGRESS ═══════════════
+function renderStats(){
+  const total=all.length;
+  const paid=all.filter(s=>s.status==='paid').length;
+  const unpaid=all.filter(s=>s.status!=='paid').length;
+  const collected=all.reduce((a,s)=>a+(Number(s.paid_amount)||0),0);
+  document.getElementById('st-total').textContent=total;
+  document.getElementById('st-paid').textContent=paid;
+  document.getElementById('st-unpaid').textContent=unpaid;
+  document.getElementById('st-amt').textContent='$'+fmt(collected);
+  const pct=total>0?Math.round(paid/total*100):0;
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+
+// ═══════════════ FILTER ═══════════════
+function setF(f,el){
+  filter=f;
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');renderCards();
+}
+
+// ═══════════════ RENDER CARDS ═══════════════
+function renderCards(){
+  const q=document.getElementById('s-inp').value.toLowerCase().trim();
+  let rows=all;
+  if(filter==='paid') rows=rows.filter(s=>s.status==='paid');
+  else if(filter==='unpaid') rows=rows.filter(s=>s.status!=='paid');
+  if(q) rows=rows.filter(s=>(s.full_name||'').toLowerCase().includes(q)||(s.student_id||'').toLowerCase().includes(q));
+
+  const grid=document.getElementById('cards-grid');
+  if(!rows.length){
+    grid.innerHTML='<div class="empty-msg">📭 Arday lama helin</div>';return;
+  }
+
+  // Find the original index for numbering
+  grid.innerHTML=rows.map(s=>{
+    const isPaid=s.status==='paid';
+    const c=avc(s.student_id||'');
+    const origIdx=all.findIndex(x=>x.id===s.id)+1;
+    return `
+    <div class="stu-card ${isPaid?'paid-card':'unpaid-card'}" id="card-${s.id}">
+      ${isPaid?'<div class="paid-ribbon">BIXIYAY</div>':''}
+      <div class="card-num">#${origIdx}</div>
+      <div class="card-av" style="background:${c}">${ini(s.full_name)}</div>
+      <div class="card-id">${esc(s.student_id)}</div>
+      <div class="card-name">${esc(s.full_name)}</div>
+      <div class="card-status ${isPaid?'paid':'unpaid'}">
+        <span class="sdot"></span>${isPaid?'✅ Bixiyay':'❌ Ma Bixin'}
+      </div>
+      ${isPaid
+        ? `<div class="paid-check">✓ $${fmt(s.paid_amount)} La Bixiyay</div>`
+        : `<button class="oneclick-btn" id="btn-${s.id}" onclick="quickPay('${s.id}')">
+             💳 Bixin $${fmt(s.total_amount)}
+           </button>`
+      }
+      <div class="card-actions">
+        <button class="ca-btn wa" onclick="openWA('${s.id}')">📱 WA</button>
+        <button class="ca-btn det" onclick="openReceipt('${s.id}')">🧾</button>
+        <button class="ca-btn del" onclick="delStudent('${s.id}','${esc(s.full_name)}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════ QUICK PAY (one-click) ═══════════════
+function quickPay(id){
+  const s=all.find(x=>x.id===id);if(!s)return;
+  pendingId=id;
+  document.getElementById('conf-title').textContent='💳 Lacag Bixin — '+s.full_name;
+  document.getElementById('conf-sub').textContent=
+    `Arday ID: ${s.student_id}\nMiyaad xaqiijisaa $${fmt(s.total_amount)} lacagta imtixaanka?`;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+
+async function confirmPay(){
+  if(!pendingId)return;
+  const s=all.find(x=>x.id===pendingId);if(!s)return;
+  // Disable button
+  const btn=document.getElementById('btn-'+pendingId);
+  if(btn){btn.disabled=true;btn.textContent='⏳ Sugaya...';}
+  document.getElementById('confirm-overlay').classList.remove('open');
+
+  // Record payment
+  await POST('exam_payments',{
+    student_id:pendingId,
+    amount:s.total_amount,
+    method:'Lacag Guri',
+    note:'One-click payment',
+    recorded_by:me.name
+  });
+  // Update student
+  const {ok}=await PATCH('exam_students',`id=eq.${pendingId}`,{
+    paid_amount:s.total_amount,
+    status:'paid'
+  });
+  if(!ok){toast('Khalad dhacay','err');return;}
+  toast('✅ '+s.full_name+' — lacagta waad diiwaangashisay!','ok');
+  pendingId=null;
+  await load();
+}
+
+function closeConfirm(){
+  pendingId=null;
+  document.getElementById('confirm-overlay').classList.remove('open');
+}
+
+// ═══════════════ ADD STUDENT ═══════════════
+function openAdd(){
+  ['a-fn','a-ln'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('a-amt').value='5';
+  document.getElementById('a-cls').value='4B';
+  document.getElementById('a-ph').value='';
+  openM('m-add');
+}
+async function saveStudent(){
+  const fn=document.getElementById('a-fn').value.trim();
+  const ln=document.getElementById('a-ln').value.trim();
+  const amt=parseFloat(document.getElementById('a-amt').value)||0;
+  const cls=document.getElementById('a-cls').value.trim();
+  const ph=document.getElementById('a-ph').value.trim();
+  if(!fn||!ln){toast('Magaca buuxi','err');return;}
+  if(amt<=0){toast('Lacagta geli','err');return;}
+  const full_name=fn+' '+ln;
+  const n=all.length+1;
+  const student_id=`4B-${String(n).padStart(3,'0')}`;
+  const {ok,data}=await POST('exam_students',{student_id,full_name,total_amount:amt,paid_amount:0,status:'unpaid',class_name:cls||null,phone:ph||null});
+  if(!ok){toast('Khalad: '+JSON.stringify(data),'err');return;}
+  toast('✅ Arday waad kusidday!','ok');
+  closeM('m-add');load();
+}
+
+// ═══════════════ RECEIPT ═══════════════
+async function openReceipt(id){
+  const s=all.find(x=>x.id===id);if(!s)return;
+  const rem=(Number(s.total_amount)||0)-(Number(s.paid_amount)||0);
+  const sl=s.status==='paid'?'✅ LACAGTA BUUXDA LA BIXIYAY':'❌ LACAGTA WELI LA BIXIN';
+  let hh='';
+  try{
+    const h=await GET('exam_payments',`student_id=eq.${id}&order=created_at.desc`);
+    if(Array.isArray(h)&&h.length){
+      hh='<div class="phist"><h4>Taariikhda</h4>'+
+        h.map(p=>`<div class="pitem"><div><div class="piinfo">💳 ${esc(p.method||'')}</div><div class="pidate">${new Date(p.created_at).toLocaleString()}</div></div><div class="piamt">+$${fmt(p.amount)}</div></div>`).join('')+'</div>';
+    }
+  }catch{}
+  document.getElementById('receipt-body').innerHTML=`
+    <div class="receipt">
+      <div class="rhead"><div class="rlogo">🎓 EduPay</div><div class="rid">#${esc(s.student_id)}</div></div>
+      <div class="rname">${esc(s.full_name)}</div>
+      <div class="rsid">ID: ${esc(s.student_id)}${s.class_name?' • Fasalka '+esc(s.class_name):''}</div>
+      <div class="rrow"><span class="rl">Lacagta Buuxda</span><span class="rv">$${fmt(s.total_amount)}</span></div>
+      <div class="rrow"><span class="rl">La Bixiyay</span><span class="rv" style="color:#34d399">$${fmt(s.paid_amount)}</span></div>
+      <div class="rrow"><span class="rl">Hadhay</span><span class="rv" style="color:#f87171">$${fmt(rem)}</span></div>
+      <div class="rstatus ${s.status==='paid'?'paid':'unpaid'}">${sl}</div>
+    </div>${hh}`;
+  openM('m-receipt');
+}
+
+// ═══════════════ WHATSAPP ═══════════════
+function openWA(id){
+  const s=all.find(x=>x.id===id);if(!s)return;
+  const rem=(Number(s.total_amount)||0)-(Number(s.paid_amount)||0);
+  const stxt=s.status==='paid'?'✅ LACAGTA BUUXDA WAAD BIXISAY — MAHADSANID!':`❌ LACAGTA WELI LAMA BIXIN\n💡 Fadlan $${fmt(rem)} bixin si aad u qeyb qaadato imtixaanka.`;
+  const msg=`🎓 *EduPay — Xogta Imtixaankaaga*\n━━━━━━━━━━━━━━━━━\n👤 *Magac:* ${s.full_name}\n🪪 *ID:* ${s.student_id}\n🏫 *Fasalka:* ${s.class_name||'4B'}\n━━━━━━━━━━━━━━━━━\n💰 *Lacagta:* $${fmt(s.total_amount)}\n✅ *Bixiyay:* $${fmt(s.paid_amount)}\n❗ *Hadhay:* $${fmt(rem)}\n━━━━━━━━━━━━━━━━━\n${stxt}\n\n📅 ${new Date().toLocaleDateString()}\n_EduPay — Fasalka 4B_`;
+  document.getElementById('wa-ph').value=s.phone||'';
+  document.getElementById('wa-msg').value=msg;
+  document.getElementById('wa-prev-txt').textContent=msg;
+  document.getElementById('wa-msg').oninput=function(){document.getElementById('wa-prev-txt').textContent=this.value;};
+  openM('m-wa');
+}
+function sendWA(){
+  let ph=document.getElementById('wa-ph').value.trim();
+  const msg=document.getElementById('wa-msg').value.trim();
+  if(!ph){toast('Number geli','err');return;}
+  ph=ph.replace(/[\s\-\(\)]/g,'');
+  if(ph.startsWith('+')){ph=ph.slice(1);}
+  else if(ph.startsWith('0')){ph='252'+ph.slice(1);}
+  else if(!ph.startsWith('252')){ph='252'+ph;}
+  window.open('https://wa.me/'+ph+'?text='+encodeURIComponent(msg),'_blank');
+  toast('📤 WhatsApp waa la furay!','info');
+  closeM('m-wa');
+}
+
+// ═══════════════ DELETE ═══════════════
+async function delStudent(id,name){
+  if(!confirm('Tirtir: '+name+'?'))return;
+  await DEL('exam_payments',`student_id=eq.${id}`);
+  await DEL('exam_students',`id=eq.${id}`);
+  toast('🗑 Waa la tirtirlay','ok');load();
+}
+
+// ═══════════════ MODALS ═══════════════
+function openM(id){document.getElementById(id).classList.add('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(el=>{
+  el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});
+});
+</script>
+</body>
+</html>
