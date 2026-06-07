@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ShopNest — Online Shop Website</title>
+<style>
+  :root{
+    --pink:#e6007e;
+    --pink-dark:#b8005f;
+    --pink-light:#fde8f2;
+    --ink:#222831;
+    --ink2:#6b7280;
+    --border:#f1d6e6;
+    --bg:#fff;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;}
+  a{text-decoration:none;color:inherit;}
+  ul{list-style:none;}
+  img,svg{display:block;max-width:100%;}
+  .container{max-width:1180px;margin:0 auto;padding:0 24px;}
+  .btn{
+    display:inline-block;border:none;border-radius:6px;font-weight:600;cursor:pointer;
+    padding:12px 28px;font-size:.95rem;transition:transform .15s ease,box-shadow .15s ease;
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn-primary{background:var(--pink);color:#fff;box-shadow:0 6px 16px rgba(230,0,126,.35);}
+  .btn-primary:hover{background:var(--pink-dark);}
+  .btn-light{background:#fff;color:var(--pink);}
+  .btn-light:hover{background:var(--pink-light);}
+
+  /* HEADER */
+  header{border-bottom:1px solid var(--border);}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 0;}
+  .logo{display:flex;align-items:center;gap:12px;}
+  .logo-badge{
+    width:46px;height:46px;border-radius:12px;background:var(--pink);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+  }
+  .logo-text h1{font-size:1.35rem;color:var(--pink);letter-spacing:.5px;}
+  .logo-text span{font-size:.72rem;color:var(--ink2);}
+  nav ul{display:flex;gap:32px;}
+  nav a{font-weight:600;font-size:.92rem;letter-spacing:.5px;color:var(--ink);}
+  nav a:hover{color:var(--pink);}
+  .cart{position:relative;font-size:1.4rem;color:var(--pink);}
+  .cart .badge{
+    position:absolute;top:-8px;right:-10px;background:var(--pink);color:#fff;
+    font-size:.65rem;font-weight:700;border-radius:50%;width:20px;height:20px;
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  /* HERO */
+  .hero{background:linear-gradient(120deg,var(--pink-light) 55%,#fff 55%);}
+  .hero-inner{display:flex;align-items:center;gap:40px;padding:64px 0;}
+  .hero-text{flex:1;}
+  .hero-text h2{font-size:2.5rem;color:var(--ink);margin-bottom:16px;line-height:1.2;}
+  .hero-text h2 span{color:var(--pink);}
+  .hero-text p{color:var(--ink2);margin-bottom:28px;max-width:420px;}
+  .hero-art{flex:1;display:flex;justify-content:center;}
+  .hero-art .scene{position:relative;width:340px;height:240px;}
+  .cart-icon{
+    position:absolute;left:0;bottom:0;width:120px;height:110px;
+    border:8px solid var(--pink);border-top:none;border-radius:0 0 14px 14px;
+  }
+  .cart-icon::before{
+    content:"";position:absolute;top:-32px;left:-26px;width:60px;height:24px;
+    border:8px solid var(--pink);border-bottom:none;border-radius:14px 14px 0 0;
+    transform:rotate(-25deg);
+  }
+  .cart-icon::after{content:"";position:absolute;bottom:-16px;left:14px;width:18px;height:18px;border-radius:50%;background:var(--pink);box-shadow:70px 0 0 var(--pink);}
+  .bag{position:absolute;bottom:6px;width:78px;height:96px;border-radius:8px;}
+  .bag::before{content:"";position:absolute;top:-22px;left:18px;width:42px;height:30px;border:6px solid inherit;border-bottom:none;border-radius:18px 18px 0 0;}
+  .bag1{background:#ff6b6b;left:120px;height:108px;z-index:2;}
+  .bag1::before{border-color:#ff6b6b;}
+  .bag2{background:#ffc24b;left:185px;height:90px;z-index:1;}
+  .bag2::before{border-color:#ffc24b;}
+  .bag3{background:var(--pink);left:245px;height:118px;z-index:3;}
+  .bag3::before{border-color:var(--pink);}
+  .bag4{background:#3ec6c6;left:302px;height:84px;z-index:1;}
+  .bag4::before{border-color:#3ec6c6;}
+
+  /* MAIN LAYOUT */
+  main{padding:56px 0;}
+  .layout{display:flex;gap:36px;align-items:flex-start;}
+  aside{flex:0 0 220px;}
+  .panel-title{font-size:1.05rem;font-weight:700;margin-bottom:18px;color:var(--ink);}
+  .cat-list li{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:8px;margin-bottom:6px;cursor:pointer;transition:background .15s;}
+  .cat-list li:hover{background:var(--pink-light);color:var(--pink);}
+  .cat-icon{width:34px;height:34px;border-radius:8px;background:var(--pink-light);color:var(--pink);
+    display:flex;align-items:center;justify-content:center;font-size:1.05rem;}
+  .content{flex:1;}
+  .content > .panel-title{display:flex;align-items:baseline;justify-content:space-between;}
+  .content > .panel-title small{font-weight:400;font-size:.8rem;color:var(--ink2);}
+
+  .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
+  .product-card{
+    border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;
+    transition:box-shadow .2s ease,transform .2s ease;
+  }
+  .product-card:hover{box-shadow:0 12px 28px rgba(230,0,126,.15);transform:translateY(-4px);}
+  .product-thumb{
+    height:96px;border-radius:10px;background:var(--pink-light);
+    display:flex;align-items:center;justify-content:center;font-size:2.1rem;margin-bottom:14px;
+  }
+  .product-card h4{font-size:.98rem;margin-bottom:6px;}
+  .product-card .price{color:var(--pink);font-weight:700;margin-bottom:14px;}
+  .add-cart{width:100%;background:var(--pink-light);color:var(--pink);border:none;border-radius:6px;
+    padding:9px 0;font-weight:600;font-size:.85rem;cursor:pointer;transition:background .15s,color .15s;}
+  .add-cart:hover{background:var(--pink);color:#fff;}
+
+  /* NEWSLETTER */
+  .newsletter{
+    margin-top:46px;background:linear-gradient(120deg,var(--pink),var(--pink-dark));
+    border-radius:14px;padding:34px 40px;color:#fff;display:flex;align-items:center;
+    justify-content:space-between;gap:24px;flex-wrap:wrap;
+  }
+  .newsletter h3{font-size:1.25rem;margin-bottom:6px;}
+  .newsletter p{font-size:.9rem;color:rgba(255,255,255,.85);}
+  .newsletter form{display:flex;gap:10px;flex-wrap:wrap;}
+  .newsletter input{
+    border:none;border-radius:6px;padding:12px 16px;font-size:.9rem;min-width:230px;
+  }
+  .newsletter input:focus{outline:2px solid #fff;}
+  .newsletter .btn-light{padding:12px 26px;}
+
+  /* FOOTER */
+  footer{background:var(--ink);color:#fff;margin-top:60px;}
+  .footer-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px;padding:26px 0;
+    border-bottom:1px solid rgba(255,255,255,.12);font-size:.9rem;color:rgba(255,255,255,.8);}
+  .footer-top span{display:flex;align-items:center;gap:8px;}
+  .footer-bottom{text-align:center;padding:18px 0;font-size:.82rem;color:rgba(255,255,255,.6);}
+
+  @media (max-width:960px){
+    .hero{background:var(--pink-light);}
+    .hero-inner{flex-direction:column;text-align:center;}
+    .hero-text p{margin-left:auto;margin-right:auto;}
+    .layout{flex-direction:column;}
+    aside{flex:none;width:100%;}
+    .cat-list{display:flex;flex-wrap:wrap;gap:10px;}
+    .cat-list li{flex:1 0 30%;justify-content:center;}
+    .product-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:600px){
+    nav{display:none;}
+    .product-grid{grid-template-columns:1fr 1fr;}
+    .hero-text h2{font-size:2rem;}
+    .footer-top{flex-direction:column;text-align:center;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container topbar">
+    <div class="logo">
+      <div class="logo-badge">🛍️</div>
+      <div class="logo-text">
+        <h1>ShopNest</h1>
+        <span>Shop Smart, Live Better</span>
+      </div>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#about">ABOUT US</a></li>
+        <li><a href="#products">PRODUCTS</a></li>
+        <li><a href="#offers">OFFERS</a></li>
+        <li><a href="#contact">CONTACT</a></li>
+      </ul>
+    </nav>
+    <a href="#cart" class="cart" aria-label="Cart">🛒<span class="badge">3</span></a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="hero-text">
+      <h2>Best Quality Products <span>At Best Prices</span></h2>
+      <p>Shop your favorite products at the best prices.</p>
+      <a href="#products" class="btn btn-primary">Shop Now</a>
+    </div>
+    <div class="hero-art">
+      <div class="scene">
+        <div class="cart-icon"></div>
+        <div class="bag bag1"></div>
+        <div class="bag bag2"></div>
+        <div class="bag bag3"></div>
+        <div class="bag bag4"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="container">
+  <div class="layout">
+    <aside id="about">
+      <h3 class="panel-title">Categories</h3>
+      <ul class="cat-list">
+        <li><span class="cat-icon">💻</span> Electronics</li>
+        <li><span class="cat-icon">👗</span> Fashion</li>
+        <li><span class="cat-icon">🏠</span> Home &amp; Living</li>
+        <li><span class="cat-icon">🎒</span> Accessories</li>
+        <li><span class="cat-icon">💄</span> Beauty</li>
+      </ul>
+    </aside>
+
+    <div class="content" id="products">
+      <h3 class="panel-title">Featured Products <small>Handpicked just for you</small></h3>
+      <div class="product-grid">
+        <div class="product-card">
+          <div class="product-thumb">🎧</div>
+          <h4>Headphones</h4>
+          <div class="price">$30.00</div>
+          <button class="add-cart">Add to Cart</button>
+        </div>
+        <div class="product-card">
+          <div class="product-thumb">⌚</div>
+          <h4>Smart Watch</h4>
+          <div class="price">$45.00</div>
+          <button class="add-cart">Add to Cart</button>
+        </div>
+        <div class="product-card">
+          <div class="product-thumb">🎒</div>
+          <h4>Backpack</h4>
+          <div class="price">$40.00</div>
+          <button class="add-cart">Add to Cart</button>
+        </div>
+        <div class="product-card">
+          <div class="product-thumb">👟</div>
+          <h4>Sneakers</h4>
+          <div class="price">$55.00</div>
+          <button class="add-cart">Add to Cart</button>
+        </div>
+      </div>
+
+      <div class="newsletter" id="offers">
+        <div>
+          <h3>Newsletter</h3>
+          <p>Subscribe to get updates on new products and offers.</p>
+        </div>
+        <form onsubmit="return false;">
+          <input type="email" placeholder="Your Email" required />
+          <button type="submit" class="btn btn-light">Subscribe</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer id="contact">
+  <div class="container footer-top">
+    <span>📍 123 Market Street, Shop City</span>
+    <span>📞 +123 456 7890</span>
+    <span>✉️ support@shopnest.com</span>
+  </div>
+  <div class="footer-bottom">© 2025 ShopNest. All Rights Reserved.</div>
+</footer>
+
+</body>
+</html>
