@@ -4,6 +4,7 @@ import '../../core/widgets/dashboard_shell.dart';
 import '../../core/widgets/section_placeholder.dart';
 import '../../core/widgets/stat_card.dart';
 import '../../models/app_user.dart';
+import '../billing/billing_page.dart';
 import '../settings/settings_page.dart';
 import 'widgets/highlight_banner.dart';
 import 'widgets/overview_page.dart';
@@ -11,7 +12,7 @@ import 'widgets/overview_page.dart';
 /// Platform-wide control center for [AppRole.superAdmin].
 ///
 /// Order must mirror `NavItems.forRole(AppRole.superAdmin)`:
-/// Dashboard, Students, Risk Score, Payments, Settings.
+/// Dashboard, Students, Risk Score, Payments, Billing, Settings.
 class SuperAdminDashboard extends StatelessWidget {
   final AppUser user;
 
@@ -42,6 +43,7 @@ class SuperAdminDashboard extends StatelessWidget {
         const SectionPlaceholder(titleKey: 'students', icon: Icons.groups_2_rounded, gradient: AppColors.heroGradient),
         const SectionPlaceholder(titleKey: 'riskScore', icon: Icons.insights_rounded, gradient: AppColors.riskHighGradient),
         const SectionPlaceholder(titleKey: 'payments', icon: Icons.payments_rounded, gradient: AppColors.riskLowGradient),
+        const BillingPage(),
         SettingsPage(user: user, roleLabelKey: 'role_super_admin'),
       ],
     );

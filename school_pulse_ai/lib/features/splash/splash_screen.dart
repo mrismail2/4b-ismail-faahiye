@@ -27,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   void initState() {
     super.initState();
     Future.delayed(const Duration(milliseconds: 1700), () {
-      if (mounted) context.go('/login');
+      if (mounted) context.go('/welcome');
     });
   }
 

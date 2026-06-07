@@ -8,6 +8,8 @@ import '../../features/dashboards/school_admin_dashboard.dart';
 import '../../features/dashboards/student_dashboard.dart';
 import '../../features/dashboards/super_admin_dashboard.dart';
 import '../../features/dashboards/teacher_dashboard.dart';
+import '../../features/marketing/landing_page.dart';
+import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/splash/splash_screen.dart';
 import '../../services/auth_service.dart';
 import 'role_redirect.dart';
@@ -25,17 +27,25 @@ GoRouter buildRouter(AuthService auth) {
   return GoRouter(
     initialLocation: '/',
     refreshListenable: auth,
-    redirect: (context, state) {
+    redirect: (context, state) async {
       final loggedIn = auth.isAuthenticated;
       final path = state.matchedLocation;
-      final isAuthRoute = path == '/login' || path == '/';
+      final isAuthRoute = path == '/login' || path == '/' || path == '/welcome';
 
       if (!loggedIn) {
         return isAuthRoute ? null : '/login';
       }
 
       final home = roleHomeRoute(auth.currentUser!.role);
-      if (path == '/login' || path == '/') return home;
+
+      // First-time sign-ins see a short welcome tour before their dashboard.
+      final seenOnboarding = await OnboardingScreen.hasBeenSeen();
+      if (!seenOnboarding) {
+        return path == '/onboarding' ? null : '/onboarding';
+      }
+      if (path == '/login' || path == '/' || path == '/welcome' || path == '/onboarding') {
+        return home;
+      }
 
       // Lock each dashboard route to its matching role.
       const ownerByRoute = {
@@ -54,6 +64,8 @@ GoRouter buildRouter(AuthService auth) {
     },
     routes: [
       GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
+      GoRoute(path: '/welcome', builder: (context, state) => const LandingPage()),
+      GoRoute(path: '/onboarding', builder: (context, state) => OnboardingScreen(auth: auth)),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/super-admin',

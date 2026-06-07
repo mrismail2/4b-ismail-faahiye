@@ -129,6 +129,10 @@ class AppStrings {
       AppLanguage.english: 'Settings',
       AppLanguage.somali: 'Dejinta',
     },
+    'billing': {
+      AppLanguage.english: 'Billing',
+      AppLanguage.somali: 'Lacag-bixinta',
+    },
     'logout': {
       AppLanguage.english: 'Log out',
       AppLanguage.somali: 'Ka bax',

@@ -4,6 +4,7 @@ import '../../core/widgets/dashboard_shell.dart';
 import '../../core/widgets/section_placeholder.dart';
 import '../../core/widgets/stat_card.dart';
 import '../../models/app_user.dart';
+import '../billing/billing_page.dart';
 import '../settings/settings_page.dart';
 import 'widgets/highlight_banner.dart';
 import 'widgets/overview_page.dart';
@@ -11,7 +12,7 @@ import 'widgets/overview_page.dart';
 /// School Intelligence Dashboard for [AppRole.schoolAdmin].
 ///
 /// Order must mirror `NavItems.forRole(AppRole.schoolAdmin)`:
-/// Dashboard, Students, Risk Score, Attendance, Payments, Settings.
+/// Dashboard, Students, Risk Score, Attendance, Payments, Billing, Settings.
 class SchoolAdminDashboard extends StatelessWidget {
   final AppUser user;
 
@@ -43,6 +44,7 @@ class SchoolAdminDashboard extends StatelessWidget {
         const SectionPlaceholder(titleKey: 'riskScore', icon: Icons.insights_rounded, gradient: AppColors.riskHighGradient),
         const SectionPlaceholder(titleKey: 'attendance', icon: Icons.fact_check_rounded, gradient: AppColors.riskLowGradient),
         const SectionPlaceholder(titleKey: 'payments', icon: Icons.payments_rounded, gradient: AppColors.riskMediumGradient),
+        const BillingPage(),
         SettingsPage(user: user, roleLabelKey: 'role_school_admin'),
       ],
     );

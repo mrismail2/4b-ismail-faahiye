@@ -62,6 +62,11 @@ class NavItems {
     icon: Icons.timeline_outlined,
     selectedIcon: Icons.timeline_rounded,
   );
+  static const _billing = NavItem(
+    labelKey: 'billing',
+    icon: Icons.credit_card_outlined,
+    selectedIcon: Icons.credit_card_rounded,
+  );
   static const _settings = NavItem(
     labelKey: 'settings',
     icon: Icons.settings_outlined,
@@ -71,9 +76,9 @@ class NavItems {
   static List<NavItem> forRole(String role) {
     switch (role) {
       case AppRole.superAdmin:
-        return [_dashboard, _students, _risk, _payments, _settings];
+        return [_dashboard, _students, _risk, _payments, _billing, _settings];
       case AppRole.schoolAdmin:
-        return [_dashboard, _students, _risk, _attendance, _payments, _settings];
+        return [_dashboard, _students, _risk, _attendance, _payments, _billing, _settings];
       case AppRole.teacher:
         return [_dashboard, _students, _attendance, _risk, _quran, _settings];
       case AppRole.accountant:
