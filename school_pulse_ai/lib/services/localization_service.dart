@@ -59,17 +59,21 @@ class LocalizationScope extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: service,
-      builder: (context, _) => _LocalizationScope(service: service, child: child),
+      builder: (context, _) => _LocalizationScope(
+        service: service,
+        language: service.language,
+        child: child,
+      ),
     );
   }
 }
 
 class _LocalizationScope extends InheritedWidget {
   final LocalizationService service;
+  final AppLanguage language;
 
-  const _LocalizationScope({required this.service, required super.child});
+  const _LocalizationScope({required this.service, required this.language, required super.child});
 
   @override
-  bool updateShouldNotify(_LocalizationScope oldWidget) =>
-      oldWidget.service.language != service.language;
+  bool updateShouldNotify(_LocalizationScope oldWidget) => oldWidget.language != language;
 }
