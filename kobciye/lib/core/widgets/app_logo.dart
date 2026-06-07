@@ -2,80 +2,84 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text.dart';
 
-/// Placeholder Kobciye logo widget — built from the brand concept (a "K"
-/// mark, an open book / growth motif, and the wordmark + tagline) until a
-/// final logo asset is supplied.
+/// Kobciye wordmark — renders "Kobciye" with the brand's signature gold dot
+/// over the "i", matching the supplied logo artwork (no background plate, so
+/// it drops cleanly onto any surface).
 ///
 /// Set [light] to true when placed on a dark/gradient background.
 class AppLogo extends StatelessWidget {
   final double size;
   final bool light;
-  final bool showWordmark;
   final bool showTagline;
 
   const AppLogo({
     super.key,
-    this.size = 44,
+    this.size = 40,
     this.light = false,
-    this.showWordmark = true,
     this.showTagline = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final markColor = light ? Colors.white : AppColors.primary;
-    final textColor = light ? Colors.white : AppColors.text;
+    final wordmarkColor = light ? Colors.white : AppColors.primary;
+    final style = TextStyle(
+      fontFamily: AppText.fontFamily,
+      fontSize: size,
+      fontWeight: FontWeight.w800,
+      letterSpacing: -0.5,
+      height: 1,
+      color: wordmarkColor,
+    );
 
-    return Row(
+    // "ı" (dotless i) lets us draw the wordmark's "i" without its dot, so we
+    // can overlay our own gold dot exactly where the brand mark places it.
+    final full = TextPainter(
+      text: TextSpan(text: 'Kobcıye', style: style),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final prefix = TextPainter(
+      text: TextSpan(text: 'Kobc', style: style),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final dotlessI = TextPainter(
+      text: TextSpan(text: 'ı', style: style),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    final dotSize = size * 0.17;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            gradient: light ? null : AppColors.brandGradient,
-            color: light ? Colors.white.withOpacity(0.16) : null,
-            borderRadius: BorderRadius.circular(size * 0.28),
-            border: light ? Border.all(color: Colors.white.withOpacity(0.3)) : null,
-          ),
-          child: Center(
-            child: Text(
-              'K',
-              style: TextStyle(
-                fontFamily: AppText.fontFamily,
-                fontSize: size * 0.52,
-                fontWeight: FontWeight.w900,
-                color: light ? Colors.white : Colors.white,
-                height: 1,
-              ),
-            ),
-          ),
-        ),
-        if (showWordmark) ...[
-          SizedBox(width: size * 0.26),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+        SizedBox(
+          width: full.width,
+          height: full.height,
+          child: Stack(
+            clipBehavior: Clip.none,
             children: [
-              Text(
-                'Kobciye',
-                style: AppText.h1.copyWith(color: textColor, fontSize: size * 0.46),
-              ),
-              if (showTagline)
-                Text(
-                  'Learn • Grow • Succeed',
-                  style: AppText.caption.copyWith(
-                    color: light ? Colors.white.withOpacity(0.75) : AppColors.muted,
-                  ),
+              Text('Kobcıye', style: style),
+              Positioned(
+                left: prefix.width + dotlessI.width / 2 - dotSize / 2,
+                top: size * 0.04,
+                child: Container(
+                  width: dotSize,
+                  height: dotSize,
+                  decoration: const BoxDecoration(color: AppColors.accent, shape: BoxShape.circle),
                 ),
+              ),
             ],
           ),
-        ],
-        if (!showWordmark)
-          Padding(
-            padding: const EdgeInsets.only(left: 4),
-            child: Icon(Icons.auto_stories_rounded, color: markColor, size: size * 0.4),
+        ),
+        if (showTagline) ...[
+          SizedBox(height: size * 0.12),
+          Text(
+            'Learn • Grow • Succeed',
+            style: AppText.caption.copyWith(
+              color: light ? Colors.white.withOpacity(0.75) : AppColors.muted,
+            ),
           ),
+        ],
       ],
     );
   }

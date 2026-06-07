@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_roles.dart';
 import '../../core/constants/app_text.dart';
 import '../../core/responsive/responsive_layout.dart';
 import '../../core/widgets/app_button.dart';
@@ -8,6 +9,7 @@ import '../../core/widgets/app_logo.dart';
 import '../../core/widgets/language_switcher.dart';
 import '../../services/auth_service.dart';
 import '../../services/localization_service.dart';
+import 'widgets/request_school_account_sheet.dart';
 
 /// Mobile-first login screen — UI only in Phase 1. [AuthService.signIn] is a
 /// clearly-marked placeholder for the real Supabase Auth call that lands in
@@ -117,7 +119,11 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           const SizedBox(height: 14),
           Center(
-            child: TextButton(onPressed: () {}, child: Text(context.t('requestSchoolAccount'))),
+            child: TextButton.icon(
+              onPressed: () => showRequestSchoolAccountSheet(context),
+              icon: const Icon(Icons.school_outlined, size: 18),
+              label: Text(context.t('requestSchoolAccount')),
+            ),
           ),
           const SizedBox(height: 18),
           const Divider(),
@@ -128,6 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
             spacing: 8,
             runSpacing: 8,
             children: AuthService.demoAccounts
+                .where((u) => u.role == AppRole.parent || u.role == AppRole.student)
                 .map((u) => ActionChip(
                       avatar: const Icon(Icons.bolt_rounded, size: 16, color: AppColors.primaryLight),
                       label: Text(context.t('role_${u.role}')),

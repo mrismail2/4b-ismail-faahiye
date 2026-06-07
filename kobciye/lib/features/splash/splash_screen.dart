@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_routes.dart';
+import '../../core/widgets/app_logo.dart';
 import '../../services/localization_service.dart';
 
 /// Branded splash / boot screen — Kobciye logo, tagline, gradient
@@ -52,23 +53,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.14),
-                      borderRadius: BorderRadius.circular(28),
-                      border: Border.all(color: Colors.white.withOpacity(0.3)),
-                    ),
-                    child: const Center(
-                      child: Text('K',
-                          style: TextStyle(fontSize: 50, fontWeight: FontWeight.w900, color: Colors.white)),
-                    ),
-                  ),
-                  const SizedBox(height: 22),
-                  const Text('Kobciye',
-                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.4)),
-                  const SizedBox(height: 8),
+                  const AppLogo(size: 44, light: true),
+                  const SizedBox(height: 18),
                   Text(context.t('tagline'),
                       style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.8), letterSpacing: 0.6)),
                   const SizedBox(height: 36),

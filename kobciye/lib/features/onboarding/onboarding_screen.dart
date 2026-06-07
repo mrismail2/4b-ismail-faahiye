@@ -9,6 +9,7 @@ import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_logo.dart';
 import '../../core/widgets/language_switcher.dart';
 import '../../services/localization_service.dart';
+import '../auth/widgets/request_school_account_sheet.dart';
 
 /// Premium landing / onboarding screen — explains what Kobciye does for
 /// schools and routes into the rest of the app (Get Started, Login,
@@ -83,9 +84,178 @@ class OnboardingScreen extends StatelessWidget {
                 ],
               ),
             ),
+            _Pricing(isDesktop: isDesktop),
             _FutureFeatures(isDesktop: isDesktop),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Public pricing section — lets visiting school owners see plan options
+/// (and what each unlocks) before they ever sign in.
+class _Pricing extends StatelessWidget {
+  final bool isDesktop;
+
+  const _Pricing({required this.isDesktop});
+
+  static const _plans = [
+    (
+      'Small school',
+      '\$10',
+      'Up to 100 students',
+      'Perfect for small Madrasas and community schools just getting started — '
+          'every core tool included, with room to grow.',
+      AppColors.primaryLight,
+      false,
+    ),
+    (
+      'Medium school',
+      '\$20',
+      'Up to 500 students',
+      'Built for growing schools that need more classes, more staff accounts '
+          'and deeper attendance & payment insight — our most popular plan.',
+      AppColors.accent,
+      true,
+    ),
+    (
+      'Large school',
+      '\$50',
+      'Unlimited students',
+      'For large institutions and school groups — unlimited students and staff, '
+          'priority support, and every Kobciye module as it ships.',
+      AppColors.success,
+      false,
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: isDesktop ? 64 : 40),
+      child: Column(
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 640),
+            child: Column(
+              children: [
+                Text('Simple pricing that grows with your school', textAlign: TextAlign.center, style: AppText.h1),
+                const SizedBox(height: 10),
+                Text(
+                  'Pick the plan that matches your school\'s size today — upgrade any time as '
+                  'your student roll grows. No setup fees, no surprises.',
+                  textAlign: TextAlign.center,
+                  style: AppText.bodyMuted,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 28),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1080),
+            child: LayoutBuilder(builder: (context, constraints) {
+              final cols = constraints.maxWidth > 880 ? 3 : 1;
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _plans.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: cols,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: cols == 1 ? 1.05 : 0.86,
+                ),
+                itemBuilder: (context, i) {
+                  final p = _plans[i];
+                  return _PlanCard(name: p.$1, price: p.$2, capacity: p.$3, description: p.$4, tint: p.$5, highlighted: p.$6);
+                },
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlanCard extends StatelessWidget {
+  final String name;
+  final String price;
+  final String capacity;
+  final String description;
+  final Color tint;
+  final bool highlighted;
+
+  const _PlanCard({
+    required this.name,
+    required this.price,
+    required this.capacity,
+    required this.description,
+    required this.tint,
+    required this.highlighted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: highlighted ? AppColors.accent : AppColors.border, width: highlighted ? 1.6 : 1),
+        boxShadow: [
+          BoxShadow(
+            color: (highlighted ? AppColors.accent : AppColors.primary).withOpacity(highlighted ? 0.16 : 0.05),
+            blurRadius: 30,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (highlighted)
+            Container(
+              margin: const EdgeInsets.only(bottom: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(gradient: AppColors.goldGradient, borderRadius: BorderRadius.circular(20)),
+              child: const Text('Most popular', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
+            ),
+          Text(name, style: AppText.h2),
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(price, style: AppText.display.copyWith(fontSize: 36, color: tint)),
+              Padding(
+                padding: const EdgeInsets.only(left: 4, bottom: 6),
+                child: Text('/month', style: AppText.bodyMuted),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Icon(Icons.groups_2_rounded, size: 16, color: tint),
+              const SizedBox(width: 6),
+              Text(capacity, style: AppText.body.copyWith(fontWeight: FontWeight.w700)),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Expanded(child: Text(description, style: AppText.bodyMuted)),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(side: BorderSide(color: tint)),
+              onPressed: () => showRequestSchoolAccountSheet(context),
+              child: Text('Choose $name', style: TextStyle(color: tint, fontWeight: FontWeight.w700)),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -249,7 +419,7 @@ class _Hero extends StatelessWidget {
                       height: 56,
                       child: TextButton(
                         style: TextButton.styleFrom(foregroundColor: Colors.white.withOpacity(0.85)),
-                        onPressed: () => context.go(AppRoutes.login),
+                        onPressed: () => showRequestSchoolAccountSheet(context),
                         child: Text(context.t('requestSchoolAccount')),
                       ),
                     ),
