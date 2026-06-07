@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TaskFlow — Liiska Hawlaha</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f0f4ff;--bg2:#fff;--bg3:#f8faff;
+  --ink:#0f1523;--ink2:#3d4a6b;--ink3:#8896b3;
+  --border:#e2e8f8;
+  --primary:#2563eb;--primary-light:#eff6ff;--primary-dark:#1d4ed8;
+  --success:#059669;--success-light:#ecfdf5;
+  --danger:#dc2626;--danger-light:#fef2f2;
+  --warning:#d97706;--warning-light:#fffbeb;
+  --shadow:0 4px 24px rgba(37,99,235,.08);
+  --shadow-lg:0 12px 48px rgba(37,99,235,.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(37,99,235,.06);}
+.tl{display:flex;align-items:center;gap:10px;}
+.ticon{width:32px;height:32px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;}
+.ttitle{font-size:.95rem;font-weight:800;letter-spacing:-.3px;}
+
+.content{max-width:880px;margin:0 auto;padding:24px 20px;width:100%;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.scard{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;}
+.sicon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.sicon.blue{background:var(--primary-light);}
+.sicon.green{background:var(--success-light);}
+.sicon.red{background:var(--danger-light);}
+.sval{font-size:1.5rem;font-weight:800;letter-spacing:-1px;line-height:1;}
+.slbl{font-size:.68rem;color:var(--ink3);font-weight:500;margin-top:2px;}
+
+/* ADD FORM */
+.add-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px;box-shadow:var(--shadow);display:flex;gap:10px;flex-wrap:wrap;}
+.add-input{flex:1 1 220px;padding:12px 16px;border:1px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.9rem;outline:none;transition:border-color .15s;}
+.add-input:focus{border-color:var(--primary);}
+.add-select{padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.85rem;color:var(--ink2);background:#fff;outline:none;cursor:pointer;}
+.add-btn{padding:12px 22px;background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;border-radius:10px;color:#fff;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(37,99,235,.3);transition:opacity .2s,transform .15s;}
+.add-btn:hover{opacity:.88;transform:translateY(-1px);}
+
+/* FILTERS */
+.filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.fbtn{padding:8px 16px;border-radius:9px;background:#fff;border:1px solid var(--border);font-family:'Outfit',sans-serif;font-size:.78rem;font-weight:600;color:var(--ink3);cursor:pointer;transition:all .15s;}
+.fbtn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.fbtn:hover:not(.active){background:var(--primary-light);color:var(--primary);}
+
+/* TASK LIST */
+.tlist{display:flex;flex-direction:column;gap:10px;}
+.task{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;transition:opacity .2s,transform .15s;}
+.task:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg);}
+.tcheck{width:24px;height:24px;border-radius:8px;border:2px solid var(--border);background:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff;transition:all .15s;}
+.tcheck.done{background:var(--success);border-color:var(--success);}
+.tbody{flex:1;min-width:0;}
+.ttext{font-size:.92rem;font-weight:600;color:var(--ink);word-break:break-word;}
+.task.done .ttext{text-decoration:line-through;color:var(--ink3);}
+.tmeta{display:flex;gap:8px;margin-top:4px;align-items:center;flex-wrap:wrap;}
+.badge{font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:7px;letter-spacing:.3px;}
+.badge.high{background:var(--danger-light);color:var(--danger);}
+.badge.med{background:var(--warning-light);color:var(--warning);}
+.badge.low{background:var(--success-light);color:var(--success);}
+.tdel{padding:8px 12px;border-radius:9px;background:transparent;border:1px solid var(--border);font-family:'Outfit',sans-serif;font-size:.72rem;font-weight:600;color:var(--ink3);cursor:pointer;transition:all .15s;flex-shrink:0;}
+.tdel:hover{background:var(--danger-light);color:var(--danger);border-color:var(--danger-light);}
+
+.empty{text-align:center;padding:60px 20px;color:var(--ink3);}
+.empty .eicon{font-size:2.4rem;margin-bottom:10px;}
+.empty .etxt{font-size:.85rem;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tl">
+    <div class="ticon">✅</div>
+    <div class="ttitle">TaskFlow</div>
+  </div>
+</div>
+
+<div class="content">
+  <div class="stats-row">
+    <div class="scard"><div class="sicon blue">📋</div><div><div class="sval" id="st-total">0</div><div class="slbl">Wadarta hawlaha</div></div></div>
+    <div class="scard"><div class="sicon green">✔️</div><div><div class="sval" id="st-done">0</div><div class="slbl">La dhammeeyay</div></div></div>
+    <div class="scard"><div class="sicon red">⏳</div><div><div class="sval" id="st-pending">0</div><div class="slbl">Sugaya</div></div></div>
+  </div>
+
+  <div class="add-card">
+    <input class="add-input" id="task-input" type="text" placeholder="Qor hawl cusub..." maxlength="200"/>
+    <select class="add-select" id="task-priority">
+      <option value="low">Hoose</option>
+      <option value="med" selected>Dhexe</option>
+      <option value="high">Sare</option>
+    </select>
+    <button class="add-btn" onclick="addTask()">+ Ku dar</button>
+  </div>
+
+  <div class="filters">
+    <button class="fbtn active" data-f="all" onclick="setFilter('all',this)">Dhammaan</button>
+    <button class="fbtn" data-f="pending" onclick="setFilter('pending',this)">Sugaya</button>
+    <button class="fbtn" data-f="done" onclick="setFilter('done',this)">La dhammeeyay</button>
+  </div>
+
+  <div class="tlist" id="tlist"></div>
+</div>
+
+<script>
+const STORE_KEY='taskflow_tasks_v1';
+let tasks=JSON.parse(localStorage.getItem(STORE_KEY)||'[]');
+let filter='all';
+
+function save(){localStorage.setItem(STORE_KEY,JSON.stringify(tasks));}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function addTask(){
+  const input=document.getElementById('task-input');
+  const text=input.value.trim();
+  if(!text)return;
+  const priority=document.getElementById('task-priority').value;
+  tasks.unshift({id:Date.now(),text,priority,done:false});
+  input.value='';
+  save();
+  render();
+}
+document.getElementById('task-input').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+
+function toggleTask(id){
+  const t=tasks.find(x=>x.id===id);
+  if(t){t.done=!t.done;save();render();}
+}
+function delTask(id){
+  tasks=tasks.filter(x=>x.id!==id);
+  save();
+  render();
+}
+function setFilter(f,el){
+  filter=f;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+const PR_LABEL={high:'Sare',med:'Dhexe',low:'Hoose'};
+
+function render(){
+  document.getElementById('st-total').textContent=tasks.length;
+  document.getElementById('st-done').textContent=tasks.filter(t=>t.done).length;
+  document.getElementById('st-pending').textContent=tasks.filter(t=>!t.done).length;
+
+  let list=tasks;
+  if(filter==='pending')list=tasks.filter(t=>!t.done);
+  if(filter==='done')list=tasks.filter(t=>t.done);
+
+  const root=document.getElementById('tlist');
+  if(!list.length){
+    root.innerHTML='<div class="empty"><div class="eicon">🗒️</div><div class="etxt">Wax hawlood ah lama helin.</div></div>';
+    return;
+  }
+  root.innerHTML=list.map(t=>`
+    <div class="task ${t.done?'done':''}">
+      <div class="tcheck ${t.done?'done':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div>
+      <div class="tbody">
+        <div class="ttext">${esc(t.text)}</div>
+        <div class="tmeta"><span class="badge ${t.priority}">${PR_LABEL[t.priority]}</span></div>
+      </div>
+      <button class="tdel" onclick="delTask(${t.id})">Tirtir</button>
+    </div>
+  `).join('');
+}
+
+render();
+</script>
+</body>
+</html>
