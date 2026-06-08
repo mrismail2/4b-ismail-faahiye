@@ -35,7 +35,7 @@ export function navItemsForRole(role) {
     case AppRole.superAdmin:
       return [N.dashboard, N.students, N.payments, N.subscription, N.riskScore, N.settings];
     case AppRole.schoolAdmin:
-      return [N.dashboard, N.students, N.attendance, N.exams, N.lessons, N.payments, N.permissions, N.subscription, N.settings];
+      return [N.dashboard, N.students, N.attendance, N.exams, N.payments, N.permissions, N.subscription, N.settings];
     case AppRole.teacher:
       return [N.dashboard, N.classes, N.attendance, N.exams, N.lessons, N.payments, N.messaging, N.parentReports, N.notes, N.settings];
     case AppRole.accountant:
@@ -43,7 +43,7 @@ export function navItemsForRole(role) {
     case AppRole.parent:
       return [N.dashboard, N.attendance, N.exams, N.payments, N.teacherProfile, N.messaging, N.timeline, N.notices];
     case AppRole.student:
-      return [N.dashboard, N.attendance, N.exams, N.results, N.lessons, N.teacherProfile, N.messaging, N.notices];
+      return [N.dashboard, N.attendance, N.exams, N.results, N.teacherProfile, N.messaging, N.notices];
     default:
       return [N.dashboard, N.settings];
   }

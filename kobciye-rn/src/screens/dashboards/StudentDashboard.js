@@ -7,7 +7,6 @@ import HighlightBanner from '../../widgets/HighlightBanner';
 import SectionPlaceholder from '../../widgets/SectionPlaceholder';
 import AttendanceSection from '../../widgets/AttendanceSection';
 import ExamsSection from '../../widgets/ExamsSection';
-import LessonPrepSection from '../../widgets/LessonPrepSection';
 import MessagingSection from '../../widgets/MessagingSection';
 import TeacherProfileCard from '../../widgets/TeacherProfileCard';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
@@ -46,7 +45,7 @@ const styles = StyleSheet.create({
   wrap: { gap: Spacing.md, paddingBottom: Spacing.xl },
 });
 
-// Order mirrors navItemsForRole(student): Dashboard, Attendance, Exams, Results, Lesson Prep, My Teacher, Messages, Notices.
+// Order mirrors navItemsForRole(student): Dashboard, Attendance, Exams, Results, My Teacher, Messages, Notices.
 export default function StudentDashboard({ route }) {
   const user = route.params.user;
 
@@ -61,7 +60,6 @@ export default function StudentDashboard({ route }) {
             <StatCard label="My attendance" value="97%" icon="checkbox" tint={Colors.success} trend="this term" trendUp />,
             <StatCard label="Latest result" value="A-" icon="ribbon" tint={Colors.primaryLight} trend="Mathematics" trendUp />,
             <StatCard label="Payment status" value="Paid" icon="card" tint={Colors.success} trend="up to date" trendUp />,
-            <StatCard label="Lesson prep this week" value="3" icon="book" tint={Colors.accent} trend="from teachers" trendUp />,
           ]}
           highlight={
             <HighlightBanner
@@ -75,7 +73,6 @@ export default function StudentDashboard({ route }) {
         <AttendanceSection title="My attendance" />,
         <ExamsSection />,
         <SectionPlaceholder titleKey="results" icon="ribbon" gradient={Gradients.growth} />,
-        <LessonPrepSection title="My lesson preparation" subtitle="What your teachers have planned for your class — shared once submitted and approved." />,
         <MyTeacherPage />,
         <MessagingSection />,
         <SectionPlaceholder titleKey="notices" icon="megaphone" gradient={Gradients.riskMedium} />,
