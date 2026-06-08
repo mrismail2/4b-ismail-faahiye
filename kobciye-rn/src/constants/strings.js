@@ -52,7 +52,9 @@ export const STRINGS = {
   signIn: { en: 'Sign in', so: 'Gal' },
   forgotPassword: { en: 'Forgot password?', so: 'Ma illowday furahaaga?' },
   requestSchoolAccount: { en: 'Request a school account', so: 'Codso akoon dugsi' },
-  quickDemoAccess: { en: 'Quick demo access', so: 'Gelitaan degdeg ah oo tijaabo ah' },
+  quickDemoAccess: { en: 'Preview the app', so: 'Eeg muunadda app-ka' },
+  previewStudentPortal: { en: 'Preview Student Portal', so: 'Eeg Goobta Ardayga' },
+  previewParentPortal: { en: 'Preview Parent Portal', so: 'Eeg Goobta Waalidka' },
 
   // Onboarding / landing
   getStarted: { en: 'Get started', so: 'Bilow' },

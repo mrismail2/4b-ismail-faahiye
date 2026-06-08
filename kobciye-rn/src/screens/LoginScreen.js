@@ -38,13 +38,24 @@ export default function LoginScreen({ navigation }) {
       const acct = DEMO_ACCOUNT_LIST.find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
       navigation.replace(roleHomeScreen(acct?.role));
     } else {
-      setLocalError('No demo account found for that email.');
+      setLocalError("We couldn't find an account with that email.");
     }
   };
 
-  const useDemo = (demoEmail) => {
-    setEmail(demoEmail);
-    setPassword('demo1234');
+  // Public preview is intentionally limited to the Student and Parent
+  // portals — the most useful "show me the app" experience for schools
+  // and visitors evaluating Kobciye. Admin, teacher and accountant
+  // dashboards stay fully built and reachable in the codebase, but are
+  // only meant to be opened through real Supabase Auth in a later phase,
+  // so they are not advertised as public preview buttons here.
+  const previewAccount = (role) => DEMO_ACCOUNT_LIST.find((u) => u.role === role);
+
+  const continueAsPreview = async (role) => {
+    const acct = previewAccount(role);
+    if (!acct) return;
+    setLocalError(null);
+    const ok = await signIn({ email: acct.email, password: 'preview' });
+    if (ok) navigation.replace(roleHomeScreen(acct.role));
   };
 
   const card = (
@@ -109,13 +120,15 @@ export default function LoginScreen({ navigation }) {
       <View style={styles.divider} />
 
       <Text style={TextStyles.caption}>{t('quickDemoAccess')}</Text>
-      <View style={styles.chipRow}>
-        {DEMO_ACCOUNT_LIST.filter((u) => u.role === AppRole.parent || u.role === AppRole.student).map((u) => (
-          <Pressable key={u.email} onPress={() => useDemo(u.email)} style={styles.chip}>
-            <Ionicons name="flash" size={14} color={Colors.primaryLight} />
-            <Text style={styles.chipLabel}>{t(`role_${u.role}`)}</Text>
-          </Pressable>
-        ))}
+      <View style={styles.previewRow}>
+        <Pressable onPress={() => continueAsPreview(AppRole.student)} style={styles.previewBtn}>
+          <Ionicons name="school-outline" size={16} color={Colors.primary} />
+          <Text style={styles.previewBtnLabel}>{t('previewStudentPortal')}</Text>
+        </Pressable>
+        <Pressable onPress={() => continueAsPreview(AppRole.parent)} style={styles.previewBtn}>
+          <Ionicons name="home-outline" size={16} color={Colors.primary} />
+          <Text style={styles.previewBtnLabel}>{t('previewParentPortal')}</Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -179,12 +192,12 @@ const styles = StyleSheet.create({
   error: { color: Colors.danger, fontSize: 12.5, marginTop: 6, fontWeight: '600' },
   requestRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 16 },
   divider: { height: 1, backgroundColor: Colors.border, marginVertical: 18 },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
-  chip: {
-    flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 14,
-    borderRadius: 999, backgroundColor: `${Colors.primaryLight}14`, borderWidth: 1, borderColor: `${Colors.primaryLight}33`,
+  previewRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 },
+  previewBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 11, paddingHorizontal: 16,
+    borderRadius: 12, backgroundColor: `${Colors.primaryLight}14`, borderWidth: 1.5, borderColor: `${Colors.primaryLight}33`,
   },
-  chipLabel: { fontSize: 13, fontWeight: '700', color: Colors.primary },
+  previewBtnLabel: { fontSize: 13.5, fontWeight: '700', color: Colors.primary },
 
   desktopRow: { flex: 1, flexDirection: 'row' },
   desktopHero: { flex: 1, padding: 56, justifyContent: 'center' },

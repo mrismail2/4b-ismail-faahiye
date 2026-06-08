@@ -1,9 +1,14 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
 import { AppRole } from '../constants/roles';
 
-// Phase 1 is UI-only: signIn accepts any of the seeded demo emails below
+// Phase 1 is UI-only: signIn accepts any of the seeded preview emails below
 // (password is ignored) so every role-based dashboard can be reviewed
 // without a live backend.
+//
+// Developer note: Admin, teacher, and accountant dashboards are hidden
+// from public preview and will be accessed through real Supabase Auth in
+// later phases — they remain fully built here, just not advertised on the
+// login screen (only Student and Parent portals are offered as previews).
 
 const DEMO_ACCOUNTS = {
   'super@kobciye.com': {
@@ -72,7 +77,7 @@ export function AuthProvider({ children }) {
 
     const user = DEMO_ACCOUNTS[email.trim().toLowerCase()];
     if (!user) {
-      setError('No demo account found for that email.');
+      setError("We couldn't find an account with that email.");
       setLoading(false);
       return false;
     }
