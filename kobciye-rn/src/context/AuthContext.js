@@ -13,12 +13,12 @@ import { AppRole } from '../constants/roles';
 // dashboards and navigation already support all six roles.
 
 const DEMO_ACCOUNTS = {
-  // 'super@kobciye.com': {
-  //   id: 'demo-super',
-  //   fullName: 'Amina Yusuf',
-  //   email: 'super@kobciye.com',
-  //   role: AppRole.superAdmin,
-  // },
+  'super@kobciye.com': {
+    id: 'demo-super',
+    fullName: 'Amina Yusuf',
+    email: 'super@kobciye.com',
+    role: AppRole.superAdmin,
+  },
   // 'admin@kobciye.com': {
   //   id: 'demo-admin',
   //   fullName: 'Maxamed Cali',
