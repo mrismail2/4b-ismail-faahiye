@@ -11,6 +11,9 @@ const LOGO_ASSET = require('../../assets/logo/kobciye-logo.png');
 // to a drawn wordmark — "Kobciye" with the brand's signature gold dot over
 // the "i" — when the asset is missing, or when `light` is true (placed on
 // a dark/gradient background, where the dark logo wouldn't read).
+//
+// `showTagline` is intentionally a no-op for the public Phase 1 build —
+// the logo area shows only the "Kobciye" wordmark, no slogan underneath.
 export default function AppLogo({ size = 40, light = false, showTagline = false }) {
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -29,16 +32,6 @@ export default function AppLogo({ size = 40, light = false, showTagline = false 
   return (
     <View style={{ alignItems: 'flex-start' }}>
       {wordmark}
-      {showTagline && (
-        <Text
-          style={[
-            styles.tagline,
-            { marginTop: size * 0.12, color: light ? 'rgba(255,255,255,0.75)' : Colors.muted },
-          ]}
-        >
-          Learn • Grow • Succeed
-        </Text>
-      )}
     </View>
   );
 }
@@ -72,5 +65,4 @@ function DrawnWordmark({ size, color }) {
 const styles = StyleSheet.create({
   wordmark: { fontWeight: '800' },
   dot: { position: 'absolute', backgroundColor: Colors.accent },
-  tagline: { fontSize: 11, fontWeight: '600', letterSpacing: 0.4 },
 });

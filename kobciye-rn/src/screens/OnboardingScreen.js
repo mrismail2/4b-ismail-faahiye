@@ -113,11 +113,10 @@ function Hero({ isDesktop, navigation, t }) {
 
       <View style={{ alignItems: 'center', marginTop: isDesktop ? 56 : 36, maxWidth: 720, alignSelf: 'center' }}>
         <View style={styles.pill}>
-          <Text style={styles.pillText}>🌱  Kobciye — something that grows</Text>
+          <Text style={styles.pillText}>🏫  Kobciye — School Management SaaS</Text>
         </View>
         <Text style={[styles.heroTitle, { fontSize: isDesktop ? 40 : 28 }]}>{t('heroTitle')}</Text>
         <Text style={styles.heroSubtitle}>{t('heroSubtitle')}</Text>
-        <Text style={styles.heroTagline}>{t('tagline')}</Text>
 
         <View style={styles.heroActions}>
           <AppButton
@@ -228,7 +227,6 @@ const styles = StyleSheet.create({
   pillText: { fontSize: 11, fontWeight: '600', letterSpacing: 0.4, color: 'rgba(255,255,255,0.85)' },
   heroTitle: { fontWeight: '800', letterSpacing: -0.5, color: '#fff', textAlign: 'center', marginTop: 22, lineHeight: 38 },
   heroSubtitle: { fontSize: 15.5, lineHeight: 23, color: 'rgba(255,255,255,0.8)', textAlign: 'center', marginTop: 16 },
-  heroTagline: { fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.65)', marginTop: 6 },
   heroActions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 14, marginTop: 30 },
   outlineLight: { paddingVertical: 16, paddingHorizontal: 28, borderRadius: 14, borderWidth: 1.5, borderColor: glass(0.4), alignItems: 'center', justifyContent: 'center' },
   outlineLightLabel: { color: '#fff', fontWeight: '700', fontSize: 15 },

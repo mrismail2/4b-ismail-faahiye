@@ -4,7 +4,6 @@
 
 export const STRINGS = {
   appName: { en: 'Kobciye', so: 'Kobciye' },
-  tagline: { en: 'Learn • Grow • Succeed', so: 'Baro • Koboc • Guulayso' },
 
   // Navigation / sidebar
   dashboard: { en: 'Dashboard', so: 'Shaashadda Maamulka' },

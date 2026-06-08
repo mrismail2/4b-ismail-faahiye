@@ -5,39 +5,41 @@ import { AppRole } from '../constants/roles';
 // (password is ignored) so every role-based dashboard can be reviewed
 // without a live backend.
 //
-// Developer note: Admin, teacher, and accountant dashboards are hidden
-// from public preview and will be accessed through real Supabase Auth in
-// later phases — they remain fully built here, just not advertised on the
-// login screen (only Student and Parent portals are offered as previews).
+// Developer note: Admin, teacher, accountant and super admin dashboards
+// remain fully built in this codebase for later phases, but their demo
+// accounts are commented out below so the public Phase 1 preview only
+// offers Student and Parent portals through this demo login. Uncomment
+// an entry to re-enable that role for internal/staging testing — the
+// dashboards and navigation already support all six roles.
 
 const DEMO_ACCOUNTS = {
-  'super@kobciye.com': {
-    id: 'demo-super',
-    fullName: 'Amina Yusuf',
-    email: 'super@kobciye.com',
-    role: AppRole.superAdmin,
-  },
-  'admin@kobciye.com': {
-    id: 'demo-admin',
-    fullName: 'Maxamed Cali',
-    email: 'admin@kobciye.com',
-    role: AppRole.schoolAdmin,
-    schoolId: 'demo-school-1',
-  },
-  'teacher@kobciye.com': {
-    id: 'demo-teacher',
-    fullName: 'Hodan Warsame',
-    email: 'teacher@kobciye.com',
-    role: AppRole.teacher,
-    schoolId: 'demo-school-1',
-  },
-  'accountant@kobciye.com': {
-    id: 'demo-accountant',
-    fullName: 'Khadar Nuur',
-    email: 'accountant@kobciye.com',
-    role: AppRole.accountant,
-    schoolId: 'demo-school-1',
-  },
+  // 'super@kobciye.com': {
+  //   id: 'demo-super',
+  //   fullName: 'Amina Yusuf',
+  //   email: 'super@kobciye.com',
+  //   role: AppRole.superAdmin,
+  // },
+  // 'admin@kobciye.com': {
+  //   id: 'demo-admin',
+  //   fullName: 'Maxamed Cali',
+  //   email: 'admin@kobciye.com',
+  //   role: AppRole.schoolAdmin,
+  //   schoolId: 'demo-school-1',
+  // },
+  // 'teacher@kobciye.com': {
+  //   id: 'demo-teacher',
+  //   fullName: 'Hodan Warsame',
+  //   email: 'teacher@kobciye.com',
+  //   role: AppRole.teacher,
+  //   schoolId: 'demo-school-1',
+  // },
+  // 'accountant@kobciye.com': {
+  //   id: 'demo-accountant',
+  //   fullName: 'Khadar Nuur',
+  //   email: 'accountant@kobciye.com',
+  //   role: AppRole.accountant,
+  //   schoolId: 'demo-school-1',
+  // },
   'parent@kobciye.com': {
     id: 'demo-parent',
     fullName: 'Faadumo Xasan',

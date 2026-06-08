@@ -140,7 +140,7 @@ export default function LoginScreen({ navigation }) {
           <AppLogo size={42} light showTagline />
           <Text style={styles.heroTitle}>Run your school with confidence</Text>
           <Text style={styles.heroSubtitle}>
-            One calm, beautiful place for admins, teachers, accountants, parents and students — built to grow with your school.
+            A professional school portal where parents follow attendance, exams, payments and reports, while students see their school progress clearly.
           </Text>
           {FEATURE_PILLS.map((p) => (
             <View key={p} style={styles.pillRow}>

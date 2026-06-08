@@ -27,13 +27,17 @@ today versus what arrives once the Supabase backend modules are connected.
 
 ## Public preview & roadmap
 
+Phase 1 public demo includes Student and Parent portals only. Admin, teacher,
+accountant and super admin dashboards are planned for later phases. Real
+Supabase database comes in Phase 2. Real authentication comes in Phase 3.
+
 - **Phase 1** (this build) ships a public preview for the **Student** and
   **Parent** portals only — the login screen offers "Preview Student Portal"
   and "Preview Parent Portal" buttons so schools and visitors can explore
   Kobciye without an account. The Super Admin, School Admin, Teacher and
-  Accountant dashboards are included in the codebase for internal review and
-  future development, but are intentionally not advertised on the public
-  login screen.
+  Accountant dashboards remain fully built in the codebase for internal
+  review and future development, but their demo accounts are disabled and
+  they are intentionally not advertised on the public login screen.
 - **Phase 2** connects the real Supabase database and backend modules
   (placeholders for this live in `src/services/supabase_config.js`).
 - **Phase 3** introduces real role-based login via Supabase Auth, at which

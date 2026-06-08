@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Animated, StyleSheet, Easing } from 'react-native';
+import { Animated, StyleSheet, Easing } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Gradients } from '../constants/colors';
 import AppLogo from '../widgets/AppLogo';
-import { useLocalization } from '../context/LocalizationContext';
 
-// Branded splash / boot screen — Kobciye logo, tagline, gradient background.
+// Branded splash / boot screen — Kobciye logo on a gradient background.
 // The logo itself doubles as the loading indicator: it breathes (scales +
 // glows) in a soft pulsing loop while the app initializes, so nothing else
 // needs to spin.
@@ -31,8 +30,6 @@ export default function SplashScreen({ navigation }) {
     return () => clearTimeout(timer);
   }, []);
 
-  const { t } = useLocalization();
-
   const pulseScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.92, 1.06] });
   const glow = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.55, 1] });
 
@@ -42,7 +39,6 @@ export default function SplashScreen({ navigation }) {
         <Animated.View style={{ opacity: glow, transform: [{ scale: pulseScale }] }}>
           <AppLogo size={40} light />
         </Animated.View>
-        <Text style={styles.tagline}>{t('tagline')}</Text>
       </Animated.View>
     </LinearGradient>
   );
@@ -50,5 +46,4 @@ export default function SplashScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  tagline: { marginTop: 18, fontSize: 14, color: 'rgba(255,255,255,0.8)', letterSpacing: 0.6 },
 });
