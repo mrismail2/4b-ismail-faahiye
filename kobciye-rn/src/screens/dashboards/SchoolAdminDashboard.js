@@ -6,8 +6,14 @@ import StatCard from '../../widgets/StatCard';
 import HighlightBanner from '../../widgets/HighlightBanner';
 import SectionPlaceholder from '../../widgets/SectionPlaceholder';
 import SettingsPage from '../../widgets/SettingsPage';
+import AttendanceSection from '../../widgets/AttendanceSection';
+import ExamsSection from '../../widgets/ExamsSection';
+import LessonPrepSection from '../../widgets/LessonPrepSection';
+import PaymentsSection from '../../widgets/PaymentsSection';
+import PermissionsSection from '../../widgets/PermissionsSection';
+import SubscriptionSection from '../../widgets/SubscriptionSection';
 
-// Order mirrors navItemsForRole(school_admin): Dashboard, Students, Attendance, Payments, Risk Score, Settings.
+// Order mirrors navItemsForRole(school_admin): Dashboard, Students, Attendance, Exams, Lesson Prep, Payments, Permissions, Subscription, Settings.
 export default function SchoolAdminDashboard({ route }) {
   const user = route.params.user;
 
@@ -22,7 +28,9 @@ export default function SchoolAdminDashboard({ route }) {
             <StatCard label="Total students" value="642" icon="people" tint={Colors.primaryLight} trend="+18" trendUp />,
             <StatCard label="Attendance today" value="94%" icon="checkbox" tint={Colors.success} trend="+2.1%" trendUp />,
             <StatCard label="Unpaid fees" value="$3,140" icon="card" tint={Colors.accent} trend="27 students" trendUp={false} />,
-            <StatCard label="High-risk students" value="8" icon="warning" tint={Colors.danger} trend="+1" trendUp={false} />,
+            <StatCard label="Exams pending review" value="5" icon="document-text" tint={Colors.primary} trend="2 due today" trendUp={false} />,
+            <StatCard label="Lesson preps pending" value="9" icon="book" tint={Colors.primaryLight} trend="3 overdue" trendUp={false} />,
+            <StatCard label="Subscription" value="Trial · 18 days" icon="card" tint={Colors.accent} />,
           ]}
           highlight={
             <HighlightBanner
@@ -35,9 +43,12 @@ export default function SchoolAdminDashboard({ route }) {
           }
         />,
         <SectionPlaceholder titleKey="students" icon="people" gradient={Gradients.brand} />,
-        <SectionPlaceholder titleKey="attendance" icon="checkbox" gradient={Gradients.growth} />,
-        <SectionPlaceholder titleKey="payments" icon="card" gradient={Gradients.gold} />,
-        <SectionPlaceholder titleKey="riskScore" icon="analytics" gradient={Gradients.riskHigh} />,
+        <AttendanceSection />,
+        <ExamsSection />,
+        <LessonPrepSection />,
+        <PaymentsSection variant="admin" />,
+        <PermissionsSection />,
+        <SubscriptionSection />,
         <SettingsPage user={user} roleLabelKey="role_school_admin" />,
       ]}
     />

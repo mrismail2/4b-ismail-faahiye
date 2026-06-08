@@ -6,8 +6,9 @@ import StatCard from '../../widgets/StatCard';
 import HighlightBanner from '../../widgets/HighlightBanner';
 import SectionPlaceholder from '../../widgets/SectionPlaceholder';
 import SettingsPage from '../../widgets/SettingsPage';
+import SubscriptionSection from '../../widgets/SubscriptionSection';
 
-// Order mirrors navItemsForRole(super_admin): Dashboard, Students, Payments, Risk Score, Settings.
+// Order mirrors navItemsForRole(super_admin): Dashboard, Students, Payments, Subscription, Risk Score, Settings.
 export default function SuperAdminDashboard({ route }) {
   const user = route.params.user;
 
@@ -36,6 +37,14 @@ export default function SuperAdminDashboard({ route }) {
         />,
         <SectionPlaceholder titleKey="students" icon="people" gradient={Gradients.growth} />,
         <SectionPlaceholder titleKey="payments" icon="card" gradient={Gradients.gold} />,
+        <SubscriptionSection
+          planName="Platform-wide billing"
+          studentCount={11204}
+          studentLimit={20000}
+          monthlyFee={620}
+          status="active"
+          amountOwed={620}
+        />,
         <SectionPlaceholder titleKey="riskScore" icon="analytics" gradient={Gradients.riskHigh} />,
         <SettingsPage user={user} roleLabelKey="role_super_admin" />,
       ]}

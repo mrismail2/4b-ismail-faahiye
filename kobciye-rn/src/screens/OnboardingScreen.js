@@ -17,13 +17,14 @@ const CAPABILITIES = [
   { icon: 'card', tint: Colors.primary, title: 'Manage payments', body: 'Stay on top of fees, mobile-money and promises without the spreadsheets.' },
   { icon: 'trending-up', tint: Colors.primaryLight, title: 'Monitor student progress', body: 'Watch attendance, exams and behaviour trends as they happen.' },
   { icon: 'analytics', tint: Colors.danger, title: 'Detect student risk early', body: 'Get a clear, explainable signal before a small issue becomes a crisis.' },
-  { icon: 'book', tint: Colors.success, title: "Support Qur'an / Madrasa progress", body: 'Track Surah, memorization and Tajweed — purpose-built for Madrasa programs.' },
+  { icon: 'document-text', tint: Colors.primary, title: 'Run exams with confidence', body: 'Record marks, grades and ranks — students and parents see results the moment they’re published.' },
+  { icon: 'book', tint: Colors.success, title: 'Plan & approve lessons', body: 'Teachers submit lesson prep, school admins review and approve — all in one place.' },
 ];
 
 const PLANS = [
   {
     name: 'Small school', price: '$10', capacity: 'Up to 100 students',
-    description: 'Perfect for small Madrasas and community schools just getting started — every core tool included, with room to grow.',
+    description: 'Perfect for small schools and community schools just getting started — every core tool included, with room to grow.',
     tint: Colors.primaryLight, highlighted: false,
   },
   {
@@ -44,7 +45,7 @@ const FUTURE_FEATURES = [
   { icon: 'phone-portrait', tint: Colors.success, title: 'Mobile Money Matching', body: 'Incoming mobile-money payments matched to the right student automatically.' },
   { icon: 'people-circle', tint: Colors.accent, title: 'Fee Promise System', body: 'Track and follow up on payment promises without awkward conversations.' },
   { icon: 'cloud-offline', tint: Colors.primary, title: 'Offline Attendance', body: "Mark attendance with no signal — records sync the moment you're back online." },
-  { icon: 'book', tint: Colors.success, title: "Qur'an / Madrasa Progress", body: 'Track Surah, memorization and Tajweed level for Madrasa programs.' },
+  { icon: 'chatbubble-ellipses', tint: Colors.success, title: 'School-Monitored Messaging', body: 'Safe, school-supervised chat between staff and families — no outside numbers needed.' },
   { icon: 'time', tint: Colors.primaryLight, title: 'Parent Trust Timeline', body: "A friendly day-by-day story of each child's school life that builds trust." },
   { icon: 'bar-chart', tint: Colors.accent, title: 'Teacher Workload Dashboard', body: 'A clear view of class load and pending tasks so no teacher is overwhelmed.' },
 ];

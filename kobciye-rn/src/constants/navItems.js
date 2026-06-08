@@ -14,7 +14,12 @@ export const NavItems = {
   exams: { key: 'exams', icon: 'document-text-outline', activeIcon: 'document-text' },
   results: { key: 'results', icon: 'ribbon-outline', activeIcon: 'ribbon' },
   riskScore: { key: 'riskScore', icon: 'analytics-outline', activeIcon: 'analytics' },
-  quranProgress: { key: 'quranProgress', icon: 'book-outline', activeIcon: 'book' },
+  lessons: { key: 'lessons', icon: 'book-outline', activeIcon: 'book' },
+  messaging: { key: 'messaging', icon: 'chatbubble-ellipses-outline', activeIcon: 'chatbubble-ellipses' },
+  teacherProfile: { key: 'teacherProfile', icon: 'person-circle-outline', activeIcon: 'person-circle' },
+  permissions: { key: 'permissions', icon: 'shield-checkmark-outline', activeIcon: 'shield-checkmark' },
+  subscription: { key: 'subscription', icon: 'card-outline', activeIcon: 'card' },
+  parentReports: { key: 'parentReports', icon: 'paper-plane-outline', activeIcon: 'paper-plane' },
   progress: { key: 'progress', icon: 'trending-up-outline', activeIcon: 'trending-up' },
   reports: { key: 'reports', icon: 'bar-chart-outline', activeIcon: 'bar-chart' },
   timeline: { key: 'timeline', icon: 'time-outline', activeIcon: 'time' },
@@ -28,17 +33,17 @@ export function navItemsForRole(role) {
   const N = NavItems;
   switch (role) {
     case AppRole.superAdmin:
-      return [N.dashboard, N.students, N.payments, N.riskScore, N.settings];
+      return [N.dashboard, N.students, N.payments, N.subscription, N.riskScore, N.settings];
     case AppRole.schoolAdmin:
-      return [N.dashboard, N.students, N.attendance, N.payments, N.riskScore, N.settings];
+      return [N.dashboard, N.students, N.attendance, N.exams, N.lessons, N.payments, N.permissions, N.subscription, N.settings];
     case AppRole.teacher:
-      return [N.dashboard, N.classes, N.attendance, N.notes, N.settings];
+      return [N.dashboard, N.classes, N.attendance, N.exams, N.lessons, N.messaging, N.parentReports, N.notes, N.settings];
     case AppRole.accountant:
       return [N.dashboard, N.payments, N.students, N.settings];
     case AppRole.parent:
-      return [N.dashboard, N.attendance, N.payments, N.timeline, N.notices];
+      return [N.dashboard, N.attendance, N.exams, N.payments, N.teacherProfile, N.messaging, N.timeline, N.notices];
     case AppRole.student:
-      return [N.dashboard, N.attendance, N.results, N.progress, N.notices];
+      return [N.dashboard, N.attendance, N.exams, N.results, N.lessons, N.teacherProfile, N.messaging, N.notices];
     default:
       return [N.dashboard, N.settings];
   }

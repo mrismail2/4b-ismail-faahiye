@@ -6,6 +6,7 @@ import StatCard from '../../widgets/StatCard';
 import HighlightBanner from '../../widgets/HighlightBanner';
 import SectionPlaceholder from '../../widgets/SectionPlaceholder';
 import SettingsPage from '../../widgets/SettingsPage';
+import PaymentsSection from '../../widgets/PaymentsSection';
 
 // Order mirrors navItemsForRole(accountant): Dashboard, Payments, Students, Settings.
 export default function AccountantDashboard({ route }) {
@@ -34,7 +35,7 @@ export default function AccountantDashboard({ route }) {
             />
           }
         />,
-        <SectionPlaceholder titleKey="payments" icon="card" gradient={Gradients.brand} />,
+        <PaymentsSection variant="admin" />,
         <SectionPlaceholder titleKey="students" icon="people" gradient={Gradients.growth} />,
         <SettingsPage user={user} roleLabelKey="role_accountant" />,
       ]}
