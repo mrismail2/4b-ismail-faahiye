@@ -35,7 +35,7 @@ export function navItemsForRole(role) {
     case AppRole.superAdmin:
       return [N.dashboard, N.students, N.payments, N.subscription, N.riskScore, N.settings];
     case AppRole.schoolAdmin:
-      return [N.dashboard, N.students, N.attendance, N.exams, N.payments, N.permissions, N.subscription, N.settings];
+      return [N.dashboard, N.students, N.attendance, N.exams, N.lessons, N.payments, N.permissions, N.subscription, N.settings];
     case AppRole.teacher:
       return [N.dashboard, N.classes, N.attendance, N.exams, N.lessons, N.payments, N.messaging, N.parentReports, N.notes, N.settings];
     case AppRole.accountant:
