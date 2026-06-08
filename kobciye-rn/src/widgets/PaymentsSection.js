@@ -1,9 +1,10 @@
-import React from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AppCard from './AppCard';
 import StatCard from './StatCard';
-import { Colors } from '../constants/colors';
+import Avatar from './Avatar';
+import { Colors, Gradients } from '../constants/colors';
 import { Text as TextStyles, Spacing } from '../constants/text';
 
 const STATUS_META = {
@@ -12,6 +13,60 @@ const STATUS_META = {
   partial: { color: Colors.accent, label: 'Partial', icon: 'time' },
   free: { color: Colors.primaryLight, label: 'Free', icon: 'gift' },
 };
+
+const DEMO_LEDGER = [
+  { name: 'Hibo Cabdullahi', studentCode: 'KBC-2031', className: 'Grade 5 - A', due: 25, paid: 25, status: 'paid' },
+  { name: 'Jamal Warsame', studentCode: 'KBC-2032', className: 'Grade 5 - A', due: 25, paid: 0, status: 'unpaid' },
+  { name: 'Sagal Maxamed', studentCode: 'KBC-2033', className: 'Grade 5 - A', due: 25, paid: 15, status: 'partial' },
+  { name: 'Cabdiweli Nuur', studentCode: 'KBC-2034', className: 'Grade 6 - B', due: 25, paid: 25, status: 'paid' },
+  { name: 'Anisa Cali', studentCode: 'KBC-2035', className: 'Grade 6 - B', due: 25, paid: 0, status: 'unpaid' },
+];
+
+function nextLedgerStatus(status) {
+  if (status === 'unpaid' || status === 'partial') return 'paid';
+  return 'unpaid';
+}
+
+function LedgerRow({ student, onToggle }) {
+  const meta = STATUS_META[student.status] || STATUS_META.unpaid;
+  return (
+    <AppCard style={styles.ledgerRow}>
+      <Avatar name={student.name} size={40} gradient={Gradients.brand} />
+      <View style={{ flex: 1 }}>
+        <Text style={TextStyles.h2}>{student.name}</Text>
+        <Text style={TextStyles.bodyMuted}>{student.studentCode} · {student.className} · ${student.paid} of ${student.due} collected</Text>
+      </View>
+      <View style={[styles.ledgerStatusChip, { backgroundColor: `${meta.color}1A` }]}>
+        <Ionicons name={meta.icon} size={13} color={meta.color} />
+        <Text style={[styles.statusText, { color: meta.color }]}>{meta.label}</Text>
+      </View>
+      <Pressable onPress={() => onToggle(student.studentCode)} style={styles.toggleBtn}>
+        <Ionicons name="checkmark-done-outline" size={14} color={Colors.primary} />
+        <Text style={styles.toggleText}>{student.status === 'paid' ? 'Mark unpaid' : 'Mark as paid'}</Text>
+      </Pressable>
+    </AppCard>
+  );
+}
+
+function StudentLedger({ ledger = DEMO_LEDGER }) {
+  const [students, setStudents] = useState(ledger);
+
+  function toggle(studentCode) {
+    setStudents((prev) => prev.map((s) => (
+      s.studentCode === studentCode
+        ? { ...s, status: nextLedgerStatus(s.status), paid: nextLedgerStatus(s.status) === 'paid' ? s.due : 0 }
+        : s
+    )));
+  }
+
+  return (
+    <View style={{ gap: 14 }}>
+      <Text style={TextStyles.h2}>Student-by-student tracking</Text>
+      <Text style={TextStyles.bodyMuted}>Track every student's balance and confirm payments as they're collected — by mobile money, in person or bank transfer.</Text>
+      {students.map((s) => <LedgerRow key={s.studentCode} student={s} onToggle={toggle} />)}
+    </View>
+  );
+}
 
 function PaymentRow({ row }) {
   const meta = STATUS_META[row.status] || STATUS_META.unpaid;
@@ -82,9 +137,12 @@ export default function PaymentsSection({ variant = 'self', history = DEMO_HISTO
       {variant === 'self' ? (
         history.map((row, i) => <PaymentRow key={i} row={row} />)
       ) : (
-        <View style={styles.grid}>
-          {summary.map((s, i) => <StatCard key={i} {...s} />)}
-        </View>
+        <>
+          <View style={styles.grid}>
+            {summary.map((s, i) => <StatCard key={i} {...s} />)}
+          </View>
+          <StudentLedger />
+        </>
       )}
 
       {variant !== 'self' && (
@@ -117,4 +175,8 @@ const styles = StyleSheet.create({
   warningCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: `${Colors.danger}0D`, borderColor: `${Colors.danger}33` },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 14 },
   placeholderNote: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  ledgerRow: { flexDirection: 'row', alignItems: 'center', gap: 12, flexWrap: 'wrap' },
+  ledgerStatusChip: { flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
+  toggleBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1.5, borderColor: Colors.primary, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8 },
+  toggleText: { fontSize: 12, fontWeight: '700', color: Colors.primary },
 });
