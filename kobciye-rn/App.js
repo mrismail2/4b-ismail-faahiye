@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from './src/context/AuthContext';
 import { LocalizationProvider } from './src/context/LocalizationContext';
-import { RequestSchoolAccountSheetHost } from './src/widgets/RequestSchoolAccountSheet';
+import { RegisterSchoolSheetHost } from './src/widgets/RegisterSchoolSheet';
 import RootNavigator from './src/navigation/RootNavigator';
 
 export default function App() {
@@ -15,7 +15,7 @@ export default function App() {
           <NavigationContainer>
             <StatusBar style="dark" />
             <RootNavigator />
-            <RequestSchoolAccountSheetHost />
+            <RegisterSchoolSheetHost />
           </NavigationContainer>
         </AuthProvider>
       </LocalizationProvider>

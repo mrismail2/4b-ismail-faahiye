@@ -52,10 +52,10 @@ export default function ParentDashboard({ route }) {
         <OverviewPage
           titleKey="overview"
           stats={[
-            <StatCard label="Attendance this month" value="96%" icon="checkbox" tint={Colors.success} trend="great" trendUp />,
-            <StatCard label="Outstanding fees" value="$0" icon="card" tint={Colors.primaryLight} trend="all clear" trendUp />,
-            <StatCard label="Latest exam average" value="88%" icon="ribbon" tint={Colors.accent} trend="+4%" trendUp />,
-            <StatCard label="Latest report" value="Today" icon="paper-plane" tint={Colors.success} trend="from class teacher" trendUp />,
+            <StatCard label="Attendance this month" value="96%" icon="checkbox-outline" tint="#16a34a" gradient={['#dcfce7','#f0fdf4']} trend="great" trendUp />,
+            <StatCard label="Outstanding fees" value="$0" icon="card-outline" tint={Colors.primaryLight} gradient={['#dbeafe','#eff6ff']} trend="all clear" trendUp />,
+            <StatCard label="Latest exam average" value="88%" icon="ribbon-outline" tint="#b45309" gradient={['#fef3c7','#fffbeb']} trend="+4%" trendUp />,
+            <StatCard label="Latest report" value="Today" icon="paper-plane-outline" tint="#7c3aed" gradient={['#ede9fe','#f5f3ff']} trend="from class teacher" trendUp />,
           ]}
           highlight={
             <HighlightBanner

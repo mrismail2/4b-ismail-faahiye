@@ -10,7 +10,7 @@ import LanguageSwitcher from '../widgets/LanguageSwitcher';
 import { useAuth, DEMO_ACCOUNT_LIST } from '../context/AuthContext';
 import { useLocalization } from '../context/LocalizationContext';
 import { AppRole } from '../constants/roles';
-import { showRequestSchoolAccountSheet } from '../widgets/RequestSchoolAccountSheet';
+import { showRegisterSchoolSheet } from '../widgets/RegisterSchoolSheet';
 import { roleHomeScreen } from '../navigation/roleRedirect';
 
 const FEATURE_PILLS = [
@@ -122,7 +122,7 @@ export default function LoginScreen({ navigation }) {
               loading={loading} onPress={submit} fullWidth />
           </View>
 
-          <Pressable onPress={() => showRequestSchoolAccountSheet()} style={styles.requestRow}>
+          <Pressable onPress={() => showRegisterSchoolSheet()} style={styles.requestRow}>
             <Ionicons name="school-outline" size={16} color={Colors.primary} />
             <Text style={[styles.link, { marginLeft: 6 }]}>{t('requestSchoolAccount')}</Text>
           </Pressable>
