@@ -58,24 +58,87 @@ export default function SettingsPage({ user, roleLabelKey }) {
 
       {/* About Section */}
       <View style={styles.aboutWrap}>
-        <LinearGradient colors={Gradients.brand} style={styles.aboutCard}>
-          <View style={styles.aboutGlowRing}>
-            <LinearGradient colors={['rgba(255,255,255,0.3)', 'rgba(255,255,255,0.08)']} style={styles.founderAvatar}>
-              <Text style={styles.founderInitials}>IF</Text>
+        {/* decorative top stars */}
+        <View style={styles.aboutStars}>
+          {['✦','✧','✦'].map((s, i) => (
+            <Text key={i} style={[styles.aboutStar, { opacity: [0.5, 0.3, 0.5][i], fontSize: [10, 7, 10][i] }]}>{s}</Text>
+          ))}
+        </View>
+
+        <LinearGradient colors={['#1a1a2e', '#16213e', '#0f3460']} style={styles.aboutCard}>
+          {/* outer pulse ring */}
+          <View style={styles.photoRingOuter}>
+            {/* mid ring */}
+            <View style={styles.photoRingMid}>
+              {/* inner glow ring */}
+              <LinearGradient
+                colors={['#e040fb', '#7c4dff', '#448aff']}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                style={styles.photoRingGradient}
+              >
+                {/* photo circle */}
+                <View style={styles.photoCircle}>
+                  <LinearGradient
+                    colors={['#2d1b69', '#11998e', '#38ef7d']}
+                    start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                    style={styles.photoInner}
+                  >
+                    <Ionicons name="person" size={56} color="rgba(255,255,255,0.92)" />
+                  </LinearGradient>
+                </View>
+              </LinearGradient>
+            </View>
+          </View>
+
+          {/* verified badge */}
+          <View style={styles.verifiedBadge}>
+            <LinearGradient colors={['#7c4dff', '#448aff']} style={styles.verifiedBadgeInner}>
+              <Ionicons name="checkmark" size={11} color="#fff" />
             </LinearGradient>
           </View>
+
+          {/* name */}
           <Text style={styles.aboutName}>Ismail Abdirahman Ahmed</Text>
-          <Text style={styles.aboutAlias}>(Ismail Fahie)</Text>
-          <View style={styles.aboutDividerLine} />
-          <View style={styles.aboutAppRow}>
-            <Text style={styles.aboutAppName}>Kobciye</Text>
-            <View style={styles.aboutDot} />
-            <Text style={styles.aboutLocation}>Gabiley, Somaliland</Text>
+          <Text style={styles.aboutAlias}>Ismail Fahie</Text>
+
+          {/* role tag */}
+          <View style={styles.founderTag}>
+            <LinearGradient colors={['#7c4dff44', '#448aff44']} style={styles.founderTagInner}>
+              <Ionicons name="code-slash-outline" size={12} color="rgba(180,180,255,0.9)" />
+              <Text style={styles.founderTagText}>Founder & Developer</Text>
+            </LinearGradient>
           </View>
+
+          <View style={styles.aboutDividerLine} />
+
+          {/* location + app */}
+          <View style={styles.aboutInfoRow}>
+            <View style={styles.aboutInfoItem}>
+              <Ionicons name="location-outline" size={14} color="rgba(180,180,255,0.8)" />
+              <Text style={styles.aboutInfoText}>Gabiley, Somaliland</Text>
+            </View>
+            <View style={styles.aboutInfoDot} />
+            <View style={styles.aboutInfoItem}>
+              <Ionicons name="school-outline" size={14} color="rgba(180,180,255,0.8)" />
+              <Text style={styles.aboutInfoText}>Kobciye</Text>
+            </View>
+          </View>
+
           <Text style={styles.aboutCopyright}>© {new Date().getFullYear()} Kobciye · All rights reserved</Text>
+
           <View style={styles.aboutBadgeRow}>
-            <View style={styles.aboutBadge}><Ionicons name="shield-checkmark-outline" size={13} color="rgba(255,255,255,0.9)" /><Text style={styles.aboutBadgeText}>School Management</Text></View>
-            <View style={styles.aboutBadge}><Ionicons name="globe-outline" size={13} color="rgba(255,255,255,0.9)" /><Text style={styles.aboutBadgeText}>EN · SO</Text></View>
+            <View style={styles.aboutBadge}>
+              <Ionicons name="shield-checkmark-outline" size={12} color="rgba(180,180,255,0.9)" />
+              <Text style={styles.aboutBadgeText}>School Management</Text>
+            </View>
+            <View style={styles.aboutBadge}>
+              <Ionicons name="globe-outline" size={12} color="rgba(180,180,255,0.9)" />
+              <Text style={styles.aboutBadgeText}>EN · SO</Text>
+            </View>
+            <View style={styles.aboutBadge}>
+              <Ionicons name="phone-portrait-outline" size={12} color="rgba(180,180,255,0.9)" />
+              <Text style={styles.aboutBadgeText}>Mobile First</Text>
+            </View>
           </View>
         </LinearGradient>
       </View>
@@ -93,20 +156,84 @@ const styles = StyleSheet.create({
   roleChipText: { fontSize: 11, fontWeight: '700', color: Colors.primary, letterSpacing: 0.4 },
   dangerIcon: { width: 44, height: 44, borderRadius: 13, backgroundColor: `${Colors.danger}1A`, alignItems: 'center', justifyContent: 'center' },
 
-  aboutWrap: { marginTop: 28, marginBottom: 8 },
-  aboutCard: { borderRadius: 28, padding: 28, alignItems: 'center', shadowColor: Colors.primary, shadowOpacity: 0.25, shadowRadius: 30, shadowOffset: { width: 0, height: 10 } },
-  aboutGlowRing: { width: 92, height: 92, borderRadius: 46, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center', marginBottom: 14, borderWidth: 2, borderColor: 'rgba(255,255,255,0.25)' },
-  founderAvatar: { width: 76, height: 76, borderRadius: 38, alignItems: 'center', justifyContent: 'center' },
-  founderInitials: { fontSize: 26, fontWeight: '900', color: '#fff', letterSpacing: 1 },
-  aboutName: { fontSize: 18, fontWeight: '800', color: '#fff', letterSpacing: -0.3, textAlign: 'center' },
-  aboutAlias: { fontSize: 14, color: 'rgba(255,255,255,0.75)', fontWeight: '500', marginTop: 3 },
-  aboutDividerLine: { width: 48, height: 2, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.25)', marginVertical: 16 },
-  aboutAppRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  aboutAppName: { fontSize: 16, fontWeight: '800', color: '#fff', letterSpacing: 0.3 },
-  aboutDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.5)' },
-  aboutLocation: { fontSize: 13.5, color: 'rgba(255,255,255,0.8)', fontWeight: '600' },
-  aboutCopyright: { fontSize: 11.5, color: 'rgba(255,255,255,0.55)', marginTop: 10, letterSpacing: 0.2 },
-  aboutBadgeRow: { flexDirection: 'row', gap: 10, marginTop: 18, flexWrap: 'wrap', justifyContent: 'center' },
-  aboutBadge: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
-  aboutBadgeText: { fontSize: 11.5, fontWeight: '700', color: 'rgba(255,255,255,0.9)', letterSpacing: 0.2 },
+  aboutWrap: { marginTop: 28, marginBottom: 16 },
+  aboutStars: { flexDirection: 'row', justifyContent: 'center', gap: 14, marginBottom: 6 },
+  aboutStar: { color: Colors.primary, fontWeight: '900' },
+
+  aboutCard: {
+    borderRadius: 32, paddingTop: 36, paddingBottom: 28, paddingHorizontal: 24,
+    alignItems: 'center',
+    borderWidth: 1, borderColor: 'rgba(124,77,255,0.3)',
+    shadowColor: '#7c4dff', shadowOpacity: 0.5, shadowRadius: 40, shadowOffset: { width: 0, height: 16 },
+  },
+
+  // photo rings
+  photoRingOuter: {
+    width: 136, height: 136, borderRadius: 68,
+    backgroundColor: 'rgba(124,77,255,0.08)',
+    borderWidth: 1, borderColor: 'rgba(124,77,255,0.2)',
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: 6,
+  },
+  photoRingMid: {
+    width: 118, height: 118, borderRadius: 59,
+    backgroundColor: 'rgba(68,138,255,0.1)',
+    borderWidth: 1.5, borderColor: 'rgba(68,138,255,0.25)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  photoRingGradient: {
+    width: 100, height: 100, borderRadius: 50,
+    padding: 3,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  photoCircle: {
+    width: 94, height: 94, borderRadius: 47,
+    overflow: 'hidden',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  photoInner: {
+    width: '100%', height: '100%',
+    alignItems: 'center', justifyContent: 'center',
+  },
+
+  verifiedBadge: {
+    marginTop: -18, marginBottom: 14,
+    width: 26, height: 26, borderRadius: 13,
+    backgroundColor: '#1a1a2e',
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2, borderColor: '#1a1a2e',
+  },
+  verifiedBadgeInner: {
+    width: 22, height: 22, borderRadius: 11,
+    alignItems: 'center', justifyContent: 'center',
+  },
+
+  aboutName: { fontSize: 20, fontWeight: '900', color: '#ffffff', letterSpacing: -0.4, textAlign: 'center', lineHeight: 26 },
+  aboutAlias: { fontSize: 13.5, color: 'rgba(180,180,255,0.7)', fontWeight: '600', marginTop: 4, letterSpacing: 0.3 },
+
+  founderTag: { marginTop: 14 },
+  founderTagInner: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20,
+    borderWidth: 1, borderColor: 'rgba(124,77,255,0.4)',
+  },
+  founderTagText: { fontSize: 12, fontWeight: '700', color: 'rgba(180,180,255,0.9)', letterSpacing: 0.3 },
+
+  aboutDividerLine: { width: 40, height: 1.5, borderRadius: 2, backgroundColor: 'rgba(124,77,255,0.4)', marginVertical: 18 },
+
+  aboutInfoRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  aboutInfoItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  aboutInfoText: { fontSize: 13, color: 'rgba(180,180,255,0.8)', fontWeight: '600' },
+  aboutInfoDot: { width: 3, height: 3, borderRadius: 2, backgroundColor: 'rgba(124,77,255,0.6)' },
+
+  aboutCopyright: { fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 14, letterSpacing: 0.3 },
+
+  aboutBadgeRow: { flexDirection: 'row', gap: 8, marginTop: 16, flexWrap: 'wrap', justifyContent: 'center' },
+  aboutBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    paddingHorizontal: 11, paddingVertical: 6, borderRadius: 20,
+    backgroundColor: 'rgba(124,77,255,0.12)',
+    borderWidth: 1, borderColor: 'rgba(124,77,255,0.3)',
+  },
+  aboutBadgeText: { fontSize: 11, fontWeight: '700', color: 'rgba(180,180,255,0.85)', letterSpacing: 0.2 },
 });
