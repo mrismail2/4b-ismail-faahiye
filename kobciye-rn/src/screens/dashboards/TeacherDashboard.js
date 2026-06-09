@@ -1,5 +1,6 @@
 import React from 'react';
 import { Colors, Gradients } from '../../constants/colors';
+import QuickActions from '../../widgets/QuickActions';
 import DashboardShell from '../../widgets/DashboardShell';
 import OverviewPage from '../../widgets/OverviewPage';
 import StatCard from '../../widgets/StatCard';
@@ -24,6 +25,13 @@ export default function TeacherDashboard({ route }) {
       pages={[
         <OverviewPage
           titleKey="overview"
+          quickActions={
+            <QuickActions actions={[
+              { icon: 'checkbox-outline', label: 'Mark Attendance', gradient: ['#0891b2','#0e7490'] },
+              { icon: 'document-text-outline', label: 'Upload Marks', gradient: ['#e11d48','#be123c'] },
+              { icon: 'book-outline', label: 'Create Lesson', gradient: ['#CFAD5E','#b45309'] },
+            ]} />
+          }
           stats={[
             <StatCard label="Assigned classes" value="4" icon="easel" tint={Colors.primaryLight} trend="this term" trendUp />,
             <StatCard label="Attendance pending" value="2" icon="checkbox" tint={Colors.accent} trend="today" trendUp={false} />,

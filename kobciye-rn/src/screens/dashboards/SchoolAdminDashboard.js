@@ -1,5 +1,6 @@
 import React from 'react';
 import { Colors, Gradients } from '../../constants/colors';
+import QuickActions from '../../widgets/QuickActions';
 import DashboardShell from '../../widgets/DashboardShell';
 import OverviewPage from '../../widgets/OverviewPage';
 import StatCard from '../../widgets/StatCard';
@@ -24,6 +25,13 @@ export default function SchoolAdminDashboard({ route }) {
       pages={[
         <OverviewPage
           titleKey="overview"
+          quickActions={
+            <QuickActions actions={[
+              { icon: 'person-add-outline', label: 'Add Student', gradient: ['#1E4F96','#2563EB'] },
+              { icon: 'card-outline', label: 'Collect Payment', gradient: ['#16a34a','#15803d'] },
+              { icon: 'megaphone-outline', label: 'Send Notice', gradient: ['#7c3aed','#6d28d9'] },
+            ]} />
+          }
           stats={[
             <StatCard label="Total students" value="642" icon="people" tint={Colors.primaryLight} trend="+18" trendUp />,
             <StatCard label="Attendance today" value="94%" icon="checkbox" tint={Colors.success} trend="+2.1%" trendUp />,

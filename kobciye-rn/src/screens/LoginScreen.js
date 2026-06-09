@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, useWindowDimensions, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Gradients, glass } from '../constants/colors';
@@ -19,20 +19,166 @@ const FEATURE_PILLS = [
   'Designed mobile-first, works everywhere',
 ];
 
+function ForgotPasswordModal({ visible, onClose }) {
+  const [fpEmail, setFpEmail] = useState('');
+  const [sent, setSent] = useState(false);
+
+  const handleSend = () => {
+    if (!fpEmail.trim()) return;
+    setSent(true);
+  };
+
+  const handleClose = () => {
+    setFpEmail('');
+    setSent(false);
+    onClose();
+  };
+
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
+      <Pressable style={fpStyles.backdrop} onPress={handleClose}>
+        <Pressable style={fpStyles.sheet} onPress={() => {}}>
+          {/* Close button */}
+          <Pressable onPress={handleClose} style={fpStyles.closeBtn} hitSlop={10}>
+            <Ionicons name="close" size={20} color={Colors.muted} />
+          </Pressable>
+
+          <LinearGradient colors={Gradients.brand} style={fpStyles.iconWrap}>
+            <Ionicons name="lock-open-outline" size={26} color="#fff" />
+          </LinearGradient>
+
+          <Text style={fpStyles.title}>Forgot Password?</Text>
+          <Text style={fpStyles.subtitle}>
+            Enter your email address and we'll send you a link to reset your password.
+          </Text>
+
+          {sent ? (
+            <View style={fpStyles.successBox}>
+              <Ionicons name="checkmark-circle" size={40} color={Colors.success} style={{ marginBottom: 10 }} />
+              <Text style={fpStyles.successText}>
+                Check your inbox — a reset link has been sent to{' '}
+                <Text style={{ fontWeight: '800', color: Colors.primary }}>{fpEmail}</Text>
+              </Text>
+              <Pressable onPress={handleClose} style={fpStyles.doneBtn}>
+                <Text style={fpStyles.doneBtnLabel}>Done</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <>
+              <Text style={fpStyles.label}>Email address</Text>
+              <View style={fpStyles.inputWrap}>
+                <Ionicons name="at" size={18} color={Colors.muted} style={{ marginRight: 8 }} />
+                <TextInput
+                  value={fpEmail}
+                  onChangeText={setFpEmail}
+                  placeholder="name@school.com"
+                  placeholderTextColor={Colors.muted}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  style={fpStyles.input}
+                />
+              </View>
+              <Pressable
+                onPress={handleSend}
+                style={[fpStyles.sendBtn, !fpEmail.trim() && { opacity: 0.45 }]}
+              >
+                <LinearGradient colors={Gradients.brand} style={fpStyles.sendBtnGrad}>
+                  <Ionicons name="send-outline" size={16} color="#fff" style={{ marginRight: 8 }} />
+                  <Text style={fpStyles.sendBtnLabel}>Send reset link</Text>
+                </LinearGradient>
+              </Pressable>
+            </>
+          )}
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
+const fpStyles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(10,46,107,0.45)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  sheet: {
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: Colors.surface,
+    borderRadius: 28,
+    padding: 28,
+    alignItems: 'center',
+    shadowColor: Colors.primary,
+    shadowOpacity: 0.18,
+    shadowRadius: 40,
+    shadowOffset: { width: 0, height: 16 },
+  },
+  closeBtn: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  iconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    marginTop: 4,
+  },
+  title: { fontSize: 20, fontWeight: '800', color: Colors.text, marginBottom: 6 },
+  subtitle: { fontSize: 13.5, color: Colors.muted, textAlign: 'center', lineHeight: 20, marginBottom: 20 },
+  label: { alignSelf: 'flex-start', fontSize: 13, fontWeight: '700', color: Colors.muted, marginBottom: 8 },
+  inputWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    backgroundColor: Colors.background,
+    width: '100%',
+    marginBottom: 18,
+  },
+  input: { flex: 1, paddingVertical: 14, fontSize: 14, color: Colors.text },
+  sendBtn: { width: '100%', borderRadius: 14, overflow: 'hidden' },
+  sendBtnGrad: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 15 },
+  sendBtnLabel: { color: '#fff', fontWeight: '800', fontSize: 15 },
+  successBox: { alignItems: 'center', paddingVertical: 8 },
+  successText: { fontSize: 14, color: Colors.muted, textAlign: 'center', lineHeight: 22, marginBottom: 20 },
+  doneBtn: {
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    borderRadius: 14,
+    backgroundColor: `${Colors.primaryLight}14`,
+    borderWidth: 1.5,
+    borderColor: `${Colors.primary}40`,
+  },
+  doneBtnLabel: { fontSize: 14, fontWeight: '800', color: Colors.primary },
+});
+
 export default function LoginScreen({ navigation }) {
   const { width } = useWindowDimensions();
   const isDesktop = width > 920;
   const { t } = useLocalization();
   const { signIn, error, loading, currentUser } = useAuth();
 
-  const [tab, setTab] = useState('login'); // 'login' | 'register'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [obscure, setObscure] = useState(true);
-  const [obscureConfirm, setObscureConfirm] = useState(true);
   const [localError, setLocalError] = useState(null);
-  const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [fpVisible, setFpVisible] = useState(false);
 
   const submit = async () => {
     setLocalError(null);
@@ -45,22 +191,6 @@ export default function LoginScreen({ navigation }) {
     }
   };
 
-  const submitRegister = () => {
-    setLocalError(null);
-    if (!email.trim()) { setLocalError('Please enter your email address.'); return; }
-    if (password.length < 8) { setLocalError('Password must be at least 8 characters.'); return; }
-    if (password !== confirmPassword) { setLocalError('Passwords do not match. Please try again.'); return; }
-    // Phase 1: UI-only — registration request is acknowledged but not persisted.
-    setRegisterSuccess(true);
-    setEmail(''); setPassword(''); setConfirmPassword('');
-  };
-
-  // Public preview is intentionally limited to the Student and Parent
-  // portals — the most useful "show me the app" experience for schools
-  // and visitors evaluating Kobciye. Admin, teacher and accountant
-  // dashboards stay fully built and reachable in the codebase, but are
-  // only meant to be opened through real Supabase Auth in a later phase,
-  // so they are not advertised as public preview buttons here.
   const previewAccount = (role) => DEMO_ACCOUNT_LIST.find((u) => u.role === role);
 
   const continueAsPreview = async (role) => {
@@ -73,133 +203,61 @@ export default function LoginScreen({ navigation }) {
 
   const card = (
     <View style={styles.card}>
+      <ForgotPasswordModal visible={fpVisible} onClose={() => setFpVisible(false)} />
+
       <View style={styles.cardTopRow}>
-        <Text style={[TextStyles.h1, { flex: 1 }]}>{tab === 'login' ? t('welcomeBack') : 'Create Account'}</Text>
+        <Text style={[TextStyles.h1, { flex: 1 }]}>{t('welcomeBack')}</Text>
         <LanguageSwitcher />
       </View>
 
-      {/* Tab switcher */}
-      <View style={styles.tabRow}>
-        <Pressable onPress={() => { setTab('login'); setLocalError(null); setRegisterSuccess(false); }} style={[styles.tabBtn, tab === 'login' && styles.tabBtnActive]}>
-          <Ionicons name="log-in-outline" size={15} color={tab === 'login' ? Colors.primary : Colors.muted} />
-          <Text style={[styles.tabBtnLabel, tab === 'login' && styles.tabBtnLabelActive]}>Sign In</Text>
-        </Pressable>
-        <Pressable onPress={() => { setTab('register'); setLocalError(null); setRegisterSuccess(false); }} style={[styles.tabBtn, tab === 'register' && styles.tabBtnActive]}>
-          <Ionicons name="person-add-outline" size={15} color={tab === 'register' ? Colors.primary : Colors.muted} />
-          <Text style={[styles.tabBtnLabel, tab === 'register' && styles.tabBtnLabelActive]}>Register</Text>
+      <Text style={[TextStyles.bodyMuted, { marginTop: 10 }]}>{t('signInToContinue')}</Text>
+
+      <Text style={styles.fieldLabel}>{t('email')}</Text>
+      <View style={styles.inputWrap}>
+        <Ionicons name="at" size={18} color={Colors.muted} style={{ marginRight: 8 }} />
+        <TextInput value={email} onChangeText={setEmail} placeholder="name@school.com"
+          placeholderTextColor={Colors.muted} keyboardType="email-address" autoCapitalize="none" style={styles.input} />
+      </View>
+
+      <Text style={styles.fieldLabel}>{t('password')}</Text>
+      <View style={styles.inputWrap}>
+        <Ionicons name="lock-closed-outline" size={18} color={Colors.muted} style={{ marginRight: 8 }} />
+        <TextInput value={password} onChangeText={setPassword} placeholder="••••••••"
+          placeholderTextColor={Colors.muted} secureTextEntry={obscure} style={styles.input} />
+        <Pressable onPress={() => setObscure((v) => !v)} hitSlop={8}>
+          <Ionicons name={obscure ? 'eye-outline' : 'eye-off-outline'} size={18} color={Colors.muted} />
         </Pressable>
       </View>
 
-      {tab === 'login' ? (
-        <>
-          <Text style={[TextStyles.bodyMuted, { marginTop: 6 }]}>{t('signInToContinue')}</Text>
+      <Pressable onPress={() => setFpVisible(true)} style={{ alignSelf: 'flex-end', marginTop: 6, marginBottom: 4 }}>
+        <Text style={styles.link}>{t('forgotPassword')}</Text>
+      </Pressable>
 
-          <Text style={styles.fieldLabel}>{t('email')}</Text>
-          <View style={styles.inputWrap}>
-            <Ionicons name="at" size={18} color={Colors.muted} style={{ marginRight: 8 }} />
-            <TextInput value={email} onChangeText={setEmail} placeholder="name@school.com"
-              placeholderTextColor={Colors.muted} keyboardType="email-address" autoCapitalize="none" style={styles.input} />
-          </View>
+      {(localError || error) && <Text style={styles.error}>{localError || error}</Text>}
 
-          <Text style={styles.fieldLabel}>{t('password')}</Text>
-          <View style={styles.inputWrap}>
-            <Ionicons name="lock-closed-outline" size={18} color={Colors.muted} style={{ marginRight: 8 }} />
-            <TextInput value={password} onChangeText={setPassword} placeholder="••••••••"
-              placeholderTextColor={Colors.muted} secureTextEntry={obscure} style={styles.input} />
-            <Pressable onPress={() => setObscure((v) => !v)} hitSlop={8}>
-              <Ionicons name={obscure ? 'eye-outline' : 'eye-off-outline'} size={18} color={Colors.muted} />
-            </Pressable>
-          </View>
+      <View style={{ marginTop: 8 }}>
+        <AppButton label={t('signIn')} icon={<Ionicons name="log-in-outline" size={18} color="#fff" />}
+          loading={loading} onPress={submit} fullWidth />
+      </View>
 
-          <Pressable style={{ alignSelf: 'flex-end', marginTop: 6, marginBottom: 4 }}>
-            <Text style={styles.link}>{t('forgotPassword')}</Text>
-          </Pressable>
+      <Pressable onPress={() => showRegisterSchoolSheet()} style={styles.requestRow}>
+        <Ionicons name="school-outline" size={16} color={Colors.primary} />
+        <Text style={[styles.link, { marginLeft: 6 }]}>Register your school</Text>
+      </Pressable>
 
-          {(localError || error) && <Text style={styles.error}>{localError || error}</Text>}
+      <View style={styles.divider} />
 
-          <View style={{ marginTop: 8 }}>
-            <AppButton label={t('signIn')} icon={<Ionicons name="log-in-outline" size={18} color="#fff" />}
-              loading={loading} onPress={submit} fullWidth />
-          </View>
-
-          <Pressable onPress={() => showRegisterSchoolSheet()} style={styles.requestRow}>
-            <Ionicons name="school-outline" size={16} color={Colors.primary} />
-            <Text style={[styles.link, { marginLeft: 6 }]}>Register your school</Text>
-          </Pressable>
-
-          <View style={styles.divider} />
-
-          <Text style={TextStyles.caption}>{t('quickDemoAccess')}</Text>
-          <View style={styles.previewRow}>
-            <Pressable onPress={() => continueAsPreview(AppRole.student)} style={styles.previewBtn}>
-              <Ionicons name="school-outline" size={16} color={Colors.primary} />
-              <Text style={styles.previewBtnLabel}>{t('previewStudentPortal')}</Text>
-            </Pressable>
-            <Pressable onPress={() => continueAsPreview(AppRole.parent)} style={styles.previewBtn}>
-              <Ionicons name="home-outline" size={16} color={Colors.primary} />
-              <Text style={styles.previewBtnLabel}>{t('previewParentPortal')}</Text>
-            </Pressable>
-          </View>
-        </>
-      ) : (
-        <>
-          <Text style={[TextStyles.bodyMuted, { marginTop: 6 }]}>Create your Kobciye account.</Text>
-
-          {registerSuccess ? (
-            <View style={styles.successBox}>
-              <Ionicons name="checkmark-circle" size={32} color="#22c55e" style={{ marginBottom: 10 }} />
-              <Text style={styles.successTitle}>Request received!</Text>
-              <Text style={styles.successBody}>Your registration request has been submitted. A school admin will activate your account and send you login details.</Text>
-              <Pressable onPress={() => { setTab('login'); setRegisterSuccess(false); }} style={{ marginTop: 16 }}>
-                <Text style={styles.link}>Back to Sign In</Text>
-              </Pressable>
-            </View>
-          ) : (
-            <>
-              <Text style={styles.fieldLabel}>{t('email')}</Text>
-              <View style={styles.inputWrap}>
-                <Ionicons name="at" size={18} color={Colors.muted} style={{ marginRight: 8 }} />
-                <TextInput value={email} onChangeText={setEmail} placeholder="name@school.com"
-                  placeholderTextColor={Colors.muted} keyboardType="email-address" autoCapitalize="none" style={styles.input} />
-              </View>
-
-              <Text style={styles.fieldLabel}>{t('password')}</Text>
-              <View style={styles.inputWrap}>
-                <Ionicons name="lock-closed-outline" size={18} color={Colors.muted} style={{ marginRight: 8 }} />
-                <TextInput value={password} onChangeText={setPassword} placeholder="Min. 8 characters"
-                  placeholderTextColor={Colors.muted} secureTextEntry={obscure} style={styles.input} />
-                <Pressable onPress={() => setObscure((v) => !v)} hitSlop={8}>
-                  <Ionicons name={obscure ? 'eye-outline' : 'eye-off-outline'} size={18} color={Colors.muted} />
-                </Pressable>
-              </View>
-
-              <Text style={styles.fieldLabel}>Confirm Password</Text>
-              <View style={[styles.inputWrap, confirmPassword.length > 0 && confirmPassword !== password && styles.inputWrapError]}>
-                <Ionicons name="lock-closed-outline" size={18} color={Colors.muted} style={{ marginRight: 8 }} />
-                <TextInput value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Re-enter password"
-                  placeholderTextColor={Colors.muted} secureTextEntry={obscureConfirm} style={styles.input} />
-                <Pressable onPress={() => setObscureConfirm((v) => !v)} hitSlop={8}>
-                  <Ionicons name={obscureConfirm ? 'eye-outline' : 'eye-off-outline'} size={18} color={Colors.muted} />
-                </Pressable>
-              </View>
-              {confirmPassword.length > 0 && confirmPassword !== password && (
-                <Text style={[styles.error, { marginTop: 4 }]}>Passwords do not match</Text>
-              )}
-
-              {localError && <Text style={styles.error}>{localError}</Text>}
-
-              <View style={{ marginTop: 16 }}>
-                <AppButton label="Create Account" icon={<Ionicons name="person-add-outline" size={18} color="#fff" />}
-                  onPress={submitRegister} fullWidth />
-              </View>
-
-              <Pressable onPress={() => { setTab('login'); setLocalError(null); }} style={[styles.requestRow, { marginTop: 14 }]}>
-                <Text style={styles.link}>Already have an account? Sign in</Text>
-              </Pressable>
-            </>
-          )}
-        </>
-      )}
+      <Text style={TextStyles.caption}>{t('quickDemoAccess')}</Text>
+      <View style={styles.previewRow}>
+        <Pressable onPress={() => continueAsPreview(AppRole.student)} style={styles.previewBtn}>
+          <Ionicons name="school-outline" size={16} color={Colors.primary} />
+          <Text style={styles.previewBtnLabel}>{t('previewStudentPortal')}</Text>
+        </Pressable>
+        <Pressable onPress={() => continueAsPreview(AppRole.parent)} style={styles.previewBtn}>
+          <Ionicons name="home-outline" size={16} color={Colors.primary} />
+          <Text style={styles.previewBtnLabel}>{t('previewParentPortal')}</Text>
+        </Pressable>
+      </View>
     </View>
   );
 
@@ -207,7 +265,6 @@ export default function LoginScreen({ navigation }) {
     return (
       <View style={styles.desktopRow}>
         <LinearGradient colors={Gradients.brandVibrant} style={styles.desktopHero}>
-          {/* Decorative floating circles */}
           <View style={styles.heroCircle1} pointerEvents="none" />
           <View style={styles.heroCircle2} pointerEvents="none" />
           <View style={styles.heroCircle3} pointerEvents="none" />
@@ -287,14 +344,4 @@ const styles = StyleSheet.create({
 
   mobileHero: { paddingHorizontal: 24, paddingTop: 64, paddingBottom: 64, alignItems: 'flex-start' },
   mobileCardWrap: { marginTop: -28, paddingHorizontal: 20, paddingBottom: 32 },
-
-  tabRow: { flexDirection: 'row', marginTop: 20, borderRadius: 16, backgroundColor: Colors.background, padding: 5, gap: 4, borderWidth: 1, borderColor: Colors.border },
-  tabBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, borderRadius: 12 },
-  tabBtnActive: { backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, shadowColor: Colors.primary, shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } },
-  tabBtnLabel: { fontSize: 13.5, fontWeight: '600', color: Colors.muted },
-  tabBtnLabelActive: { color: Colors.primary, fontWeight: '700' },
-  inputWrapError: { borderColor: Colors.danger },
-  successBox: { marginTop: 20, alignItems: 'center', paddingVertical: 24, paddingHorizontal: 12 },
-  successTitle: { fontSize: 18, fontWeight: '800', color: Colors.text, marginBottom: 8 },
-  successBody: { fontSize: 13.5, color: Colors.muted, textAlign: 'center', lineHeight: 21 },
 });

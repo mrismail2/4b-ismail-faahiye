@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, Pressable, StyleSheet, useWindowDimensions, Modal, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Gradients, glass } from '../constants/colors';
@@ -11,6 +11,98 @@ import LanguageSwitcher from './LanguageSwitcher';
 import { navItemsForRole } from '../constants/navItems';
 import { useAuth, userInitials } from '../context/AuthContext';
 import { useLocalization } from '../context/LocalizationContext';
+import { AppRole } from '../constants/roles';
+
+const NOTIFICATIONS = [
+  { id: 1, icon: 'document-text-outline', title: 'Exam results published — Grade 5A Math', time: '2 min ago', color: Colors.primary },
+  { id: 2, icon: 'checkmark-circle-outline', title: "Faadumo's attendance: Present today", time: '1 hr ago', color: Colors.success },
+  { id: 3, icon: 'card-outline', title: 'Payment received — $25 from Ahmed', time: 'Yesterday', color: Colors.accent },
+];
+
+const FAB_ACTIONS = {
+  [AppRole.schoolAdmin]: [
+    { icon: 'person-add-outline', label: 'Add Student', gradient: ['#1E4F96','#2563EB'] },
+    { icon: 'card-outline', label: 'Collect Payment', gradient: ['#16a34a','#15803d'] },
+    { icon: 'megaphone-outline', label: 'Send Notice', gradient: ['#7c3aed','#6d28d9'] },
+  ],
+  [AppRole.teacher]: [
+    { icon: 'checkbox-outline', label: 'Mark Attendance', gradient: ['#0891b2','#0e7490'] },
+    { icon: 'document-text-outline', label: 'Upload Marks', gradient: ['#e11d48','#be123c'] },
+    { icon: 'book-outline', label: 'Create Lesson', gradient: ['#CFAD5E','#b45309'] },
+  ],
+};
+
+function NotificationBell({ light = false }) {
+  const [visible, setVisible] = useState(false);
+  const iconColor = light ? '#fff' : Colors.text;
+  return (
+    <>
+      <Pressable onPress={() => setVisible(true)} style={styles.bellWrap} hitSlop={8}>
+        <Ionicons name="notifications-outline" size={22} color={iconColor} />
+        <View style={styles.bellBadge}>
+          <Text style={styles.bellBadgeText}>3</Text>
+        </View>
+      </Pressable>
+
+      <Modal visible={visible} transparent animationType="fade" onRequestClose={() => setVisible(false)}>
+        <Pressable style={styles.notifBackdrop} onPress={() => setVisible(false)}>
+          <Pressable style={styles.notifSheet} onPress={() => {}}>
+            <View style={styles.notifHeader}>
+              <Text style={styles.notifTitle}>Notifications</Text>
+              <Pressable onPress={() => setVisible(false)} hitSlop={10}>
+                <Ionicons name="close" size={20} color={Colors.muted} />
+              </Pressable>
+            </View>
+            {NOTIFICATIONS.map((n) => (
+              <Pressable key={n.id} style={styles.notifItem} onPress={() => setVisible(false)}>
+                <View style={[styles.notifIconWrap, { backgroundColor: `${n.color}18` }]}>
+                  <Ionicons name={n.icon} size={18} color={n.color} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.notifItemTitle}>{n.title}</Text>
+                  <Text style={styles.notifItemTime}>{n.time}</Text>
+                </View>
+              </Pressable>
+            ))}
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </>
+  );
+}
+
+function FAB({ userRole, isDesktop }) {
+  const [open, setOpen] = useState(false);
+  const actions = FAB_ACTIONS[userRole];
+  if (!actions) return null;
+
+  const handleAction = (label) => {
+    setOpen(false);
+    Alert.alert('Coming soon', `"${label}" will be available in the next update.`);
+  };
+
+  return (
+    <View style={[styles.fabContainer, isDesktop ? styles.fabContainerDesktop : styles.fabContainerMobile]}>
+      {open && (
+        <View style={styles.fabMenu}>
+          {[...actions].reverse().map((action, i) => (
+            <Pressable key={i} onPress={() => handleAction(action.label)} style={styles.fabMenuItem}>
+              <Text style={styles.fabMenuLabel}>{action.label}</Text>
+              <LinearGradient colors={action.gradient} style={styles.fabMiniBtn}>
+                <Ionicons name={action.icon} size={18} color="#fff" />
+              </LinearGradient>
+            </Pressable>
+          ))}
+        </View>
+      )}
+      <Pressable onPress={() => setOpen((v) => !v)} style={styles.fabMainWrap}>
+        <LinearGradient colors={Gradients.brand} style={styles.fabMain}>
+          <Ionicons name={open ? 'close' : 'add'} size={28} color="#fff" />
+        </LinearGradient>
+      </Pressable>
+    </View>
+  );
+}
 
 export default function DashboardShell({ user, roleLabelKey, pages }) {
   const [index, setIndex] = useState(0);
@@ -36,7 +128,10 @@ export default function DashboardShell({ user, roleLabelKey, pages }) {
         <AppSidebar user={user} roleLabelKey={roleLabelKey} items={items} selectedIndex={index} onSelect={setIndex} onLogout={signOut} />
         <View style={{ flex: 1 }}>
           <TopBarDesktop user={user} t={t} signOut={signOut} />
-          {page}
+          <View style={{ flex: 1 }}>
+            {page}
+            <FAB userRole={user.role} isDesktop={true} />
+          </View>
         </View>
       </View>
     );
@@ -45,7 +140,10 @@ export default function DashboardShell({ user, roleLabelKey, pages }) {
   return (
     <View style={styles.mobileRoot}>
       <TopBarMobile user={user} t={t} signOut={signOut} />
-      {page}
+      <View style={{ flex: 1 }}>
+        {page}
+        <FAB userRole={user.role} isDesktop={false} />
+      </View>
       <AppBottomNav items={items} selectedIndex={index} onSelect={setIndex} />
     </View>
   );
@@ -62,6 +160,7 @@ function TopBarDesktop({ user, t, signOut }) {
         <Text style={styles.topDate}>{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</Text>
       </View>
       <LanguageSwitcher />
+      <NotificationBell light={false} />
       <Pressable onPress={signOut} style={styles.topAvatarWrap}>
         <LinearGradient colors={Gradients.brand} style={styles.topAvatar}>
           <Text style={styles.topAvatarText}>{userInitials(user)}</Text>
@@ -80,6 +179,7 @@ function TopBarMobile({ user, signOut }) {
     <LinearGradient colors={Gradients.brand} style={styles.mobileBar}>
       <AppLogo size={24} light />
       <View style={styles.mobileBarRight}>
+        <NotificationBell light={true} />
         <View style={styles.mobileGreetingBox}>
           <Text style={styles.mobileGreeting} numberOfLines={1}>
             Hi, {user.fullName.split(' ')[0]} 👋
@@ -127,4 +227,55 @@ const styles = StyleSheet.create({
     backgroundColor: glass(0.15), borderWidth: 1, borderColor: glass(0.2),
     alignItems: 'center', justifyContent: 'center',
   },
+
+  // Bell
+  bellWrap: { position: 'relative', width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  bellBadge: {
+    position: 'absolute', top: 2, right: 2,
+    width: 16, height: 16, borderRadius: 8,
+    backgroundColor: '#ef4444',
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1.5, borderColor: '#fff',
+  },
+  bellBadgeText: { color: '#fff', fontSize: 9, fontWeight: '800' },
+
+  // Notification modal
+  notifBackdrop: {
+    flex: 1, backgroundColor: 'rgba(10,46,107,0.4)',
+    justifyContent: 'flex-start', alignItems: 'flex-end',
+    paddingTop: 80, paddingRight: 16,
+  },
+  notifSheet: {
+    width: 320,
+    backgroundColor: Colors.surface,
+    borderRadius: 20,
+    padding: 16,
+    shadowColor: Colors.primary,
+    shadowOpacity: 0.16,
+    shadowRadius: 30,
+    shadowOffset: { width: 0, height: 10 },
+  },
+  notifHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 },
+  notifTitle: { fontSize: 15, fontWeight: '800', color: Colors.text },
+  notifItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingVertical: 10, borderTopWidth: 1, borderTopColor: Colors.border },
+  notifIconWrap: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  notifItemTitle: { fontSize: 13, fontWeight: '600', color: Colors.text, lineHeight: 18, marginBottom: 2 },
+  notifItemTime: { fontSize: 11.5, color: Colors.muted, fontWeight: '500' },
+
+  // FAB
+  fabContainer: { position: 'absolute', alignItems: 'flex-end' },
+  fabContainerMobile: { bottom: 90, right: 20 },
+  fabContainerDesktop: { bottom: 32, right: 32 },
+  fabMain: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center',
+    shadowColor: Colors.primary, shadowOpacity: 0.4, shadowRadius: 16, shadowOffset: { width: 0, height: 6 } },
+  fabMainWrap: { borderRadius: 28, overflow: 'hidden' },
+  fabMenu: { alignItems: 'flex-end', gap: 10, marginBottom: 12 },
+  fabMenuItem: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  fabMenuLabel: {
+    fontSize: 13, fontWeight: '700', color: Colors.text,
+    backgroundColor: Colors.surface, paddingHorizontal: 12, paddingVertical: 6,
+    borderRadius: 10, borderWidth: 1, borderColor: Colors.border,
+    shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 2 },
+  },
+  fabMiniBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
 });

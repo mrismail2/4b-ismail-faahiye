@@ -4,7 +4,7 @@ import { Text as TextStyles } from '../constants/text';
 import { Colors } from '../constants/colors';
 import { useLocalization } from '../context/LocalizationContext';
 
-export default function OverviewPage({ titleKey, stats, highlight, secondary }) {
+export default function OverviewPage({ titleKey, stats, highlight, secondary, quickActions }) {
   const { width } = useWindowDimensions();
   const { t } = useLocalization();
   const cols = width > 920 ? 4 : width > 580 ? 2 : 2;
@@ -18,6 +18,8 @@ export default function OverviewPage({ titleKey, stats, highlight, secondary }) 
         <Text style={styles.pageTitle}>{t(titleKey)}</Text>
         <Text style={styles.dateChip}>{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</Text>
       </View>
+
+      {quickActions && <View style={styles.section}>{quickActions}</View>}
 
       <View style={styles.grid}>
         {rows.map((row, ri) => (

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Colors, Gradients } from '../../constants/colors';
+import ChildSwitcher from '../../widgets/ChildSwitcher';
 import DashboardShell from '../../widgets/DashboardShell';
 import OverviewPage from '../../widgets/OverviewPage';
 import StatCard from '../../widgets/StatCard';
@@ -43,6 +44,7 @@ const styles = StyleSheet.create({
 // Order mirrors navItemsForRole(parent): Dashboard, Attendance, Exams, Payments, My Teacher, Messages, Timeline, Notices.
 export default function ParentDashboard({ route }) {
   const user = route.params.user;
+  const [activeChild, setActiveChild] = useState('yusuf');
 
   return (
     <DashboardShell
@@ -51,6 +53,9 @@ export default function ParentDashboard({ route }) {
       pages={[
         <OverviewPage
           titleKey="overview"
+          quickActions={
+            <ChildSwitcher activeChild={activeChild} onSwitch={setActiveChild} />
+          }
           stats={[
             <StatCard label="Attendance this month" value="96%" icon="checkbox-outline" tint="#16a34a" gradient={['#dcfce7','#f0fdf4']} trend="great" trendUp />,
             <StatCard label="Outstanding fees" value="$0" icon="card-outline" tint={Colors.primaryLight} gradient={['#dbeafe','#eff6ff']} trend="all clear" trendUp />,
