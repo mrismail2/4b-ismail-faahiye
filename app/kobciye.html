@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kobciye — Cloud-Based School Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --primary:#0A2E6B;
+  --primary-light:#1E4F96;
+  --primary50:#EEF2FF;
+  --success:#16a34a;
+  --success-light:#dcfce7;
+  --accent:#CFAD5E;
+  --accent-light:#fef3c7;
+  --teal:#0891b2;
+  --teal-light:#e0f2fe;
+  --purple:#7c3aed;
+  --purple-light:#ede9fe;
+  --bg:#F7F9FC;
+  --surface:#fff;
+  --border:#E2E8F0;
+  --text:#0F172A;
+  --text2:#334155;
+  --muted:#64748B;
+  --shadow:0 4px 24px rgba(10,46,107,.07);
+  --shadow-lg:0 12px 48px rgba(10,46,107,.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Outfit',sans-serif;background:#fff;color:var(--text);overflow-x:hidden;}
+
+/* ═══ NAV ═══════════════════════════════════════════════════════ */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:64px;
+}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo-icon{
+  width:38px;height:38px;
+  background:linear-gradient(135deg,var(--primary),var(--primary-light));
+  border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;font-weight:900;color:#fff;
+  letter-spacing:-.5px;
+  flex-shrink:0;
+}
+.nav-logo-text{
+  font-size:1.2rem;font-weight:800;color:var(--primary);
+  letter-spacing:-.4px;line-height:1;
+}
+.nav-logo-sub{font-size:.62rem;color:var(--muted);font-weight:500;letter-spacing:.2px;margin-top:1px;}
+.nav-links{display:flex;align-items:center;gap:28px;}
+.nav-link{
+  font-size:.88rem;font-weight:600;color:var(--text2);
+  text-decoration:none;transition:color .15s;cursor:pointer;
+}
+.nav-link:hover{color:var(--primary);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-login{
+  padding:9px 22px;background:var(--primary);
+  border:none;border-radius:10px;
+  color:#fff;font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:700;
+  cursor:pointer;transition:all .15s;text-decoration:none;
+}
+.nav-login:hover{background:var(--primary-light);transform:translateY(-1px);}
+@media(max-width:768px){.nav{padding:0 16px;}.nav-links{display:none;}}
+
+/* ═══ HERO ══════════════════════════════════════════════════════ */
+.hero{
+  background:linear-gradient(160deg,#f0fdf8 0%,#e8f5e9 40%,#fff 100%);
+  padding:72px 24px 60px;
+}
+.hero-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:48px;}
+.hero-left{flex:1;min-width:0;}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.25);
+  border-radius:30px;padding:6px 14px;
+  font-size:.78rem;font-weight:600;color:var(--success);
+  margin-bottom:22px;
+}
+.hero-title{
+  font-size:clamp(2rem,4vw,3rem);font-weight:900;
+  color:var(--text);letter-spacing:-1.5px;line-height:1.12;
+  margin-bottom:16px;
+}
+.hero-title .accent{color:var(--success);}
+.hero-sub{
+  font-size:1.05rem;color:var(--muted);line-height:1.65;
+  max-width:500px;margin-bottom:28px;
+}
+.hero-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:32px;}
+.btn-primary{
+  padding:14px 26px;
+  background:linear-gradient(135deg,var(--primary),var(--primary-light));
+  border:none;border-radius:12px;
+  color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:800;
+  cursor:pointer;text-decoration:none;display:inline-block;
+  transition:all .18s;box-shadow:0 6px 20px rgba(10,46,107,.28);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(10,46,107,.36);}
+.btn-outline{
+  padding:13px 22px;
+  background:transparent;border:1.5px solid var(--primary);
+  border-radius:12px;color:var(--primary);font-family:'Outfit',sans-serif;
+  font-size:.88rem;font-weight:700;cursor:pointer;text-decoration:none;
+  display:inline-block;transition:all .15s;
+}
+.btn-outline:hover{background:var(--primary50);}
+
+/* Hero stats — INTERACTIVE */
+.hero-stats{display:flex;gap:20px;flex-wrap:wrap;}
+.hero-stat{
+  display:flex;flex-direction:column;align-items:center;
+  cursor:pointer;transition:transform .2s;padding:6px 10px;border-radius:12px;
+}
+.hero-stat:hover{transform:scale(1.08);background:rgba(10,46,107,.05);}
+.hero-stat:active{transform:scale(.97);}
+.hero-stat-val{font-size:1.6rem;font-weight:900;color:var(--primary);letter-spacing:-1px;}
+.hero-stat-lbl{font-size:.72rem;color:var(--muted);font-weight:600;margin-top:2px;}
+
+/* Hero right mockup */
+.hero-right{flex:0 0 340px;position:relative;}
+.hero-phone{
+  background:#fff;border-radius:24px;
+  border:1.5px solid var(--border);
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(10,46,107,.16),0 4px 12px rgba(10,46,107,.08);
+}
+.phone-bar{
+  background:linear-gradient(90deg,var(--primary),var(--primary-light));
+  padding:11px 14px;display:flex;align-items:center;justify-content:space-between;
+}
+.phone-bar-name{color:#fff;font-size:.9rem;font-weight:800;letter-spacing:-.2px;}
+.phone-bar-icons{display:flex;gap:5px;}
+.phone-bar-icon{
+  width:22px;height:22px;border-radius:50%;
+  background:rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.62rem;color:#fff;
+}
+.phone-chips{display:flex;gap:7px;padding:9px 10px;}
+.phone-chip{padding:4px 10px;border-radius:20px;font-size:.72rem;font-weight:700;}
+.phone-chip.active{background:var(--success);color:#fff;}
+.phone-chip.inactive{background:#e2e8f0;color:#64748b;border:1px solid #cbd5e1;}
+.phone-row{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 12px;border-top:1px solid #f1f5f9;
+  transition:background .15s;cursor:pointer;
+}
+.phone-row:hover{background:#f8fafc;}
+.phone-avatar{
+  width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:.7rem;
+}
+.phone-name{font-size:.78rem;font-weight:700;color:var(--text);}
+.phone-grade{font-size:.65rem;color:var(--muted);}
+.phone-badge{padding:3px 7px;border-radius:6px;font-size:.6rem;font-weight:700;}
+
+@media(max-width:768px){
+  .hero-inner{flex-direction:column;}
+  .hero-right{display:none;}
+}
+
+/* ═══ SECTION COMMON ════════════════════════════════════════════ */
+.section{padding:72px 24px;}
+.section-inner{max-width:1100px;margin:0 auto;}
+.section-tag{
+  display:inline-block;
+  background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.2);
+  border-radius:20px;padding:5px 14px;
+  font-size:.72rem;font-weight:700;color:var(--success);
+  letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px;
+}
+.section-title{
+  font-size:clamp(1.7rem,3vw,2.3rem);font-weight:900;
+  color:var(--text);letter-spacing:-1px;margin-bottom:12px;
+}
+.section-title .accent{color:var(--success);}
+.section-sub{
+  font-size:.95rem;color:var(--muted);line-height:1.65;
+  max-width:580px;margin-bottom:40px;
+}
+
+/* ═══ COMPARISON SECTION ════════════════════════════════════════ */
+.comp-section{background:#f8fafc;}
+.comp-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:860px;}
+@media(max-width:640px){.comp-row{grid-template-columns:1fr;}}
+.comp-card{border-radius:20px;padding:24px;border:1.5px solid;}
+.comp-card.bad{background:#fff5f5;border-color:#fecaca;}
+.comp-card.good{background:#f0fdf4;border-color:#bbf7d0;}
+.comp-card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.comp-card-title{font-size:.95rem;font-weight:800;}
+.comp-card-title.bad{color:#ef4444;}
+.comp-icon-wrap{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;}
+.comp-item{display:flex;align-items:center;gap:9px;margin-bottom:10px;font-size:.88rem;}
+.comp-item.bad{color:#374151;}
+.comp-item.good{color:#15803d;font-weight:600;}
+.comp-item .ci-icon{flex-shrink:0;}
+
+/* ═══ FEATURES SECTION ══════════════════════════════════════════ */
+.features-section{background:#fff;}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media(max-width:900px){.features-grid{grid-template-columns:1fr;}}
+
+/* INTERACTIVE FEATURE CARDS */
+.feat-card{
+  background:#fff;border-radius:22px;
+  border:1px solid var(--border);overflow:hidden;
+  cursor:pointer;transition:all .22s;
+  box-shadow:var(--shadow);position:relative;
+}
+.feat-card:hover{
+  transform:translateY(-6px);
+  box-shadow:var(--shadow-lg);
+  border-color:rgba(10,46,107,.18);
+}
+.feat-card:active{transform:scale(.98);}
+.feat-card-top{padding:20px 20px 14px;}
+.feat-icon-wrap{
+  width:44px;height:44px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;margin-bottom:14px;
+}
+.feat-card-title{font-size:1rem;font-weight:800;color:var(--text);margin-bottom:6px;}
+.feat-card-body{font-size:.82rem;color:var(--muted);line-height:1.6;}
+.feat-card-demo{padding:14px 14px 16px;border-top:1px solid var(--border);}
+
+/* Demo widgets inside feature cards */
+.demo-row{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 9px;border-radius:10px;
+  background:#f8fafc;margin-bottom:5px;
+  font-size:.78rem;transition:background .15s;
+}
+.feat-card:hover .demo-row{background:#f0f7ff;}
+.demo-av{
+  width:26px;height:26px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;font-weight:700;color:#fff;flex-shrink:0;
+}
+.demo-name{font-weight:700;color:var(--text);font-size:.8rem;}
+.demo-sub{font-size:.68rem;color:var(--muted);}
+.demo-dot{
+  width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-left:auto;
+}
+.demo-stat-row{display:flex;justify-content:space-between;margin-bottom:5px;font-size:.78rem;padding:5px 0;}
+.demo-stat-lbl{color:var(--muted);}
+.demo-stat-val{font-weight:700;color:var(--text);}
+.demo-bar{height:6px;border-radius:99px;background:#e2e8f0;margin-bottom:12px;overflow:hidden;}
+.demo-bar-fill{height:100%;border-radius:99px;}
+.demo-mark-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.demo-mark-subj{flex:1;font-size:.78rem;color:var(--text2);}
+.demo-mark-bar{flex:2;height:6px;border-radius:99px;background:#e2e8f0;overflow:hidden;}
+.demo-mark-fill{height:100%;border-radius:99px;background:var(--purple);}
+.demo-mark-score{font-size:.75rem;font-weight:700;color:var(--purple);width:28px;text-align:right;}
+
+/* ═══ APP SHOWCASE SECTION ══════════════════════════════════════ */
+.showcase-section{
+  background:linear-gradient(160deg,#eef6ff 0%,#f0f7ff 100%);
+  padding:80px 24px;
+}
+.showcase-inner{
+  max-width:1100px;margin:0 auto;
+  display:flex;align-items:center;justify-content:center;gap:32px;
+}
+.showcase-float-left{display:flex;flex-direction:column;gap:16px;align-items:flex-end;}
+.showcase-float-right{display:flex;flex-direction:column;gap:16px;align-items:flex-start;}
+
+/* Floating stat cards */
+.float-card{
+  background:#fff;border-radius:16px;padding:16px 20px;
+  border:1px solid var(--border);
+  box-shadow:0 8px 24px rgba(10,46,107,.1);
+  min-width:155px;
+}
+.float-card-lbl{font-size:.68rem;color:var(--muted);font-weight:600;margin-bottom:4px;}
+.float-card-val{font-size:1.6rem;font-weight:900;color:var(--text);letter-spacing:-1px;}
+.float-card-sub{font-size:.7rem;color:var(--success);font-weight:700;margin-top:3px;}
+.float-card-green{
+  background:var(--success);border-radius:14px;padding:14px 16px;
+  min-width:130px;
+  box-shadow:0 6px 20px rgba(22,163,74,.3);
+}
+.float-card-green .n{font-size:1.7rem;font-weight:900;color:#fff;letter-spacing:-1px;}
+.float-card-green .l{font-size:.72rem;color:rgba(255,255,255,.85);font-weight:600;margin-top:3px;line-height:1.35;}
+.float-avatars{
+  background:#fff;border-radius:14px;padding:13px 16px;
+  border:1px solid var(--border);
+  box-shadow:0 6px 18px rgba(10,46,107,.08);
+}
+.avatar-stack{display:flex;margin-bottom:6px;}
+.av-circle{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.6rem;font-weight:700;color:#fff;
+  border:2px solid #fff;
+  margin-left:-7px;
+}
+.av-circle:first-child{margin-left:0;}
+.av-more{background:var(--primary);font-size:.55rem;}
+.float-avatars-lbl{font-size:.75rem;color:var(--text2);font-weight:600;}
+
+/* Center phone mockup — PROFESSIONAL */
+.phone-pro-wrap{position:relative;z-index:5;}
+.phone-pro{
+  width:270px;
+  background:#fff;
+  border-radius:36px;
+  border:8px solid #0f172a;
+  overflow:hidden;
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.15),
+    0 30px 80px rgba(10,46,107,.22),
+    inset 0 1px 0 rgba(255,255,255,.2);
+  position:relative;
+}
+/* Notch */
+.phone-notch{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:90px;height:24px;background:#0f172a;
+  border-radius:0 0 16px 16px;z-index:10;
+}
+.phone-screen{padding-top:28px;}
+.psc-header{
+  background:linear-gradient(90deg,var(--primary),var(--primary-light));
+  padding:10px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.psc-title{color:#fff;font-size:.85rem;font-weight:800;}
+.psc-icons{display:flex;gap:4px;}
+.psc-icon{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:.55rem;color:#fff;}
+.psc-chips{display:flex;gap:6px;padding:8px 10px;}
+.psc-chip{padding:4px 10px;border-radius:14px;font-size:.65rem;font-weight:700;}
+.psc-chip.on{background:var(--success);color:#fff;}
+.psc-chip.off{background:#e2e8f0;color:#64748b;border:1px solid #cbd5e1;}
+.psc-meta{display:flex;align-items:center;gap:12px;padding:0 12px 8px;font-size:.68rem;color:var(--muted);}
+.psc-meta span{display:flex;align-items:center;gap:4px;font-weight:600;}
+.psc-add-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  background:linear-gradient(90deg,var(--primary),var(--primary-light));
+  color:#fff;font-size:.68rem;font-weight:700;
+  padding:5px 10px;border-radius:8px;margin:0 12px 8px;
+}
+.psc-section-lbl{font-size:.72rem;font-weight:700;color:var(--text);padding:0 12px 6px;}
+.psc-classes{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 10px 10px;}
+.psc-class-item{
+  background:#f8fafc;border-radius:10px;padding:9px 10px;
+  border:1px solid #e2e8f0;
+}
+.psc-class-name{font-size:.72rem;font-weight:800;color:var(--text);margin-bottom:4px;}
+.psc-class-count{display:flex;align-items:center;gap:3px;font-size:.65rem;color:var(--muted);}
+.psc-class-btn{
+  display:inline-block;background:var(--success);
+  color:#fff;font-size:.55rem;font-weight:800;
+  padding:3px 7px;border-radius:5px;margin-top:5px;
+  letter-spacing:.3px;
+}
+
+@media(max-width:900px){
+  .showcase-inner{flex-direction:column;}
+  .showcase-float-left,.showcase-float-right{flex-direction:row;justify-content:center;}
+}
+
+/* ═══ PRICING SECTION ═══════════════════════════════════════════ */
+.pricing-section{background:#fff;padding:80px 24px;}
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:800px;margin:0 auto;}
+@media(max-width:640px){.pricing-grid{grid-template-columns:1fr;}}
+
+.plan-card{
+  border-radius:22px;overflow:hidden;
+  border:1.5px solid var(--border);
+  background:#fff;
+  box-shadow:var(--shadow);
+  position:relative;
+  transition:transform .2s,box-shadow .2s;
+}
+.plan-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);}
+.plan-card.highlighted{
+  border-color:var(--primary);border-width:2px;
+  box-shadow:0 12px 40px rgba(10,46,107,.15);
+}
+
+/* Diamond price badge */
+.plan-diamond-wrap{
+  display:flex;justify-content:center;
+  margin-top:-1px;padding-top:18px;
+}
+.plan-diamond{
+  width:90px;height:90px;
+  background:linear-gradient(135deg,#0f172a,#1e293b);
+  border-radius:16px;
+  transform:rotate(45deg);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);
+}
+.plan-diamond-price{
+  transform:rotate(-45deg);
+  font-size:1.1rem;font-weight:900;color:var(--success);
+  letter-spacing:-.5px;line-height:1;
+}
+.plan-diamond-mo{
+  transform:rotate(-45deg);
+  font-size:.62rem;color:rgba(255,255,255,.6);font-weight:600;margin-top:2px;
+}
+.plan-body{padding:20px 22px 22px;}
+.plan-name{font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:6px;}
+.plan-capacity{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(10,46,107,.06);border-radius:20px;
+  padding:3px 10px;font-size:.72rem;font-weight:700;color:var(--primary);
+  margin-bottom:14px;
+}
+.plan-feat-title{font-size:.7rem;font-weight:700;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px;}
+.plan-feat-list{list-style:none;margin-bottom:16px;}
+.plan-feat-item{
+  display:flex;align-items:center;gap:8px;
+  font-size:.82rem;color:var(--text2);padding:4px 0;
+}
+.plan-feat-item .ck{color:var(--success);font-weight:800;font-size:.85rem;}
+.plan-note{
+  font-size:.75rem;color:var(--teal);font-weight:600;
+  margin-bottom:14px;
+}
+/* No "Bilaaw Hadda" button here — only in hero */
+
+/* ═══ FOOTER ════════════════════════════════════════════════════ */
+.footer{
+  background:linear-gradient(135deg,var(--primary),#0f172a);
+  padding:48px 32px;text-align:center;
+}
+.footer-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;}
+.footer-logo-icon{
+  width:42px;height:42px;border-radius:13px;
+  background:rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;font-weight:900;color:#fff;
+}
+.footer-logo-name{font-size:1.3rem;font-weight:900;color:#fff;letter-spacing:-.4px;}
+.footer-text{font-size:.88rem;color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:12px;}
+.footer-copy{font-size:.75rem;color:rgba(255,255,255,.3);}
+.footer-links{display:flex;justify-content:center;gap:24px;margin-bottom:24px;}
+.footer-link{color:rgba(255,255,255,.55);font-size:.82rem;font-weight:600;text-decoration:none;transition:color .15s;}
+.footer-link:hover{color:#fff;}
+
+/* ═══ ABOUT / MISSION SECTION ═══════════════════════════════════ */
+.about-section{background:var(--bg);padding:80px 24px;}
+.about-inner{max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:48px;}
+.about-text{flex:1;}
+.about-visual{
+  flex:0 0 320px;
+  background:linear-gradient(135deg,var(--primary),var(--primary-light));
+  border-radius:24px;padding:32px;
+  box-shadow:var(--shadow-lg);
+}
+.about-visual-title{font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:8px;}
+.about-visual-sub{font-size:.85rem;color:rgba(255,255,255,.75);line-height:1.6;margin-bottom:20px;}
+.about-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.about-stat-box{background:rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;text-align:center;}
+.about-stat-num{font-size:1.6rem;font-weight:900;color:#fff;letter-spacing:-1px;}
+.about-stat-lbl{font-size:.7rem;color:rgba(255,255,255,.7);font-weight:600;margin-top:3px;}
+@media(max-width:768px){
+  .about-inner{flex-direction:column;}
+  .about-visual{flex:none;width:100%;}
+}
+
+/* ═══ SCROLL ANIMATIONS ═════════════════════════════════════════ */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;}
+.reveal.visible{opacity:1;transform:none;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAV ═══════════════════════════════════════ -->
+<nav class="nav">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">K</div>
+    <div>
+      <div class="nav-logo-text">Kobciye</div>
+      <div class="nav-logo-sub">School Management</div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="#features">Features</a>
+    <a class="nav-link" href="#showcase">Nidaamka</a>
+    <a class="nav-link" href="#pricing">Qiimaha</a>
+    <a class="nav-link" href="#footer">Contact</a>
+  </div>
+  <div class="nav-right">
+    <a href="ismail.html" class="nav-login">Gal →</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════ HERO ══════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-left reveal">
+      <div class="hero-badge">☁️ Cloud-Based School Management System</div>
+      <h1 class="hero-title">
+        Si Fudud U Maamul Xogta<br>
+        <span class="accent">Ardayda!</span>
+      </h1>
+      <p class="hero-sub">
+        Kobciye waxa uu kaa caawinayaa inaad qaab fudud u maamusho xogta ardayda iyo macluumaadka dugsigaaga — mar walba gacantaada ku jirta.
+      </p>
+      <div class="hero-actions">
+        <a href="#pricing" class="btn-primary">Bilaaw Hadda →</a>
+        <a href="#features" class="btn-outline">Dugsigaaga diiwaan geli</a>
+      </div>
+      <!-- INTERACTIVE STATS -->
+      <div class="hero-stats">
+        <div class="hero-stat" onclick="statClick('500+','Arday')">
+          <span class="hero-stat-val">500+</span>
+          <span class="hero-stat-lbl">Arday</span>
+        </div>
+        <div class="hero-stat" onclick="statClick('50+','Dugsi')">
+          <span class="hero-stat-val">50+</span>
+          <span class="hero-stat-lbl">Dugsi</span>
+        </div>
+        <div class="hero-stat" onclick="statClick('3','Magaalo')">
+          <span class="hero-stat-val">3</span>
+          <span class="hero-stat-lbl">Magaalo</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right phone mockup -->
+    <div class="hero-right reveal" style="transition-delay:.15s">
+      <div class="hero-phone">
+        <div class="phone-bar">
+          <span class="phone-bar-name">Kobciye</span>
+          <div class="phone-bar-icons">
+            <div class="phone-bar-icon">🔍</div>
+            <div class="phone-bar-icon">☰</div>
+          </div>
+        </div>
+        <div class="phone-chips">
+          <div class="phone-chip active">✓ AL-MAAX SEC</div>
+          <div class="phone-chip inactive">AL-MAAX PRI</div>
+        </div>
+        <div class="phone-row">
+          <div class="phone-avatar" style="background:rgba(22,163,74,.15)"><span style="color:#16a34a;font-size:.7rem">👤</span></div>
+          <div><div class="phone-name">Mustafa Ali</div><div class="phone-grade">Form 4A · Secondary</div></div>
+          <div class="phone-badge" style="background:rgba(22,163,74,.1);color:#16a34a;">XAADIRSAN</div>
+        </div>
+        <div class="phone-row">
+          <div class="phone-avatar" style="background:rgba(8,145,178,.15)"><span style="color:#0891b2;font-size:.7rem">👤</span></div>
+          <div><div class="phone-name">Saadaqa Ahmed</div><div class="phone-grade">Class 3 · Primary</div></div>
+          <div class="phone-badge" style="background:rgba(8,145,178,.1);color:#0891b2;">XAADIRSAN</div>
+        </div>
+        <div class="phone-row">
+          <div class="phone-avatar" style="background:rgba(124,58,237,.15)"><span style="color:#7c3aed;font-size:.7rem">👤</span></div>
+          <div><div class="phone-name">Amina Yonis</div><div class="phone-grade">Form 3B · Secondary</div></div>
+          <div class="phone-badge" style="background:rgba(220,38,38,.1);color:#dc2626;">Maqan</div>
+        </div>
+        <div class="phone-row">
+          <div class="phone-avatar" style="background:rgba(225,29,72,.15)"><span style="color:#e11d48;font-size:.7rem">👤</span></div>
+          <div><div class="phone-name">Abdullahi Osman</div><div class="phone-grade">Form 2D · Secondary</div></div>
+          <div class="phone-badge" style="background:rgba(22,163,74,.1);color:#16a34a;">XAADIRSAN</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ COMPARISON ════════════════════════════════ -->
+<section class="section comp-section" id="comparison">
+  <div class="section-inner">
+    <div class="section-tag">Maxaa Kaa Gaara</div>
+    <h2 class="section-title">Faa'iidooyinka Nidaamka <span class="accent">Kobciye</span></h2>
+    <p class="section-sub">Waa nidaam loo diyaariyay inuu daboolo baahiyaha gaarka ah ee xarumaha waxbarashada wuxuuna dugsigaaga siinayaa faa'iidooyin badan.</p>
+    <div class="comp-row reveal">
+      <!-- Others -->
+      <div class="comp-card bad">
+        <div class="comp-card-hdr">
+          <span class="comp-card-title bad">Nidaamyada Kale</span>
+          <div class="comp-icon-wrap" style="background:#fee2e2;font-size:.9rem">✕</div>
+        </div>
+        <div class="comp-item bad"><span class="ci-icon" style="color:#ef4444">✗</span> Xogta ardayda oo kala dhiman</div>
+        <div class="comp-item bad"><span class="ci-icon" style="color:#ef4444">✗</span> Lacag hormarisa (Setup Fee)</div>
+        <div class="comp-item bad"><span class="ci-icon" style="color:#ef4444">✗</span> Wuxuu ku jiraa Desktop keliya</div>
+        <div class="comp-item bad"><span class="ci-icon" style="color:#ef4444">✗</span> Kuma diyaarsana Af Somali</div>
+        <div class="comp-item bad"><span class="ci-icon" style="color:#ef4444">✗</span> Wadamo kale ayaa laga soo wariday</div>
+        <div class="comp-item bad"><span class="ci-icon" style="color:#ef4444">✗</span> Isticmaalka system ka oo adag</div>
+      </div>
+      <!-- Kobciye -->
+      <div class="comp-card good">
+        <div class="comp-card-hdr">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;background:linear-gradient(135deg,#0A2E6B,#1E4F96);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:.82rem;">K</div>
+            <span style="font-size:.95rem;font-weight:800;color:#15803d;">Kobciye</span>
+          </div>
+          <div class="comp-icon-wrap" style="background:#dcfce7;font-size:.9rem">✓</div>
+        </div>
+        <div class="comp-item good"><span class="ci-icon" style="color:#16a34a">✓</span> Xogta dugsigaaga oo dhamaystiran</div>
+        <div class="comp-item good"><span class="ci-icon" style="color:#16a34a">✓</span> Bil free tijaabo ah ayaad helaysaa</div>
+        <div class="comp-item good"><span class="ci-icon" style="color:#16a34a">✓</span> Aalad kasta ayaad ka isticmaalaysaa</div>
+        <div class="comp-item good"><span class="ci-icon" style="color:#16a34a">✓</span> Wuxuu ku diyaarsan yahay Af Somali</div>
+        <div class="comp-item good"><span class="ci-icon" style="color:#16a34a">✓</span> Local ku salaysan baahida Dugsigaaga</div>
+        <div class="comp-item good"><span class="ci-icon" style="color:#16a34a">✓</span> Waalid &amp; ardayba wada isticmaali kara</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FEATURES (INTERACTIVE) ════════════════════ -->
+<section class="section features-section" id="features">
+  <div class="section-inner">
+    <div class="section-tag">Nidaamyada</div>
+    <h2 class="section-title">Waxaad ka Helaysaa <span class="accent">Kobciye</span></h2>
+    <p class="section-sub">Nidaamka ugu fudud ee aad ku maamusho xogta ardayda — mar walba gacantaada ku jirta. Bilaaw isticmaalka Kobciye Software.</p>
+
+    <div class="features-grid">
+      <!-- Feature 1: Attendance -->
+      <div class="feat-card reveal" onclick="featureClick('Xaadiriska Ardayda')" tabindex="0">
+        <div class="feat-card-top">
+          <div class="feat-icon-wrap" style="background:#dcfce7;font-size:1.3rem">👥</div>
+          <div class="feat-card-title">Xaadiriska Ardayda</div>
+          <p class="feat-card-body">Xaadiriska ardayda waxaad si fudud uga samayn kartaa Mobile-kaaga gacanta, umana baahnid inaad daabacdo waraaqo badan.</p>
+        </div>
+        <div class="feat-card-demo">
+          <div class="demo-row">
+            <div class="demo-av" style="background:#16a34a">MA</div>
+            <div><div class="demo-name">Mustafa Ali</div><div class="demo-sub">Form 4A</div></div>
+            <div class="demo-dot" style="background:#16a34a"></div>
+          </div>
+          <div class="demo-row">
+            <div class="demo-av" style="background:#0891b2">SA</div>
+            <div><div class="demo-name">Saadaqa Ahmed</div><div class="demo-sub">Class 3</div></div>
+            <div class="demo-dot" style="background:#16a34a"></div>
+          </div>
+          <div class="demo-row">
+            <div class="demo-av" style="background:#7c3aed">AY</div>
+            <div><div class="demo-name">Amina Yonis</div><div class="demo-sub">Form 3B</div></div>
+            <div class="demo-dot" style="background:#dc2626"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 2: Finance -->
+      <div class="feat-card reveal" onclick="featureClick('Maaliyadda Dugsiga')" tabindex="0" style="transition-delay:.08s">
+        <div class="feat-card-top">
+          <div class="feat-icon-wrap" style="background:#e0f2fe;font-size:1.3rem">💳</div>
+          <div class="feat-card-title">Maaliyadda Dugsiga</div>
+          <p class="feat-card-body">Ka rayso buuggaagtii waaweynaa, hadda si fudud ayaad u diiwan gelin kartaa lacag bixinta ardayda &amp; xiisaabaadka dugsigaba.</p>
+        </div>
+        <div class="feat-card-demo">
+          <div style="background:#f8fafc;border-radius:10px;padding:10px;">
+            <div class="demo-stat-row"><span class="demo-stat-lbl">La ururiyay:</span><span class="demo-stat-val" style="color:#16a34a">$3,690</span></div>
+            <div class="demo-bar"><div class="demo-bar-fill" style="width:73%;background:linear-gradient(90deg,#16a34a,#34d399)"></div></div>
+            <div class="demo-stat-row"><span class="demo-stat-lbl">Aan la ururin:</span><span class="demo-stat-val" style="color:#dc2626">$1,310</span></div>
+            <div class="demo-bar"><div class="demo-bar-fill" style="width:26%;background:linear-gradient(90deg,#dc2626,#f87171)"></div></div>
+            <div style="text-align:right;font-size:.72rem;font-weight:800;color:#0A2E6B;margin-top:4px;">Wadarta: $5,000</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 3: Exams -->
+      <div class="feat-card reveal" onclick="featureClick('Imtixaannaadka')" tabindex="0" style="transition-delay:.16s">
+        <div class="feat-card-top">
+          <div class="feat-icon-wrap" style="background:#ede9fe;font-size:1.3rem">📄</div>
+          <div class="feat-card-title">Imtixaannaadka</div>
+          <p class="feat-card-body">Uma baahnid in macalinkasta maadadiisa Excel ku soo qoro, Diiwaan ayaa iskugu kaa gaynaya haybana xogta imtixaannaadka ardayda.</p>
+        </div>
+        <div class="feat-card-demo">
+          <div class="demo-mark-row">
+            <span class="demo-mark-subj">Mathematics</span>
+            <div class="demo-mark-bar"><div class="demo-mark-fill" style="width:88%"></div></div>
+            <span class="demo-mark-score">88</span>
+          </div>
+          <div class="demo-mark-row">
+            <span class="demo-mark-subj">Science</span>
+            <div class="demo-mark-bar"><div class="demo-mark-fill" style="width:74%"></div></div>
+            <span class="demo-mark-score">74</span>
+          </div>
+          <div class="demo-mark-row">
+            <span class="demo-mark-subj">Somali</span>
+            <div class="demo-mark-bar"><div class="demo-mark-fill" style="width:92%"></div></div>
+            <span class="demo-mark-score">92</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ APP SHOWCASE — "Kobciye ku Horumar Dugsigaaga" ════════ -->
+<section class="showcase-section" id="showcase">
+  <div class="section-inner" style="text-align:center;margin-bottom:0;">
+    <div class="section-tag">Nidaamka Muuqaalka</div>
+    <h2 class="section-title">Kobciye ku Horumar <span class="accent">Dugsigaaga</span></h2>
+    <p class="section-sub" style="margin:0 auto 40px;">Nidaamka ugu fudud ee aad ku maamusho xogta ardayda — mar walba gacantaada ku jirta. Bilaaw isticmaalka Kobciye Software.</p>
+  </div>
+  <div class="showcase-inner">
+    <!-- Left floating cards -->
+    <div class="showcase-float-left">
+      <div class="float-card reveal">
+        <div class="float-card-lbl">Total income</div>
+        <div class="float-card-val">$6,000</div>
+        <div class="float-card-sub">↑ 47.3%</div>
+      </div>
+      <div class="float-card-green reveal" style="transition-delay:.1s">
+        <div class="n">117</div>
+        <div class="l">Tirada galefta<br>dugsigu bilaabo</div>
+      </div>
+    </div>
+
+    <!-- Center professional phone mockup -->
+    <div class="phone-pro-wrap reveal" style="transition-delay:.15s">
+      <div class="phone-pro">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="psc-header">
+            <span class="psc-title">Kobciye</span>
+            <div class="psc-icons">
+              <div class="psc-icon">🔍</div>
+              <div class="psc-icon">☰</div>
+            </div>
+          </div>
+          <div class="psc-chips">
+            <div class="psc-chip on">✓ Dugsi Sare</div>
+            <div class="psc-chip off">Dugsi Hoose</div>
+          </div>
+          <div class="psc-meta">
+            <span>🏠 5 Fasal</span>
+            <span>👥 300 Arday</span>
+          </div>
+          <div class="psc-add-btn">
+            <span>+</span><span>Fasal Cusub</span>
+          </div>
+          <div class="psc-section-lbl">Fasallada:</div>
+          <div class="psc-classes">
+            <div class="psc-class-item">
+              <div class="psc-class-name">Form 1A</div>
+              <div class="psc-class-count">👥 45</div>
+              <div class="psc-class-btn">FUR FASAL</div>
+            </div>
+            <div class="psc-class-item">
+              <div class="psc-class-name">Form 2A</div>
+              <div class="psc-class-count">👥 45</div>
+              <div class="psc-class-btn">FUR FASAL</div>
+            </div>
+            <div class="psc-class-item">
+              <div class="psc-class-name">Form 3A</div>
+              <div class="psc-class-count">👥 45</div>
+              <div class="psc-class-btn">FUR FASAL</div>
+            </div>
+            <div class="psc-class-item">
+              <div class="psc-class-name">Form 4A</div>
+              <div class="psc-class-count">👥 45</div>
+              <div class="psc-class-btn">FUR FASAL</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right floating cards -->
+    <div class="showcase-float-right">
+      <div class="float-card-green reveal" style="transition-delay:.2s">
+        <div class="n">183</div>
+        <div class="l">Tirada ardayda<br>buugta</div>
+      </div>
+      <div class="float-avatars reveal" style="transition-delay:.28s">
+        <div class="avatar-stack">
+          <div class="av-circle" style="background:#0891b2">👤</div>
+          <div class="av-circle" style="background:#16a34a">👤</div>
+          <div class="av-circle" style="background:#7c3aed">👤</div>
+          <div class="av-circle" style="background:#e11d48">👤</div>
+          <div class="av-circle av-more">+300</div>
+        </div>
+        <div class="float-avatars-lbl">Ardayda bilaashka</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ PRICING ═══════════════════════════════════ -->
+<section class="pricing-section" id="pricing">
+  <div class="section-inner" style="text-align:center;">
+    <div class="section-tag">Qiimaha</div>
+    <h2 class="section-title">Qiimaha Barnaamij-ka <span class="accent">Kobciye</span></h2>
+    <p class="section-sub" style="margin:0 auto 40px;">Qiimaha waxa uu ku salaysan yahay tiro go'an oo joogto ah — bilaaw bill kasta aad doortid.</p>
+
+    <div class="pricing-grid">
+      <!-- Plan 1 -->
+      <div class="plan-card reveal">
+        <div class="plan-diamond-wrap">
+          <div class="plan-diamond">
+            <div class="plan-diamond-price">$20</div>
+            <div class="plan-diamond-mo">/month</div>
+          </div>
+        </div>
+        <div class="plan-body">
+          <div class="plan-name">🏠&nbsp; Dugsiyada Yar-Yar</div>
+          <div class="plan-capacity">👥 Ilaa 500 Arday</div>
+          <div class="plan-feat-title">Nidaamyada Aad ka Dhex Helayso:</div>
+          <ul class="plan-feat-list">
+            <li class="plan-feat-item"><span class="ck">✓</span> Nidaamka Xaadirinta</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Nidaamka Imtixaannaadka</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Warbixinaha Ardayga</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Ururinta Iida</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Nidaamka Xisaabaadka</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Nidaamka Shaqaalaha</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Faracyada Dugsiga (1)</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Akoonka Ardayga</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Akoonka Waalidka</li>
+          </ul>
+          <div class="plan-note">*Dugsiga ka yar 500 oo Arday</div>
+        </div>
+      </div>
+
+      <!-- Plan 2 -->
+      <div class="plan-card highlighted reveal" style="transition-delay:.1s">
+        <div class="plan-diamond-wrap">
+          <div class="plan-diamond">
+            <div class="plan-diamond-price">$50</div>
+            <div class="plan-diamond-mo">/month</div>
+          </div>
+        </div>
+        <div class="plan-body">
+          <div class="plan-name">🏢&nbsp; Dugsiyada Waawayn</div>
+          <div class="plan-capacity">👥 Ardayd Xaddidlaan</div>
+          <div class="plan-feat-title">Nidaamyada Aad ka Dhex Helayso:</div>
+          <ul class="plan-feat-list">
+            <li class="plan-feat-item"><span class="ck">✓</span> Nidaamka Xaadirinta</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Nidaamka Imtixaannaadka</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Warbixinaha Ardayga</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Ururinta Iida</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Nidaamka Xisaabaadka</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Nidaamka Shaqaalaha</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Faracyada Dugsiga (3)</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Akoonka Ardayga</li>
+            <li class="plan-feat-item"><span class="ck">✓</span> Akoonka Waalidka</li>
+          </ul>
+          <div class="plan-note">*Ardayd xaddidlaan — dugsi waawayn</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ════════════════════════════════════ -->
+<footer class="footer" id="footer">
+  <div class="footer-logo">
+    <div class="footer-logo-icon">K</div>
+    <span class="footer-logo-name">Kobciye</span>
+  </div>
+  <div class="footer-links">
+    <a class="footer-link" href="#">Home</a>
+    <a class="footer-link" href="#features">Features</a>
+    <a class="footer-link" href="#pricing">Pricing</a>
+    <a class="footer-link" href="#">Contact</a>
+  </div>
+  <p class="footer-text">
+    Kobciye — Cloud-Based School Management System<br>
+    Gabiley, Somaliland · kobciye.com
+  </p>
+  <p class="footer-copy">© 2025 Kobciye. Dhammaan xuquuqda way ilaalisan yihiin.</p>
+</footer>
+
+<script>
+/* ── Scroll reveal ───────────────────────────────────── */
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+  });
+}, { threshold: 0.1 });
+revealEls.forEach(el => io.observe(el));
+
+/* ── Interactive stat clicks ─────────────────────────── */
+function statClick(val, lbl) {
+  const popup = document.createElement('div');
+  popup.style.cssText = `
+    position:fixed;bottom:28px;right:28px;z-index:9999;
+    background:linear-gradient(135deg,#0A2E6B,#1E4F96);
+    color:#fff;border-radius:16px;padding:16px 22px;
+    font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:700;
+    box-shadow:0 12px 36px rgba(10,46,107,.35);
+    animation:slideUp .3s ease;pointer-events:none;
+  `;
+  popup.innerHTML = `<span style="font-size:1.3rem;font-weight:900;">${val}</span> <span style="opacity:.75">${lbl} ayaa Kobciye isticmaala</span>`;
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 2400);
+}
+
+/* ── Feature card click ──────────────────────────────── */
+function featureClick(name) {
+  const popup = document.createElement('div');
+  popup.style.cssText = `
+    position:fixed;bottom:28px;right:28px;z-index:9999;
+    background:linear-gradient(135deg,#16a34a,#15803d);
+    color:#fff;border-radius:16px;padding:14px 20px;
+    font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:700;
+    box-shadow:0 10px 32px rgba(22,163,74,.35);
+    animation:slideUp .3s ease;pointer-events:none;
+  `;
+  popup.innerHTML = `✓ <span>${name}</span> — Kobciye waxaad ka helaysaa!`;
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 2200);
+}
+
+/* ── Feature card keyboard ───────────────────────────── */
+document.querySelectorAll('.feat-card').forEach(card => {
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { card.click(); e.preventDefault(); }
+  });
+});
+</script>
+<style>
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+</style>
+</body>
+</html>
