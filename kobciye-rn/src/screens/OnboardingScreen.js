@@ -67,22 +67,43 @@ const FEATURES = [
   },
 ];
 
-// ─── Plans ───────────────────────────────────────────────────────────────────
+// ─── Plans (per-student pricing) ─────────────────────────────────────────────
 const PLANS = [
   {
-    name: 'Dugsi Yar', nameEn: 'Basic', price: '$10',
-    capacity: 'Ilaa 100 Arday', highlighted: false, color: Colors.primaryLight,
-    features: ['Xaadiriska Ardayda', 'Xogta Ardayda', 'Warbixinta Waalidka', 'Maaliyadda Fudud'],
+    name: 'Dugsiyada Yar-Yar',
+    pricePerStudent: '$0.07',
+    minNote: '*Dugsiga ka yar 500 oo Arday waxa uu bixinayaa $35',
+    icon: '🏠',
+    features: [
+      'Nidaamka Xaadirinta',
+      'Nidaamka Imtixaannaadka',
+      'Warbixinaha Ardayga',
+      'Ururinta Iida',
+      'Nidaamka Xisaabaadka',
+      'Nidaamka Shaqaalaha',
+      'Faracyada Dugsiga (1)',
+      'Akoonka Ardayga',
+      'Akoonka Waalidka',
+    ],
+    highlighted: false,
   },
   {
-    name: 'Dugsi Dhexe', nameEn: 'Standard', price: '$20',
-    capacity: 'Ilaa 500 Arday', highlighted: true, color: Colors.accent,
-    features: ['Wax kasta oo Basic ah', 'Imtixaannaadka', 'SMS & Farriin', 'Risk Score Ardayda', 'Warbixinta Faahfaahsan'],
-  },
-  {
-    name: 'Dugsi Weyn', nameEn: 'Premium', price: '$50',
-    capacity: 'Arday aan xad lahayn', highlighted: false, color: Colors.success,
-    features: ['Wax kasta oo Standard ah', 'Multi-branch Support', 'Priority Support', 'Custom Reports', 'API Access'],
+    name: 'Dugsiyada Waawayn',
+    pricePerStudent: '$0.1',
+    minNote: '*Dugsiga ka yar 500 oo Arday waxa uu bixinayaa $45',
+    icon: '🏢',
+    features: [
+      'Nidaamka Xaadirinta',
+      'Nidaamka Imtixaannaadka',
+      'Warbixinaha Ardayga',
+      'Ururinta Iida',
+      'Nidaamka Xisaabaadka',
+      'Nidaamka Shaqaalaha',
+      'Faracyada Dugsiga (3)',
+      'Akoonka Ardayga',
+      'Akoonka Waalidka',
+    ],
+    highlighted: true,
   },
 ];
 
@@ -98,6 +119,7 @@ export default function OnboardingScreen({ navigation }) {
       <ComparisonSection isDesktop={isDesktop} />
       <AboutSection isDesktop={isDesktop} navigation={navigation} />
       <FeaturesSection isDesktop={isDesktop} />
+      <AppShowcaseSection isDesktop={isDesktop} navigation={navigation} />
       <PricingSection isDesktop={isDesktop} />
       <FooterSection />
     </ScrollView>
@@ -395,15 +417,151 @@ function FeatureCard({ feature: f }) {
   );
 }
 
+// ─── App Showcase (phone mockup + floating cards) ──────────────────────────
+function AppShowcaseSection({ isDesktop, navigation }) {
+  return (
+    <View style={styles.showcaseSection}>
+      <Text style={styles.sectionTitle}>
+        Kobciye ku Horumar <Text style={{ color: '#16a34a' }}>Dugsigaaga</Text>
+      </Text>
+      <Text style={styles.sectionSub}>
+        Nidaamka ugu fudud ee aad ku maamusho xogta ardayda — mar walba gacantaada ku jirta. Bilaaw isticmaalka Kobciye Software.
+      </Text>
+      <View style={[styles.showcaseWrap, { flexDirection: isDesktop ? 'row' : 'column' }]}>
+        {/* Left floating cards */}
+        {isDesktop && (
+          <View style={styles.showcaseLeft}>
+            <View style={styles.floatCardGreen}>
+              <Text style={styles.floatCardLabel}>Total income</Text>
+              <Text style={styles.floatCardBig}>$6,000</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                <Ionicons name="trending-up" size={12} color="#16a34a" />
+                <Text style={{ fontSize: 11, color: '#16a34a', fontWeight: '700' }}>47.3%</Text>
+              </View>
+            </View>
+            <View style={[styles.floatCardSmall, { backgroundColor: '#16a34a', marginTop: 20 }]}>
+              <Text style={styles.floatCardSmallNum}>117</Text>
+              <Text style={styles.floatCardSmallLbl}>Tirada galefta dugsigu{'\n'}bilaabo</Text>
+            </View>
+          </View>
+        )}
+
+        {/* Center phone mockup */}
+        <View style={styles.phoneMockupWrap}>
+          <View style={styles.phoneMockup}>
+            {/* Phone header bar */}
+            <LinearGradient colors={['#0A2E6B', '#1E4F96']} style={styles.phoneMockupHeader}>
+              <AppLogo size={14} light />
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="search" size={11} color="#fff" />
+                </View>
+                <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="menu" size={11} color="#fff" />
+                </View>
+              </View>
+            </LinearGradient>
+            {/* School type chips */}
+            <View style={{ flexDirection: 'row', gap: 6, padding: 10 }}>
+              <View style={[styles.schoolChipGreen]}>
+                <Text style={{ color: '#fff', fontSize: 8, fontWeight: '700' }}>✓ Dugsi Sare</Text>
+              </View>
+              <View style={[styles.schoolChipGray]}>
+                <Text style={{ color: '#64748b', fontSize: 8, fontWeight: '600' }}>Dugsi Hoose</Text>
+              </View>
+            </View>
+            {/* Stats row */}
+            <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 10, marginBottom: 8 }}>
+              {[
+                { icon: 'home', val: '5 Fasal', color: '#0891b2' },
+                { icon: 'people', val: '300 Arday', color: '#16a34a' },
+              ].map((s) => (
+                <View key={s.val} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <Ionicons name={s.icon} size={10} color={s.color} />
+                  <Text style={{ fontSize: 9.5, color: '#374151', fontWeight: '600' }}>{s.val}</Text>
+                </View>
+              ))}
+            </View>
+            {/* Add class button */}
+            <View style={{ paddingHorizontal: 10 }}>
+              <LinearGradient colors={['#0A2E6B', '#1E4F96']} style={{ borderRadius: 8, paddingVertical: 8, paddingHorizontal: 14, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                <Ionicons name="add" size={12} color="#fff" />
+                <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>Fasal Cusub</Text>
+              </LinearGradient>
+            </View>
+            {/* Class grid */}
+            <View style={{ padding: 10 }}>
+              <Text style={{ fontSize: 10, fontWeight: '700', color: '#0f172a', marginBottom: 8 }}>Fasallada:</Text>
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                {['Form 1A', 'Form 2A'].map((cls) => (
+                  <View key={cls} style={{ flex: 1, backgroundColor: '#f8fafc', borderRadius: 10, padding: 8, borderWidth: 1, borderColor: '#e2e8f0' }}>
+                    <Text style={{ fontSize: 10, fontWeight: '700', color: '#0f172a' }}>{cls}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 3 }}>
+                      <Ionicons name="people" size={9} color="#64748b" />
+                      <Text style={{ fontSize: 8.5, color: '#64748b' }}>45</Text>
+                    </View>
+                    <View style={{ marginTop: 6, backgroundColor: '#16a34a', borderRadius: 6, paddingVertical: 4, paddingHorizontal: 6, alignSelf: 'flex-start' }}>
+                      <Text style={{ color: '#fff', fontSize: 7.5, fontWeight: '700' }}>FUR FASAL</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+              <View style={{ flexDirection: 'row', gap: 6, marginTop: 6 }}>
+                {['Form 3A', 'Form 4A'].map((cls) => (
+                  <View key={cls} style={{ flex: 1, backgroundColor: '#f8fafc', borderRadius: 10, padding: 8, borderWidth: 1, borderColor: '#e2e8f0' }}>
+                    <Text style={{ fontSize: 10, fontWeight: '700', color: '#0f172a' }}>{cls}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 3 }}>
+                      <Ionicons name="people" size={9} color="#64748b" />
+                      <Text style={{ fontSize: 8.5, color: '#64748b' }}>45</Text>
+                    </View>
+                    <View style={{ marginTop: 6, backgroundColor: '#16a34a', borderRadius: 6, paddingVertical: 4, paddingHorizontal: 6, alignSelf: 'flex-start' }}>
+                      <Text style={{ color: '#fff', fontSize: 7.5, fontWeight: '700' }}>FUR FASAL</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Right floating cards */}
+        {isDesktop && (
+          <View style={styles.showcaseRight}>
+            <View style={[styles.floatCardSmall, { backgroundColor: '#16a34a' }]}>
+              <Text style={styles.floatCardSmallNum}>183</Text>
+              <Text style={styles.floatCardSmallLbl}>Tirada ardayda{'\n'}buugta</Text>
+            </View>
+            <View style={[styles.floatAvatarCard, { marginTop: 20 }]}>
+              <View style={{ flexDirection: 'row' }}>
+                {['#0891b2', '#16a34a', '#7c3aed', '#e11d48'].map((c, i) => (
+                  <View key={i} style={[styles.floatAvatar, { backgroundColor: c, marginLeft: i === 0 ? 0 : -8 }]}>
+                    <Ionicons name="person" size={10} color="#fff" />
+                  </View>
+                ))}
+                <View style={[styles.floatAvatar, { backgroundColor: '#0A2E6B', marginLeft: -8 }]}>
+                  <Text style={{ color: '#fff', fontSize: 7, fontWeight: '800' }}>+300</Text>
+                </View>
+              </View>
+              <Text style={{ fontSize: 10, color: '#374151', fontWeight: '600', marginTop: 6 }}>Ardayda bilaashka</Text>
+            </View>
+          </View>
+        )}
+      </View>
+    </View>
+  );
+}
+
 // ─── Pricing ──────────────────────────────────────────────────────────────────
 function PricingSection({ isDesktop }) {
   return (
     <View style={[styles.section, { backgroundColor: '#fff' }]}>
       <Text style={styles.sectionTitle}>
-        Doorso <Text style={{ color: '#16a34a' }}>Qorshaha</Text> Kuu Haboon
+        Qiimaha Barnaamij-ka <Text style={{ color: '#16a34a' }}>Kobciye</Text>
       </Text>
-      <Text style={styles.sectionSub}>Bil koowaad bilaash ah — keli keliya lacag bixin hadaad ku qanacsatid</Text>
-      <View style={[styles.planRow, { flexDirection: isDesktop ? 'row' : 'column', alignItems: isDesktop ? 'flex-end' : 'stretch' }]}>
+      <Text style={styles.sectionSub}>
+        Qiimaha software-ku waxa uu ku salaysan yahay Khidmad bille ah taaso ka iminaysa tirada ardayda dugsiga
+      </Text>
+      <View style={[styles.planRow, { flexDirection: isDesktop ? 'row' : 'column', alignItems: isDesktop ? 'flex-start' : 'stretch' }]}>
         {PLANS.map((p) => (
           <PlanCard key={p.name} plan={p} isDesktop={isDesktop} />
         ))}
@@ -414,37 +572,33 @@ function PricingSection({ isDesktop }) {
 
 function PlanCard({ plan: p, isDesktop }) {
   return (
-    <View style={[
-      styles.planCard,
-      { flex: isDesktop ? 1 : undefined },
-      p.highlighted && styles.planCardHighlighted,
-    ]}>
-      {p.highlighted && (
-        <View style={styles.popularBadge}>
-          <Text style={styles.popularText}>⭐  Ugu Caansan</Text>
+    <View style={[styles.planCard, { flex: isDesktop ? 1 : undefined }, p.highlighted && styles.planCardHighlighted]}>
+      {/* Diamond price badge */}
+      <View style={styles.diamondWrap}>
+        <LinearGradient colors={['#0f172a', '#1E293B']} style={styles.diamondBadge}>
+          <Text style={styles.diamondPrice}>{p.pricePerStudent}</Text>
+          <Text style={styles.diamondSub}>/Arday</Text>
+        </LinearGradient>
+      </View>
+
+      <View style={{ padding: 20, paddingTop: 48 }}>
+        <Text style={styles.planName}>{p.icon}  {p.name}</Text>
+        <Text style={styles.planFeaturesTitle}>Nidaamyada Aad ka Dhex Helayso:</Text>
+        <View style={{ gap: 7, marginTop: 8 }}>
+          {p.features.map((f) => (
+            <View key={f} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+              <Text style={{ color: '#16a34a', fontSize: 13, fontWeight: '700' }}>✓</Text>
+              <Text style={{ fontSize: 12.5, color: '#374151' }}>{f}</Text>
+            </View>
+          ))}
         </View>
-      )}
-      <Text style={styles.planName}>{p.name}</Text>
-      <Text style={styles.planNameEn}>{p.nameEn}</Text>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 10, gap: 2 }}>
-        <Text style={[styles.planPrice, { color: p.color }]}>{p.price}</Text>
-        <Text style={{ color: '#64748b', marginBottom: 6, fontSize: 13 }}>/bil</Text>
+        <Text style={styles.planMinNote}>{p.minNote}</Text>
+        <Pressable onPress={() => showRegisterSchoolSheet()} style={styles.planCta}>
+          <LinearGradient colors={['#0A2E6B', '#1E4F96']} style={styles.planCtaGrad}>
+            <Text style={styles.planCtaText}>Bilaaw Hadda →</Text>
+          </LinearGradient>
+        </Pressable>
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
-        <Ionicons name="people" size={14} color={p.color} />
-        <Text style={{ fontWeight: '700', fontSize: 13, color: '#374151' }}>{p.capacity}</Text>
-      </View>
-      <View style={{ marginTop: 14, gap: 8 }}>
-        {p.features.map((f) => (
-          <View key={f} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-            <Ionicons name="checkmark-circle" size={15} color="#16a34a" />
-            <Text style={{ fontSize: 13, color: '#374151' }}>{f}</Text>
-          </View>
-        ))}
-      </View>
-      <Pressable onPress={() => showRegisterSchoolSheet()} style={[styles.planCta, p.highlighted && { backgroundColor: '#0A2E6B', borderWidth: 0 }]}>
-        <Text style={[styles.planCtaText, p.highlighted && { color: '#fff' }]}>Doorso →</Text>
-      </Pressable>
     </View>
   );
 }
@@ -555,31 +709,68 @@ const styles = StyleSheet.create({
   featureCardTitle: { fontSize: 16, fontWeight: '800', marginBottom: 6 },
   featureCardBody: { fontSize: 13, color: '#64748b', lineHeight: 20 },
 
+  // App Showcase
+  showcaseSection: { paddingHorizontal: 24, paddingVertical: 60, alignItems: 'center', backgroundColor: '#f0f7ff' },
+  showcaseWrap: { width: '100%', maxWidth: 980, alignSelf: 'center', gap: 24, alignItems: 'center', justifyContent: 'center', marginTop: 16 },
+  showcaseLeft: { alignItems: 'flex-end', gap: 0, minWidth: 160 },
+  showcaseRight: { alignItems: 'flex-start', gap: 0, minWidth: 160 },
+  floatCardGreen: {
+    backgroundColor: '#fff', borderRadius: 16, padding: 14,
+    shadowColor: '#0A2E6B', shadowOpacity: 0.12, shadowRadius: 20, shadowOffset: { width: 0, height: 6 },
+    minWidth: 140, borderWidth: 1, borderColor: '#e2e8f0',
+  },
+  floatCardLabel: { fontSize: 10, color: '#94a3b8', fontWeight: '600' },
+  floatCardBig: { fontSize: 24, fontWeight: '900', color: '#0f172a', marginTop: 2 },
+  floatCardSmall: {
+    borderRadius: 14, padding: 12, minWidth: 100,
+    shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 14, shadowOffset: { width: 0, height: 4 },
+  },
+  floatCardSmallNum: { fontSize: 26, fontWeight: '900', color: '#fff' },
+  floatCardSmallLbl: { fontSize: 9.5, color: 'rgba(255,255,255,0.85)', marginTop: 3, lineHeight: 13 },
+  floatAvatarCard: {
+    backgroundColor: '#fff', borderRadius: 14, padding: 12,
+    shadowColor: '#0A2E6B', shadowOpacity: 0.08, shadowRadius: 14, shadowOffset: { width: 0, height: 4 },
+    borderWidth: 1, borderColor: '#e2e8f0',
+  },
+  floatAvatar: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#fff' },
+  phoneMockupWrap: { alignItems: 'center' },
+  phoneMockup: {
+    width: 280, borderRadius: 24, overflow: 'hidden',
+    backgroundColor: '#fff',
+    borderWidth: 3, borderColor: '#0f172a',
+    shadowColor: '#0A2E6B', shadowOpacity: 0.22, shadowRadius: 36, shadowOffset: { width: 0, height: 14 },
+  },
+  phoneMockupHeader: { padding: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  schoolChipGreen: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20, backgroundColor: '#16a34a' },
+  schoolChipGray: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20, backgroundColor: '#e2e8f0', borderWidth: 1, borderColor: '#cbd5e1' },
+
   // Pricing
-  planRow: { gap: 16, width: '100%', maxWidth: 900, alignSelf: 'center' },
+  planRow: { gap: 16, width: '100%', maxWidth: 860, alignSelf: 'center' },
   planCard: {
-    backgroundColor: '#fff', borderRadius: 22, padding: 24,
-    borderWidth: 1.5, borderColor: '#e2e8f0',
-    shadowColor: '#0A2E6B', shadowOpacity: 0.06, shadowRadius: 24, shadowOffset: { width: 0, height: 8 },
+    backgroundColor: '#fff', borderRadius: 22, overflow: 'hidden',
+    borderWidth: 1.5, borderColor: '#e2e8f0', paddingTop: 0,
+    shadowColor: '#0A2E6B', shadowOpacity: 0.07, shadowRadius: 24, shadowOffset: { width: 0, height: 8 },
   },
   planCardHighlighted: {
     borderColor: '#0A2E6B', borderWidth: 2,
     shadowColor: '#0A2E6B', shadowOpacity: 0.16, shadowRadius: 32, shadowOffset: { width: 0, height: 12 },
   },
-  popularBadge: {
-    alignSelf: 'flex-start', backgroundColor: '#0A2E6B',
-    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 30, marginBottom: 14,
-  },
-  popularText: { color: '#fff', fontSize: 11.5, fontWeight: '700' },
-  planName: { fontSize: 18, fontWeight: '800', color: '#0f172a' },
-  planNameEn: { fontSize: 12, fontWeight: '600', color: '#94a3b8', marginTop: 2 },
-  planPrice: { fontSize: 36, fontWeight: '900', letterSpacing: -1 },
-  planCta: {
-    marginTop: 20, height: 48, borderRadius: 12,
-    borderWidth: 1.5, borderColor: '#0A2E6B',
+  diamondWrap: { alignItems: 'center', marginTop: -1, zIndex: 2 },
+  diamondBadge: {
+    width: 88, height: 88, borderRadius: 16,
     alignItems: 'center', justifyContent: 'center',
+    transform: [{ rotate: '45deg' }],
+    marginTop: 16,
+    shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 14, shadowOffset: { width: 0, height: 4 },
   },
-  planCtaText: { color: '#0A2E6B', fontWeight: '800', fontSize: 15 },
+  diamondPrice: { fontSize: 18, fontWeight: '900', color: '#16a34a', transform: [{ rotate: '-45deg' }], letterSpacing: -0.5 },
+  diamondSub: { fontSize: 10, color: 'rgba(255,255,255,0.7)', transform: [{ rotate: '-45deg' }], fontWeight: '600', marginTop: -2 },
+  planName: { fontSize: 17, fontWeight: '800', color: '#0f172a', marginBottom: 12 },
+  planFeaturesTitle: { fontSize: 12.5, fontWeight: '700', color: '#64748b', marginBottom: 2 },
+  planMinNote: { fontSize: 11.5, color: '#0891b2', fontWeight: '600', marginTop: 16, marginBottom: 4 },
+  planCta: { marginTop: 12, borderRadius: 12, overflow: 'hidden' },
+  planCtaGrad: { paddingVertical: 13, alignItems: 'center', justifyContent: 'center' },
+  planCtaText: { color: '#fff', fontWeight: '800', fontSize: 14 },
 
   // Footer
   footer: { padding: 36, alignItems: 'center', gap: 14 },
