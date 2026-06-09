@@ -23,7 +23,7 @@ export default function AppLogo({ size = 40, light = false, showTagline = false 
     ) : (
       <Image
         source={LOGO_ASSET}
-        style={{ height: size * 1.05, width: size * 4.4 }}
+        style={{ height: size * 1.05, width: size * 3.6 }}
         resizeMode="contain"
         onError={() => setImageFailed(true)}
       />
@@ -45,7 +45,7 @@ function DrawnWordmark({ size, color }) {
 
   return (
     <View style={{ width: size * 4.2, height: size * 1.25 }}>
-      <Text style={[styles.wordmark, { fontSize: size, color, letterSpacing: -0.5 }]}>Kobciye</Text>
+      <Text style={[styles.wordmark, { fontSize: size, color, letterSpacing: -1.2 }]}>Kobciye</Text>
       <View
         style={[
           styles.dot,
