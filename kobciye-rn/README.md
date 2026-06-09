@@ -44,7 +44,7 @@ Supabase database comes in Phase 2. Real authentication comes in Phase 3.
 
 ### SQL run order
 
-Run the files in this exact order against your Supabase project:
+**Supabase SQL Editor** — paste and run each file separately in this order:
 
 ```
 1. database/schema.sql
@@ -53,10 +53,11 @@ Run the files in this exact order against your Supabase project:
 4. database/seed.sql
 ```
 
-Or apply the single combined migration:
+**Migration tools** (supabase db push, Flyway, Liquibase, etc.) — use the
+single combined file which contains all four files in the correct order:
 
 ```
-database/migrations/001_phase2_initial_schema.sql
+database/migrations/001_phase2_initial_schema_combined.sql
 ```
 
 ### Tables created (22)

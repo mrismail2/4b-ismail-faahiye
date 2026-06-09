@@ -350,11 +350,21 @@ create policy "exam_results: school_admin manages own school"
   using (is_school_admin() and same_school(school_id));
 
 drop policy if exists "exam_results: teacher manages own school results" on exam_results;
-create policy "exam_results: teacher manages own school results"
+drop policy if exists "exam_results: teacher manages assigned class results" on exam_results;
+create policy "exam_results: teacher manages assigned class results"
   on exam_results for all
   using (
     get_my_role() = 'teacher'
     and same_school(school_id)
+    and exists (
+      select 1
+      from exams e
+      join teacher_assignments ta on ta.class_id = e.class_id
+        and (ta.subject_id = e.subject_id or e.subject_id is null)
+      join teachers t on t.id = ta.teacher_id
+      where e.id = exam_results.exam_id
+        and t.profile_id = auth.uid()
+    )
   );
 
 drop policy if exists "exam_results: parent reads linked children published" on exam_results;
