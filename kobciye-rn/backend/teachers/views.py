@@ -6,10 +6,6 @@ from .serializers import TeacherSerializer
 
 
 class TeacherViewSet(viewsets.ModelViewSet):
-    """
-    CRUD for Teacher.
-    TODO (Phase 3): Filter by request.user.userprofile.school for school isolation.
-    """
     serializer_class = TeacherSerializer
     permission_classes = [IsAuthenticated]
 
@@ -18,13 +14,11 @@ class TeacherViewSet(viewsets.ModelViewSet):
         if not hasattr(user, 'userprofile'):
             return Teacher.objects.none()
         profile = user.userprofile
-        role = profile.role
         qs = Teacher.objects.select_related('school', 'user_profile')
-
-        if role == 'super_admin':
+        if profile.role == 'super_admin':
             return qs.all()
-        elif role in ('school_admin', 'accountant', 'parent', 'student'):
-            return qs.filter(school=profile.school)
-        elif role == 'teacher':
+        if profile.role == 'teacher':
             return qs.filter(user_profile=profile)
+        if profile.school:
+            return qs.filter(school=profile.school)
         return Teacher.objects.none()

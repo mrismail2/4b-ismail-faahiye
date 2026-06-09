@@ -11,7 +11,7 @@ A multi-tenant REST API backend for the Kobciye school management platform, buil
 - **Permission and RolePermission models** — code-based permission system with per-role assignments
 - **UserProfile auto-create signal** — every new Django User automatically gets a linked profile
   with role=parent, status=inactive, is_active=False, school=null
-- **Real queryset filtering** — all API viewsets now filter by role and school; no TODO placeholders remain
+- **Real queryset filtering** — all 14 app viewsets filter by role and school; zero TODO placeholders remain (academics, audit, messaging, reports, schools, subscriptions, teachers completed in final fix)
 - **Permission helper functions** — is_super_admin(), is_school_admin(), is_teacher(), is_accountant(),
   is_parent(), is_student(), get_user_school(), same_school(), parent_of_student(),
   teacher_assigned_to_class() added to accounts/permissions.py

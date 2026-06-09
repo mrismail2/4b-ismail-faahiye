@@ -6,26 +6,35 @@ from .serializers import MessageSerializer, NotificationSerializer
 
 
 class MessageViewSet(viewsets.ModelViewSet):
-    """
-    CRUD for Message.
-    TODO (Phase 3): Filter by request.user.userprofile.school for school isolation.
-    """
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # School isolation will be enforced here in Phase 3.
-        return Message.objects.select_related('school', 'sender', 'recipient').all()
+        user = self.request.user
+        if not hasattr(user, 'userprofile'):
+            return Message.objects.none()
+        profile = user.userprofile
+        qs = Message.objects.select_related('school', 'sender', 'recipient')
+        if profile.role == 'super_admin':
+            return qs.all()
+        if profile.role == 'school_admin' and profile.school:
+            return qs.filter(school=profile.school)
+        # teachers, parents, students see only their own sent/received messages
+        return qs.filter(sender=profile) | qs.filter(recipient=profile)
 
 
 class NotificationViewSet(viewsets.ModelViewSet):
-    """
-    CRUD for Notification.
-    TODO (Phase 3): Filter to only the current user's notifications.
-    """
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # School isolation and user filtering will be enforced here in Phase 3.
-        return Notification.objects.select_related('school', 'recipient').all()
+        user = self.request.user
+        if not hasattr(user, 'userprofile'):
+            return Notification.objects.none()
+        profile = user.userprofile
+        qs = Notification.objects.select_related('school', 'recipient')
+        if profile.role == 'super_admin':
+            return qs.all()
+        if profile.role == 'school_admin' and profile.school:
+            return qs.filter(school=profile.school)
+        return qs.filter(recipient=profile)

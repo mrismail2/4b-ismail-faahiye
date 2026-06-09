@@ -6,10 +6,6 @@ from .serializers import SchoolSerializer
 
 
 class SchoolViewSet(viewsets.ModelViewSet):
-    """
-    CRUD for School.
-    TODO (Phase 3): Restrict non-super_admin users to their own school only.
-    """
     serializer_class = SchoolSerializer
     permission_classes = [IsAuthenticated]
 
