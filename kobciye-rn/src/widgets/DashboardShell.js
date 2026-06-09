@@ -30,6 +30,11 @@ const FAB_ACTIONS = {
     { icon: 'document-text-outline', label: 'Upload Marks', gradient: ['#e11d48','#be123c'] },
     { icon: 'book-outline', label: 'Create Lesson', gradient: ['#CFAD5E','#b45309'] },
   ],
+  [AppRole.accountant]: [
+    { icon: 'card-outline', label: 'Collect Payment', gradient: ['#16a34a','#15803d'] },
+    { icon: 'notifications-outline', label: 'Payment Reminder', gradient: ['#b45309','#92400e'] },
+    { icon: 'people-outline', label: 'Unpaid Students', gradient: ['#0891b2','#0e7490'] },
+  ],
 };
 
 function NotificationBell({ light = false }) {

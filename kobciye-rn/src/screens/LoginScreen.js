@@ -250,30 +250,16 @@ export default function LoginScreen({ navigation }) {
       <Text style={[TextStyles.caption, { marginBottom: 12 }]}>Explore Demo Portals</Text>
       <View style={styles.demoGrid}>
         {[
-          { icon: '🎓', label: 'Student Portal', role: AppRole.student, public: true },
-          { icon: '👨‍👩‍👧', label: 'Parent Portal', role: AppRole.parent, public: true },
-          { icon: '📚', label: 'Teacher Portal', role: AppRole.teacher, public: false },
-          { icon: '💰', label: 'Accountant Portal', role: AppRole.accountant, public: false },
-          { icon: '🏫', label: 'School Admin', role: AppRole.schoolAdmin, public: false },
-          { icon: '⭐', label: 'Super Admin', role: AppRole.superAdmin, public: false },
+          { icon: '👨‍👩‍👧', label: 'Parent Portal', role: AppRole.parent },
+          { icon: '🎓', label: 'Student Portal', role: AppRole.student },
         ].map((item) => (
           <Pressable
             key={item.label}
-            onPress={() => {
-              if (item.public) {
-                continueAsPreview(item.role);
-              } else {
-                Alert.alert('Admin Access Only', 'Request a school account to access admin portals.', [
-                  { text: 'Register School', onPress: () => showRegisterSchoolSheet() },
-                  { text: 'Cancel', style: 'cancel' },
-                ]);
-              }
-            }}
-            style={({ pressed }) => [styles.demoChip, pressed && { opacity: 0.75 }, !item.public && styles.demoChipLocked]}
+            onPress={() => continueAsPreview(item.role)}
+            style={({ pressed }) => [styles.demoChip, pressed && { opacity: 0.75 }]}
           >
             <Text style={styles.demoChipIcon}>{item.icon}</Text>
-            <Text style={[styles.demoChipLabel, !item.public && styles.demoChipLabelMuted]}>{item.label}</Text>
-            {!item.public && <Ionicons name="lock-closed" size={10} color={Colors.mutedLight} style={{ marginTop: 2 }} />}
+            <Text style={styles.demoChipLabel}>{item.label}</Text>
           </Pressable>
         ))}
       </View>
