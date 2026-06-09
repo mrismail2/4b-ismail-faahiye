@@ -26,6 +26,9 @@ export function RegisterSchoolSheetHost() {
   // school info
   const [schoolName, setSchoolName] = useState('');
   const [schoolCity, setSchoolCity] = useState('');
+  const [schoolType, setSchoolType] = useState('');
+  const [estimatedStudents, setEstimatedStudents] = useState('');
+  const [country, setCountry] = useState('');
   const [logo, setLogo] = useState(null);
   // account
   const [adminName, setAdminName] = useState('');
@@ -46,7 +49,7 @@ export function RegisterSchoolSheetHost() {
 
   const reset = () => {
     setStep(1); setDone(false); setErr('');
-    setSchoolName(''); setSchoolCity(''); setLogo(null);
+    setSchoolName(''); setSchoolCity(''); setSchoolType(''); setEstimatedStudents(''); setCountry(''); setLogo(null);
     setAdminName(''); setEmail(''); setPhone('');
     setPassword(''); setConfirmPw(''); setPlan('medium');
   };
@@ -102,6 +105,9 @@ export function RegisterSchoolSheetHost() {
                 <Step1
                   schoolName={schoolName} setSchoolName={setSchoolName}
                   schoolCity={schoolCity} setSchoolCity={setSchoolCity}
+                  schoolType={schoolType} setSchoolType={setSchoolType}
+                  estimatedStudents={estimatedStudents} setEstimatedStudents={setEstimatedStudents}
+                  country={country} setCountry={setCountry}
                   logo={logo} onPickLogo={pickLogo}
                   err={err} onNext={nextStep1} onClose={close}
                 />
@@ -131,8 +137,12 @@ export function RegisterSchoolSheetHost() {
   );
 }
 
+const SCHOOL_TYPES = ['Primary', 'Secondary', 'College', 'Islamic School', 'Other'];
+
 // ─── Step 1: School info ─────────────────────────────────────────────────────
-function Step1({ schoolName, setSchoolName, schoolCity, setSchoolCity, logo, onPickLogo, err, onNext, onClose }) {
+function Step1({ schoolName, setSchoolName, schoolCity, setSchoolCity,
+  schoolType, setSchoolType, estimatedStudents, setEstimatedStudents, country, setCountry,
+  logo, onPickLogo, err, onNext, onClose }) {
   return (
     <View>
       <SheetHeader
@@ -164,6 +174,25 @@ function Step1({ schoolName, setSchoolName, schoolCity, setSchoolCity, logo, onP
         placeholder="e.g. Nuurul-Hidaayah Primary School" />
       <Field label="City / Town" icon="location-outline" value={schoolCity} onChangeText={setSchoolCity}
         placeholder="e.g. Gabiley, Somaliland" />
+
+      {/* School type chips */}
+      <Text style={styles.fieldLabel}>School type</Text>
+      <View style={styles.chipRow}>
+        {SCHOOL_TYPES.map((type) => {
+          const selected = schoolType === type;
+          return (
+            <Pressable key={type} onPress={() => setSchoolType(type)}
+              style={[styles.typeChip, selected && styles.typeChipSel]}>
+              <Text style={[styles.typeChipLabel, selected && styles.typeChipLabelSel]}>{type}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <Field label="Estimated students" icon="people-outline" value={estimatedStudents}
+        onChangeText={setEstimatedStudents} placeholder="e.g. 120" keyboardType="number-pad" />
+      <Field label="Country" icon="globe-outline" value={country}
+        onChangeText={setCountry} placeholder="e.g. Somalia, Somaliland, Ethiopia" />
 
       {err ? <Text style={styles.err}>{err}</Text> : null}
 
@@ -296,13 +325,12 @@ function SuccessScreen({ adminName, email, schoolName, onDone }) {
         Welcome, {adminName.split(' ')[0] || 'friend'}! 🎉
       </Text>
       <Text style={[TextStyles.bodyMuted, { textAlign: 'center', marginTop: 10, lineHeight: 22 }]}>
-        <Text style={{ fontWeight: '700', color: Colors.text }}>{schoolName || 'Your school'}</Text> is
-        registered. We'll reach out to {email} shortly to activate your account.
+        Your school request has been received. The Kobciye team will contact you within 24 hours to set up your account.
       </Text>
       <View style={[styles.infoBox, { marginTop: 20 }]}>
         <Ionicons name="mail-outline" size={18} color={Colors.primaryLight} style={{ marginRight: 10 }} />
         <Text style={[TextStyles.bodyMuted, { flex: 1, fontSize: 13 }]}>
-          Check your inbox — login credentials will arrive within 24 hours.
+          We'll reach out to {email || 'your email'} — keep an eye on your inbox and phone.
         </Text>
       </View>
       <View style={{ marginTop: 24, width: '100%' }}>
@@ -401,4 +429,11 @@ const styles = StyleSheet.create({
 
   successCircle: { width: 80, height: 80, borderRadius: 40, alignItems: 'center', justifyContent: 'center' },
   infoBox: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: `${Colors.primaryLight}0F`, borderRadius: 14, padding: 14, width: '100%' },
+
+  // school type chips
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 },
+  typeChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.background },
+  typeChipSel: { borderColor: Colors.primary, backgroundColor: `${Colors.primary}10` },
+  typeChipLabel: { fontSize: 13, fontWeight: '600', color: Colors.muted },
+  typeChipLabelSel: { color: Colors.primary },
 });

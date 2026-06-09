@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Colors, Gradients } from '../../constants/colors';
 import ChildSwitcher from '../../widgets/ChildSwitcher';
+import QuickActions from '../../widgets/QuickActions';
 import DashboardShell from '../../widgets/DashboardShell';
 import OverviewPage from '../../widgets/OverviewPage';
 import StatCard from '../../widgets/StatCard';
@@ -54,7 +55,15 @@ export default function ParentDashboard({ route }) {
         <OverviewPage
           titleKey="overview"
           quickActions={
-            <ChildSwitcher activeChild={activeChild} onSwitch={setActiveChild} />
+            <View>
+              <ChildSwitcher activeChild={activeChild} onSwitch={setActiveChild} />
+              <QuickActions actions={[
+                { icon: 'checkbox-outline', label: 'Attendance', gradient: ['#16a34a','#15803d'] },
+                { icon: 'document-text-outline', label: 'Exams', gradient: ['#7c3aed','#6d28d9'] },
+                { icon: 'card-outline', label: 'Payments', gradient: ['#0891b2','#0e7490'] },
+                { icon: 'chatbubble-outline', label: 'Message Teacher', gradient: ['#CFAD5E','#b45309'] },
+              ]} />
+            </View>
           }
           stats={[
             <StatCard label="Attendance this month" value="96%" icon="checkbox-outline" tint="#16a34a" gradient={['#dcfce7','#f0fdf4']} trend="great" trendUp />,

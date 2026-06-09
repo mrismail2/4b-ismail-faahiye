@@ -9,6 +9,7 @@ import AttendanceSection from '../../widgets/AttendanceSection';
 import ExamsSection from '../../widgets/ExamsSection';
 import MessagingSection from '../../widgets/MessagingSection';
 import TeacherProfileCard from '../../widgets/TeacherProfileCard';
+import QuickActions from '../../widgets/QuickActions';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Text as TextStyles, Spacing } from '../../constants/text';
 
@@ -56,6 +57,14 @@ export default function StudentDashboard({ route }) {
       pages={[
         <OverviewPage
           titleKey="overview"
+          quickActions={
+            <QuickActions actions={[
+              { icon: 'calendar-outline', label: 'View Exams', gradient: ['#7c3aed','#6d28d9'] },
+              { icon: 'checkbox-outline', label: 'Attendance', gradient: ['#16a34a','#15803d'] },
+              { icon: 'chatbubble-outline', label: 'Message Teacher', gradient: ['#0891b2','#0e7490'] },
+              { icon: 'megaphone-outline', label: 'Notices', gradient: ['#CFAD5E','#b45309'] },
+            ]} />
+          }
           stats={[
             <StatCard label="My attendance" value="97%" icon="checkbox" tint={Colors.success} trend="this term" trendUp />,
             <StatCard label="Latest result" value="A-" icon="ribbon" tint={Colors.primaryLight} trend="Mathematics" trendUp />,

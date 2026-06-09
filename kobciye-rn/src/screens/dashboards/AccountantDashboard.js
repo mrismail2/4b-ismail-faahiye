@@ -7,6 +7,7 @@ import HighlightBanner from '../../widgets/HighlightBanner';
 import SectionPlaceholder from '../../widgets/SectionPlaceholder';
 import SettingsPage from '../../widgets/SettingsPage';
 import PaymentsSection from '../../widgets/PaymentsSection';
+import QuickActions from '../../widgets/QuickActions';
 
 // Order mirrors navItemsForRole(accountant): Dashboard, Payments, Students, Settings.
 export default function AccountantDashboard({ route }) {
@@ -19,6 +20,14 @@ export default function AccountantDashboard({ route }) {
       pages={[
         <OverviewPage
           titleKey="overview"
+          quickActions={
+            <QuickActions actions={[
+              { icon: 'cash-outline', label: 'Collect Payment', gradient: ['#16a34a','#15803d'] },
+              { icon: 'people-outline', label: 'Unpaid Students', gradient: ['#e11d48','#be123c'] },
+              { icon: 'receipt-outline', label: 'Generate Receipt', gradient: ['#0891b2','#0e7490'] },
+              { icon: 'notifications-outline', label: 'Send Reminder', gradient: ['#CFAD5E','#b45309'] },
+            ]} />
+          }
           stats={[
             <StatCard label="Unpaid students" value="38" icon="person-remove" tint={Colors.danger} trend="-5" trendUp />,
             <StatCard label="Collected this month" value="$9,420" icon="wallet" tint={Colors.success} trend="+$640" trendUp />,

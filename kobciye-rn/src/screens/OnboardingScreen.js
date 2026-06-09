@@ -153,7 +153,7 @@ function Hero({ isDesktop, navigation, t }) {
             label={t('getStarted')}
             icon={<Ionicons name="arrow-forward" size={18} color="#fff" />}
             gradient={Gradients.gold}
-            onPress={() => navigation.navigate('Login')}
+            onPress={() => navigation.navigate('Pricing')}
             size="lg"
             style={{ minWidth: 180 }}
           />

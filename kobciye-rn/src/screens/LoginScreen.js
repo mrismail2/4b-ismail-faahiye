@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, useWindowDimensions, Modal } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, useWindowDimensions, Modal, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Gradients, glass } from '../constants/colors';
@@ -247,16 +247,35 @@ export default function LoginScreen({ navigation }) {
 
       <View style={styles.divider} />
 
-      <Text style={TextStyles.caption}>{t('quickDemoAccess')}</Text>
-      <View style={styles.previewRow}>
-        <Pressable onPress={() => continueAsPreview(AppRole.student)} style={styles.previewBtn}>
-          <Ionicons name="school-outline" size={16} color={Colors.primary} />
-          <Text style={styles.previewBtnLabel}>{t('previewStudentPortal')}</Text>
-        </Pressable>
-        <Pressable onPress={() => continueAsPreview(AppRole.parent)} style={styles.previewBtn}>
-          <Ionicons name="home-outline" size={16} color={Colors.primary} />
-          <Text style={styles.previewBtnLabel}>{t('previewParentPortal')}</Text>
-        </Pressable>
+      <Text style={[TextStyles.caption, { marginBottom: 12 }]}>Explore Demo Portals</Text>
+      <View style={styles.demoGrid}>
+        {[
+          { icon: '🎓', label: 'Student Portal', role: AppRole.student, public: true },
+          { icon: '👨‍👩‍👧', label: 'Parent Portal', role: AppRole.parent, public: true },
+          { icon: '📚', label: 'Teacher Portal', role: AppRole.teacher, public: false },
+          { icon: '💰', label: 'Accountant Portal', role: AppRole.accountant, public: false },
+          { icon: '🏫', label: 'School Admin', role: AppRole.schoolAdmin, public: false },
+          { icon: '⭐', label: 'Super Admin', role: AppRole.superAdmin, public: false },
+        ].map((item) => (
+          <Pressable
+            key={item.label}
+            onPress={() => {
+              if (item.public) {
+                continueAsPreview(item.role);
+              } else {
+                Alert.alert('Admin Access Only', 'Request a school account to access admin portals.', [
+                  { text: 'Register School', onPress: () => showRegisterSchoolSheet() },
+                  { text: 'Cancel', style: 'cancel' },
+                ]);
+              }
+            }}
+            style={({ pressed }) => [styles.demoChip, pressed && { opacity: 0.75 }, !item.public && styles.demoChipLocked]}
+          >
+            <Text style={styles.demoChipIcon}>{item.icon}</Text>
+            <Text style={[styles.demoChipLabel, !item.public && styles.demoChipLabelMuted]}>{item.label}</Text>
+            {!item.public && <Ionicons name="lock-closed" size={10} color={Colors.mutedLight} style={{ marginTop: 2 }} />}
+          </Pressable>
+        ))}
       </View>
     </View>
   );
@@ -323,12 +342,16 @@ const styles = StyleSheet.create({
   error: { color: Colors.danger, fontSize: 12.5, marginTop: 6, fontWeight: '600' },
   requestRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 16 },
   divider: { height: 1, backgroundColor: Colors.border, marginVertical: 18 },
-  previewRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 },
-  previewBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 18,
-    borderRadius: 14, backgroundColor: `${Colors.primaryLight}10`, borderWidth: 1.5, borderColor: `${Colors.primary}40`,
+  demoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  demoChip: {
+    width: '31%', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 6,
+    borderRadius: 14, backgroundColor: `${Colors.primaryLight}10`,
+    borderWidth: 1.5, borderColor: `${Colors.primary}30`,
   },
-  previewBtnLabel: { fontSize: 13.5, fontWeight: '700', color: Colors.primary },
+  demoChipLocked: { backgroundColor: `${Colors.muted}08`, borderColor: Colors.border },
+  demoChipIcon: { fontSize: 20, marginBottom: 4 },
+  demoChipLabel: { fontSize: 11, fontWeight: '700', color: Colors.primary, textAlign: 'center' },
+  demoChipLabelMuted: { color: Colors.mutedLight },
 
   desktopRow: { flex: 1, flexDirection: 'row' },
   desktopHero: { flex: 1, padding: 56, justifyContent: 'center', overflow: 'hidden', position: 'relative' },

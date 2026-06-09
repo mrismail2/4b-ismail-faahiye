@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashScreen from '../screens/SplashScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import LoginScreen from '../screens/LoginScreen';
+import PricingScreen from '../screens/PricingScreen';
 import SuperAdminDashboard from '../screens/dashboards/SuperAdminDashboard';
 import SchoolAdminDashboard from '../screens/dashboards/SchoolAdminDashboard';
 import TeacherDashboard from '../screens/dashboards/TeacherDashboard';
@@ -29,6 +30,7 @@ export default function RootNavigator() {
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Pricing" component={PricingScreen} />
       <Stack.Screen name="SuperAdminDashboard" component={withCurrentUser(SuperAdminDashboard)} />
       <Stack.Screen name="SchoolAdminDashboard" component={withCurrentUser(SchoolAdminDashboard)} />
       <Stack.Screen name="TeacherDashboard" component={withCurrentUser(TeacherDashboard)} />
