@@ -6,13 +6,29 @@ from .serializers import AttendanceSerializer
 
 
 class AttendanceViewSet(viewsets.ModelViewSet):
-    """
-    CRUD for Attendance.
-    TODO (Phase 3): Filter by request.user.userprofile.school for school isolation.
-    """
     serializer_class = AttendanceSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # School isolation will be enforced here in Phase 3.
-        return Attendance.objects.select_related('school', 'student', 'classroom', 'recorded_by').all()
+        user = self.request.user
+        if not hasattr(user, 'userprofile'):
+            return Attendance.objects.none()
+        profile = user.userprofile
+        role = profile.role
+        qs = Attendance.objects.select_related('school', 'student', 'classroom', 'recorded_by')
+
+        if role == 'super_admin':
+            return qs.all()
+        elif role in ('school_admin', 'accountant'):
+            return qs.filter(school=profile.school)
+        elif role == 'teacher':
+            return qs.filter(school=profile.school)
+        elif role == 'student':
+            return qs.filter(student__user_profile=profile)
+        elif role == 'parent':
+            from parents.models import ParentStudent
+            linked = ParentStudent.objects.filter(
+                parent__user_profile=profile
+            ).values_list('student_id', flat=True)
+            return qs.filter(student__in=linked)
+        return Attendance.objects.none()

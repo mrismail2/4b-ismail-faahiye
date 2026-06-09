@@ -4,6 +4,22 @@ A multi-tenant REST API backend for the Kobciye school management platform, buil
 
 ---
 
+## Phase 2 Fix — What Was Added
+
+### What was added in this fix
+
+- **Permission and RolePermission models** — code-based permission system with per-role assignments
+- **UserProfile auto-create signal** — every new Django User automatically gets a linked profile
+  with role=parent, status=inactive, is_active=False, school=null
+- **Real queryset filtering** — all API viewsets now filter by role and school; no TODO placeholders remain
+- **Permission helper functions** — is_super_admin(), is_school_admin(), is_teacher(), is_accountant(),
+  is_parent(), is_student(), get_user_school(), same_school(), parent_of_student(),
+  teacher_assigned_to_class() added to accounts/permissions.py
+- **Simple JWT added** — djangorestframework-simplejwt in requirements.txt and INSTALLED_APPS,
+  ready for Phase 3 login implementation
+
+---
+
 ## Prerequisites
 
 - Python 3.11+

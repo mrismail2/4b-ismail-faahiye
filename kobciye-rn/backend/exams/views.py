@@ -6,26 +6,54 @@ from .serializers import ExamSerializer, ExamResultSerializer
 
 
 class ExamViewSet(viewsets.ModelViewSet):
-    """
-    CRUD for Exam.
-    TODO (Phase 3): Filter by request.user.userprofile.school.
-    """
     serializer_class = ExamSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # School isolation will be enforced here in Phase 3.
-        return Exam.objects.select_related('school', 'classroom', 'subject', 'created_by').all()
+        user = self.request.user
+        if not hasattr(user, 'userprofile'):
+            return Exam.objects.none()
+        profile = user.userprofile
+        role = profile.role
+        qs = Exam.objects.select_related('school', 'classroom', 'subject', 'created_by')
+
+        if role == 'super_admin':
+            return qs.all()
+        elif role in ('school_admin', 'accountant'):
+            return qs.filter(school=profile.school)
+        elif role == 'teacher':
+            return qs.filter(school=profile.school)
+        elif role in ('parent', 'student'):
+            return qs.filter(school=profile.school)
+        return Exam.objects.none()
 
 
 class ExamResultViewSet(viewsets.ModelViewSet):
-    """
-    CRUD for ExamResult.
-    TODO (Phase 3): Filter by request.user.userprofile.school.
-    """
     serializer_class = ExamResultSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # School isolation will be enforced here in Phase 3.
-        return ExamResult.objects.select_related('school', 'exam', 'student').all()
+        user = self.request.user
+        if not hasattr(user, 'userprofile'):
+            return ExamResult.objects.none()
+        profile = user.userprofile
+        role = profile.role
+        qs = ExamResult.objects.select_related('school', 'exam', 'student')
+
+        if role == 'super_admin':
+            return qs.all()
+        elif role in ('school_admin', 'accountant'):
+            return qs.filter(school=profile.school)
+        elif role == 'teacher':
+            return qs.filter(
+                exam__classroom__teacherassignment__teacher__user_profile=profile
+            )
+        elif role == 'student':
+            return qs.filter(student__user_profile=profile)
+        elif role == 'parent':
+            from parents.models import ParentStudent
+            linked = ParentStudent.objects.filter(
+                parent__user_profile=profile
+            ).values_list('student_id', flat=True)
+            return qs.filter(student__in=linked)
+        return ExamResult.objects.none()

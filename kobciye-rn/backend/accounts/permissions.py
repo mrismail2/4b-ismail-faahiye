@@ -6,6 +6,56 @@ These classes control access based on user role, school membership, and object o
 from rest_framework.permissions import BasePermission
 
 
+# ---------------------------------------------------------------------------
+# Standalone helper functions
+# ---------------------------------------------------------------------------
+
+def is_super_admin(user):
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'super_admin' and user.userprofile.is_active
+
+def is_school_admin(user):
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'school_admin' and user.userprofile.is_active
+
+def is_teacher(user):
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'teacher' and user.userprofile.is_active
+
+def is_accountant(user):
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'accountant' and user.userprofile.is_active
+
+def is_parent(user):
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'parent' and user.userprofile.is_active
+
+def is_student(user):
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'student' and user.userprofile.is_active
+
+def get_user_school(user):
+    if hasattr(user, 'userprofile'):
+        return user.userprofile.school
+    return None
+
+def same_school(user, obj):
+    school = get_user_school(user)
+    return school is not None and hasattr(obj, 'school') and obj.school == school
+
+def parent_of_student(user, student):
+    if not hasattr(user, 'userprofile'):
+        return False
+    from parents.models import ParentStudent
+    return ParentStudent.objects.filter(
+        parent__user_profile=user.userprofile,
+        student=student
+    ).exists()
+
+def teacher_assigned_to_class(user, class_obj):
+    if not hasattr(user, 'userprofile'):
+        return False
+    from academics.models import TeacherAssignment
+    return TeacherAssignment.objects.filter(
+        teacher__user_profile=user.userprofile,
+        classroom=class_obj
+    ).exists()
+
+
 def _get_profile(request):
     """Helper to safely retrieve the UserProfile from the request user."""
     try:
