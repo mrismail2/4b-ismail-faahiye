@@ -130,7 +130,7 @@ export default function OnboardingScreen({ navigation }) {
 function NavBar({ navigation, t, isDesktop }) {
   return (
     <View style={styles.nav}>
-      <AppLogo size={26} />
+      <AppLogo size={20} />
       {isDesktop && (
         <View style={styles.navLinks}>
           {['Home', 'Features', 'Pricing', 'Contact'].map((l) => (
@@ -623,7 +623,7 @@ const styles = StyleSheet.create({
   // Nav
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 24, paddingVertical: 16,
+    paddingHorizontal: 20, paddingVertical: 10,
     backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#e2e8f0',
     shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, shadowOffset: { width: 0, height: 2 },
   },
