@@ -14,5 +14,12 @@ class SchoolViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # School isolation will be enforced here in Phase 3.
-        return School.objects.all()
+        user = self.request.user
+        if not hasattr(user, 'userprofile'):
+            return School.objects.none()
+        profile = user.userprofile
+        if profile.role == 'super_admin':
+            return School.objects.all()
+        if profile.school:
+            return School.objects.filter(id=profile.school_id)
+        return School.objects.none()

@@ -6,26 +6,46 @@ from .serializers import ParentSerializer, ParentStudentSerializer
 
 
 class ParentViewSet(viewsets.ModelViewSet):
-    """
-    CRUD for Parent.
-    TODO (Phase 3): Filter by request.user.userprofile.school for school isolation.
-    """
     serializer_class = ParentSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # School isolation will be enforced here in Phase 3.
-        return Parent.objects.select_related('school', 'user_profile').all()
+        user = self.request.user
+        if not hasattr(user, 'userprofile'):
+            return Parent.objects.none()
+        profile = user.userprofile
+        role = profile.role
+        qs = Parent.objects.select_related('school', 'user_profile')
+
+        if role == 'super_admin':
+            return qs.all()
+        elif role in ('school_admin', 'accountant', 'teacher'):
+            return qs.filter(school=profile.school)
+        elif role == 'parent':
+            return qs.filter(user_profile=profile)
+        elif role == 'student':
+            return qs.filter(school=profile.school)
+        return Parent.objects.none()
 
 
 class ParentStudentViewSet(viewsets.ModelViewSet):
-    """
-    CRUD for ParentStudent links.
-    TODO (Phase 3): Filter by request.user.userprofile.school for school isolation.
-    """
     serializer_class = ParentStudentSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # School isolation will be enforced here in Phase 3.
-        return ParentStudent.objects.select_related('school', 'parent', 'student').all()
+        user = self.request.user
+        if not hasattr(user, 'userprofile'):
+            return ParentStudent.objects.none()
+        profile = user.userprofile
+        role = profile.role
+        qs = ParentStudent.objects.select_related('school', 'parent', 'student')
+
+        if role == 'super_admin':
+            return qs.all()
+        elif role in ('school_admin', 'accountant', 'teacher'):
+            return qs.filter(school=profile.school)
+        elif role == 'parent':
+            return qs.filter(parent__user_profile=profile)
+        elif role == 'student':
+            return qs.filter(student__user_profile=profile)
+        return ParentStudent.objects.none()
