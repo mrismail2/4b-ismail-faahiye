@@ -1,317 +1,588 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, useWindowDimensions, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Gradients, glass } from '../constants/colors';
-import { Text as TextStyles, Spacing } from '../constants/text';
 import AppLogo from '../widgets/AppLogo';
-import AppButton from '../widgets/AppButton';
 import LanguageSwitcher from '../widgets/LanguageSwitcher';
 import { useLocalization } from '../context/LocalizationContext';
 import { showRegisterSchoolSheet } from '../widgets/RegisterSchoolSheet';
 
-const CAPABILITIES = [
-  { icon: 'people', tint: Colors.primaryLight, title: 'Manage students', body: "Keep every student's record, class and family details organized in one place." },
-  { icon: 'home', tint: Colors.success, title: 'Connect with parents', body: 'Reach parents instantly with updates they can read in Somali or English.' },
-  { icon: 'checkbox', tint: Colors.accent, title: 'Track attendance', body: 'Mark attendance in seconds — even offline — with automatic sync.' },
-  { icon: 'card', tint: Colors.primary, title: 'Manage payments', body: 'Stay on top of fees, mobile-money and promises without the spreadsheets.' },
-  { icon: 'trending-up', tint: Colors.primaryLight, title: 'Monitor student progress', body: 'Watch attendance, exams and behaviour trends as they happen.' },
-  { icon: 'analytics', tint: Colors.danger, title: 'Detect student risk early', body: 'Get a clear, explainable signal before a small issue becomes a crisis.' },
-  { icon: 'document-text', tint: Colors.primary, title: 'Run exams with confidence', body: 'Record marks, grades and ranks — students and parents see results the moment they’re published.' },
-  { icon: 'book', tint: Colors.success, title: 'Plan & approve lessons', body: 'Teachers submit lesson prep, school admins review and approve — all in one place.' },
+// ─── Comparison data ──────────────────────────────────────────────────────────
+const OTHERS_CONS = [
+  'Xogta ardayda oo kala dhiman',
+  'Lacag hormarisa (Setup Fee)',
+  'Wuxuu ku jiraa Desktop keliya',
+  'Kuma diyaarsana Af Somali',
+  'Wadamo kale ayaa laga soo wariday',
+  'Isticmaalka system ka oo adag',
+];
+const KOBCIYE_PROS = [
+  'Xogta dugsigaaga oo dhamaystiran',
+  'Bil free tijaabo ah ayaad helaysaa',
+  'Aalad kasta ayaad ka isticmaalaysaa',
+  'Wuxuu ku diyaarsan yahay Af Somali',
+  'Local ku salaysan baahida Dugsigaaga',
+  'Waalid & ardayba wada isticmaali kara',
 ];
 
+// ─── Feature showcase cards ───────────────────────────────────────────────────
+const FEATURES = [
+  {
+    icon: 'people',
+    color: '#16a34a',
+    bg: '#dcfce7',
+    title: 'Xaadiriska Ardayda',
+    body: 'Xaadiriska ardayda waxaad si fudud uga samayn kartaa Mobile-kaaga gacanta, umana baahnid inaad daabacdo waraaqo badan.',
+    items: [
+      { name: 'Mustafa Ali', grade: 'Form 4A', type: 'Secondary' },
+      { name: 'Saadaqa Ahmed', grade: 'Class 3', type: 'Primary' },
+      { name: 'Amina Yonis', grade: 'Form 3B', type: 'Secondary' },
+    ],
+  },
+  {
+    icon: 'card',
+    color: '#0891b2',
+    bg: '#e0f2fe',
+    title: 'Maaliyadda Dugsiga',
+    body: 'Ka rayso buuggaagtii waaweynaa, hadda si fudud ayaad u diiwan gelin kartaa lacag bixinta ardayda (Fee) & xiisaabaadka dugsigaba.',
+    stats: [
+      { label: 'La ururiyay:', val: '$3,690' },
+      { label: 'Aan la ururin:', val: '$1,310' },
+      { label: 'Hadhaa hore:', val: '$245' },
+    ],
+    total: '$5,000',
+  },
+  {
+    icon: 'document-text',
+    color: '#7c3aed',
+    bg: '#ede9fe',
+    title: 'Imtixaannaadka',
+    body: 'Uma baahnid in macalinkasta maadadiisa Excel ku soo qoro, Diiwaan ayaa iskugu kaa gaynaya haybana xogta imtixaannaadka ardayda.',
+    marks: [
+      { subject: 'Mathematics', score: 88 },
+      { subject: 'Science', score: 74 },
+      { subject: 'Somali', score: 92 },
+    ],
+  },
+];
+
+// ─── Plans ───────────────────────────────────────────────────────────────────
 const PLANS = [
   {
-    name: 'Small school', price: '$10', capacity: 'Up to 100 students',
-    description: 'Perfect for small schools and community schools just getting started — every core tool included, with room to grow.',
-    tint: Colors.primaryLight, highlighted: false,
+    name: 'Dugsi Yar', nameEn: 'Basic', price: '$10',
+    capacity: 'Ilaa 100 Arday', highlighted: false, color: Colors.primaryLight,
+    features: ['Xaadiriska Ardayda', 'Xogta Ardayda', 'Warbixinta Waalidka', 'Maaliyadda Fudud'],
   },
   {
-    name: 'Medium school', price: '$20', capacity: 'Up to 500 students',
-    description: 'Built for growing schools that need more classes, more staff accounts and deeper attendance & payment insight — our most popular plan.',
-    tint: Colors.accent, highlighted: true,
+    name: 'Dugsi Dhexe', nameEn: 'Standard', price: '$20',
+    capacity: 'Ilaa 500 Arday', highlighted: true, color: Colors.accent,
+    features: ['Wax kasta oo Basic ah', 'Imtixaannaadka', 'SMS & Farriin', 'Risk Score Ardayda', 'Warbixinta Faahfaahsan'],
   },
   {
-    name: 'Large school', price: '$50', capacity: 'Unlimited students',
-    description: 'For large institutions and school groups — unlimited students and staff, priority support, and every Kobciye module as it ships.',
-    tint: Colors.success, highlighted: false,
+    name: 'Dugsi Weyn', nameEn: 'Premium', price: '$50',
+    capacity: 'Arday aan xad lahayn', highlighted: false, color: Colors.success,
+    features: ['Wax kasta oo Standard ah', 'Multi-branch Support', 'Priority Support', 'Custom Reports', 'API Access'],
   },
-];
-
-const FUTURE_FEATURES = [
-  { icon: 'analytics', tint: Colors.danger, title: 'Student Risk Score', body: 'Explainable Low/Medium/High signals built from attendance, fees and exam trends.' },
-  { icon: 'language', tint: Colors.primaryLight, title: 'Parent Somali Report', body: 'Weekly family updates written automatically in Somali and English.' },
-  { icon: 'phone-portrait', tint: Colors.success, title: 'Mobile Money Matching', body: 'Incoming mobile-money payments matched to the right student automatically.' },
-  { icon: 'people-circle', tint: Colors.accent, title: 'Fee Promise System', body: 'Track and follow up on payment promises without awkward conversations.' },
-  { icon: 'cloud-offline', tint: Colors.primary, title: 'Offline Attendance', body: "Mark attendance with no signal — records sync the moment you're back online." },
-  { icon: 'chatbubble-ellipses', tint: Colors.success, title: 'School-Monitored Messaging', body: 'Safe, school-supervised chat between staff and families — no outside numbers needed.' },
-  { icon: 'time', tint: Colors.primaryLight, title: 'Parent Trust Timeline', body: "A friendly day-by-day story of each child's school life that builds trust." },
-  { icon: 'bar-chart', tint: Colors.accent, title: 'Teacher Workload Dashboard', body: 'A clear view of class load and pending tasks so no teacher is overwhelmed.' },
 ];
 
 export default function OnboardingScreen({ navigation }) {
   const { width } = useWindowDimensions();
-  const isDesktop = width > 920;
+  const isDesktop = width > 900;
   const { t } = useLocalization();
 
-  const colsFor = (breakpoints) => {
-    for (const [min, cols] of breakpoints) if (width > min) return cols;
-    return breakpoints[breakpoints.length - 1][1];
-  };
-
   return (
-    <ScrollView style={styles.page} contentContainerStyle={{ flexGrow: 1 }}>
-      <Hero isDesktop={isDesktop} navigation={navigation} t={t} />
-
-      <View style={[styles.section, { paddingVertical: isDesktop ? 64 : 40 }]}>
-        <Text style={[TextStyles.h1, styles.center]}>Everything your school needs to grow</Text>
-        <Text style={[TextStyles.bodyMuted, styles.center, styles.lead]}>
-          Kobciye brings students, parents, teachers and administrators onto one beautiful, intelligent
-          platform — built for schools everywhere, and tuned for Somali schools in particular.
-        </Text>
-        <CardGrid
-          items={CAPABILITIES}
-          cols={colsFor([[880, 3], [580, 2], [0, 1]])}
-          renderItem={(c) => <CapabilityCard {...c} />}
-        />
-      </View>
-
-      <View style={[styles.section, { paddingVertical: isDesktop ? 64 : 40 }]}>
-        <Text style={[TextStyles.h1, styles.center]}>{t('pricingTitle')}</Text>
-        <Text style={[TextStyles.bodyMuted, styles.center, styles.lead]}>{t('pricingSubtitle')}</Text>
-        <CardGrid
-          items={PLANS}
-          cols={colsFor([[880, 3], [0, 1]])}
-          renderItem={(p) => <PlanCard {...p} />}
-        />
-      </View>
-
-      <View style={[styles.section, styles.darkSection, { paddingVertical: isDesktop ? 64 : 40 }]}>
-        <View style={styles.sectionBadge}>
-          <Text style={styles.sectionBadgeText}>Roadmap</Text>
-        </View>
-        <Text style={[TextStyles.h1, styles.center, { color: '#fff' }]}>What's growing next for Kobciye</Text>
-        <Text style={[styles.center, styles.lead, { color: 'rgba(148,163,184,0.9)', marginTop: 10 }]}>
-          These signature modules are being built with care and will roll out in upcoming phases —
-          designed specifically around how schools actually work.
-        </Text>
-        <CardGrid
-          items={FUTURE_FEATURES}
-          cols={colsFor([[880, 4], [580, 2], [0, 1]])}
-          renderItem={(f) => <FeatureTeaserCard {...f} comingSoon={t('comingSoon')} />}
-        />
-      </View>
+    <ScrollView style={styles.page} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+      <NavBar navigation={navigation} t={t} isDesktop={isDesktop} />
+      <HeroSection navigation={navigation} t={t} isDesktop={isDesktop} />
+      <ComparisonSection isDesktop={isDesktop} />
+      <AboutSection isDesktop={isDesktop} navigation={navigation} />
+      <FeaturesSection isDesktop={isDesktop} />
+      <PricingSection isDesktop={isDesktop} />
+      <FooterSection />
     </ScrollView>
   );
 }
 
-const HERO_STATS = [
-  { value: '500+', label: 'Students' },
-  { value: '98%', label: 'Attendance' },
-  { value: '50+', label: 'Schools' },
-];
-
-const FEATURE_PILLS_HERO = ['📊 Smart Analytics', '📱 Mobile-First', '🌍 Somali & English', '✅ Easy Attendance'];
-
-function Hero({ isDesktop, navigation, t }) {
+// ─── Nav Bar ─────────────────────────────────────────────────────────────────
+function NavBar({ navigation, t, isDesktop }) {
   return (
-    <LinearGradient colors={Gradients.brandVibrant} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.hero, { paddingVertical: isDesktop ? 56 : 40 }]}>
-      {/* Decorative blobs */}
-      <View style={styles.heroBlob1} pointerEvents="none" />
-      <View style={styles.heroBlob2} pointerEvents="none" />
-
-      <View style={styles.heroTopRow}>
-        <AppLogo size={28} light />
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <LanguageSwitcher light />
-          <Pressable onPress={() => navigation.navigate('Login')} style={styles.heroLoginBtn}>
-            <Text style={styles.heroLoginBtnLabel}>{t('login')}</Text>
-          </Pressable>
-        </View>
-      </View>
-
-      <View style={{ alignItems: 'center', marginTop: isDesktop ? 56 : 36, maxWidth: 720, alignSelf: 'center' }}>
-        <View style={styles.pill}>
-          <Text style={styles.pillText}>🏫  School Management Platform</Text>
-        </View>
-        <Text style={[styles.heroTitle, { fontSize: isDesktop ? 44 : 30 }]}>{t('heroTitle')}</Text>
-        <Text style={styles.heroSubtitle}>{t('heroSubtitle')}</Text>
-
-        {/* Stats row */}
-        <View style={styles.statsRow}>
-          {HERO_STATS.map((s, i) => (
-            <View key={i} style={styles.statItem}>
-              <Text style={styles.statValue}>{s.value}</Text>
-              <Text style={styles.statLabel}>{s.label}</Text>
-            </View>
+    <View style={styles.nav}>
+      <AppLogo size={26} />
+      {isDesktop && (
+        <View style={styles.navLinks}>
+          {['Home', 'Features', 'Pricing', 'Contact'].map((l) => (
+            <Text key={l} style={styles.navLink}>{l}</Text>
           ))}
         </View>
-
-        <View style={styles.heroActions}>
-          <AppButton
-            label={t('getStarted')}
-            icon={<Ionicons name="arrow-forward" size={18} color="#fff" />}
-            gradient={Gradients.gold}
-            onPress={() => navigation.navigate('Pricing')}
-            size="lg"
-            style={{ minWidth: 180 }}
-          />
-          <Pressable onPress={() => navigation.navigate('Login')} style={styles.outlineLight}>
-            <Text style={styles.outlineLightLabel}>{t('login')}</Text>
-          </Pressable>
-          <Pressable onPress={() => showRegisterSchoolSheet(navigation)} style={styles.ghostLight}>
-            <Text style={styles.ghostLightLabel}>{t('requestSchoolAccount')}</Text>
-          </Pressable>
-        </View>
-
-        {/* Floating feature pills */}
-        <View style={styles.featurePillsRow}>
-          {FEATURE_PILLS_HERO.map((p, i) => (
-            <View key={i} style={styles.featurePill}>
-              <Text style={styles.featurePillText}>{p}</Text>
-            </View>
-          ))}
-        </View>
+      )}
+      <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+        <LanguageSwitcher />
+        <Pressable onPress={() => navigation.navigate('Login')} style={styles.navLoginBtn}>
+          <Text style={styles.navLoginText}>{t('login')} →</Text>
+        </Pressable>
       </View>
+    </View>
+  );
+}
+
+// ─── Hero ─────────────────────────────────────────────────────────────────────
+function HeroSection({ navigation, t, isDesktop }) {
+  return (
+    <LinearGradient colors={['#f0fdf8', '#e8f5e9', '#ffffff']} style={[styles.hero, { paddingVertical: isDesktop ? 80 : 52 }]}>
+      <View style={[styles.heroInner, { flexDirection: isDesktop ? 'row' : 'column' }]}>
+        {/* Left text */}
+        <View style={[styles.heroLeft, { alignItems: isDesktop ? 'flex-start' : 'center' }]}>
+          <View style={styles.heroBadge}>
+            <Text style={styles.heroBadgeText}>☁️  Cloud-Based School Management System</Text>
+          </View>
+          <Text style={[styles.heroTitle, { fontSize: isDesktop ? 46 : 30, textAlign: isDesktop ? 'left' : 'center' }]}>
+            Si Fudud U Maamul Xogta{' '}
+            <Text style={styles.heroTitleAccent}>Ardayda!</Text>
+          </Text>
+          <Text style={[styles.heroSubtitle, { textAlign: isDesktop ? 'left' : 'center' }]}>
+            Kobciye waxa uu kaa caawinayaa inaad qaab fudud u maamusho xogta ardayda iyo macluumaadka dugsigaaga.
+          </Text>
+          <View style={[styles.heroActions, { justifyContent: isDesktop ? 'flex-start' : 'center' }]}>
+            <Pressable onPress={() => navigation.navigate('Pricing')} style={styles.heroCta}>
+              <LinearGradient colors={['#0A2E6B', '#1E4F96']} style={styles.heroCtaGrad}>
+                <Text style={styles.heroCtaText}>Bilaaw Hadda →</Text>
+              </LinearGradient>
+            </Pressable>
+            <Pressable onPress={() => showRegisterSchoolSheet(navigation)} style={styles.heroOutline}>
+              <Text style={styles.heroOutlineText}>Dugsigaaga diiwaan geli</Text>
+            </Pressable>
+          </View>
+          {/* Stats */}
+          <View style={[styles.statsRow, { justifyContent: isDesktop ? 'flex-start' : 'center' }]}>
+            {[['500+', 'Arday'], ['50+', 'Dugsi'], ['3', 'Magaalo']].map(([v, l]) => (
+              <View key={l} style={styles.statBox}>
+                <Text style={styles.statVal}>{v}</Text>
+                <Text style={styles.statLbl}>{l}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Right: App mockup */}
+        {isDesktop && (
+          <View style={styles.heroMockupWrap}>
+            <AppMockup />
+          </View>
+        )}
+      </View>
+      {!isDesktop && (
+        <View style={{ marginTop: 32, alignSelf: 'center', width: '100%', maxWidth: 340 }}>
+          <AppMockup />
+        </View>
+      )}
     </LinearGradient>
   );
 }
 
-function CardGrid({ items, cols, renderItem }) {
-  const rows = [];
-  for (let i = 0; i < items.length; i += cols) rows.push(items.slice(i, i + cols));
+function AppMockup() {
   return (
-    <View style={{ width: '100%', maxWidth: 1080, alignSelf: 'center', marginTop: 28 }}>
-      {rows.map((row, ri) => (
-        <View key={ri} style={styles.gridRow}>
-          {row.map((item, ci) => (
-            <View key={ci} style={{ flex: 1 }}>
-              {renderItem(item)}
-            </View>
-          ))}
-          {row.length < cols &&
-            Array.from({ length: cols - row.length }).map((_, ei) => <View key={`e${ei}`} style={{ flex: 1 }} />)}
+    <View style={styles.mockup}>
+      {/* Header bar */}
+      <LinearGradient colors={['#0A2E6B', '#1E4F96']} style={styles.mockupHeader}>
+        <Text style={styles.mockupHeaderText}>Kobciye</Text>
+        <View style={{ flexDirection: 'row', gap: 6 }}>
+          <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons name="search" size={12} color="#fff" />
+          </View>
+          <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons name="menu" size={12} color="#fff" />
+          </View>
+        </View>
+      </LinearGradient>
+      {/* School chips */}
+      <View style={{ flexDirection: 'row', gap: 8, padding: 10 }}>
+        <View style={[styles.schoolChip, { backgroundColor: '#16a34a' }]}>
+          <Text style={{ color: '#fff', fontSize: 9, fontWeight: '700' }}>✓ AL-MAAX SECONDARY</Text>
+        </View>
+        <View style={[styles.schoolChip, { backgroundColor: '#e2e8f0' }]}>
+          <Text style={{ color: '#64748b', fontSize: 9, fontWeight: '600' }}>AL-MAAX PRIMARY</Text>
+        </View>
+      </View>
+      {/* Student rows */}
+      {[
+        { name: 'Mustafa Ali', grade: 'Form 4A', color: '#16a34a' },
+        { name: 'Saadaqa Ahmed', grade: 'Class 3', color: '#0891b2' },
+        { name: 'Amina Yonis', grade: 'Form 3B', color: '#7c3aed' },
+        { name: 'Abdullahi Osman', grade: 'Form 2D', color: '#e11d48' },
+      ].map((s) => (
+        <View key={s.name} style={styles.mockupRow}>
+          <View style={[styles.mockupAvatar, { backgroundColor: `${s.color}22` }]}>
+            <Ionicons name="person" size={12} color={s.color} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 10, fontWeight: '700', color: '#0f172a' }}>{s.name}</Text>
+            <Text style={{ fontSize: 9, color: '#64748b' }}>{s.grade}</Text>
+          </View>
+          <View style={[styles.mockupBadge, { backgroundColor: `${s.color}18` }]}>
+            <Text style={{ fontSize: 8, color: s.color, fontWeight: '700' }}>Secondary</Text>
+          </View>
         </View>
       ))}
     </View>
   );
 }
 
-function CapabilityCard({ icon, tint, title, body }) {
+// ─── Comparison ───────────────────────────────────────────────────────────────
+function ComparisonSection({ isDesktop }) {
   return (
-    <View style={[styles.capCard, { borderLeftColor: tint, borderLeftWidth: 3 }]}>
-      <View style={[styles.capIcon, { backgroundColor: `${tint}1F` }]}>
-        <Ionicons name={icon} size={22} color={tint} />
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>
+        Faa'iidooyinka Nidaamka <Text style={{ color: '#16a34a' }}>Kobciye</Text>
+      </Text>
+      <Text style={styles.sectionSub}>
+        Waa nidaam loo diyaariyay inuu daboolo baahiyaha gaarka ah ee xarumaha waxbarashada wuxuuna dugsigaaga siinayaa faa'iidooyin badan.
+      </Text>
+      <View style={[styles.compRow, { flexDirection: isDesktop ? 'row' : 'column' }]}>
+        {/* Others card */}
+        <View style={[styles.compCard, styles.compCardBad, { flex: isDesktop ? 1 : undefined }]}>
+          <View style={styles.compCardHeader}>
+            <Text style={styles.compCardTitleBad}>Nidaamyada Kale</Text>
+            <View style={[styles.compHeaderIcon, { backgroundColor: '#fee2e2' }]}>
+              <Ionicons name="close" size={16} color="#ef4444" />
+            </View>
+          </View>
+          {OTHERS_CONS.map((c) => (
+            <View key={c} style={styles.compItem}>
+              <Ionicons name="close-circle" size={16} color="#ef4444" />
+              <Text style={styles.compItemTextBad}>{c}</Text>
+            </View>
+          ))}
+        </View>
+        {/* Kobciye card */}
+        <View style={[styles.compCard, styles.compCardGood, { flex: isDesktop ? 1 : undefined }]}>
+          <View style={styles.compCardHeader}>
+            <AppLogo size={18} />
+            <View style={[styles.compHeaderIcon, { backgroundColor: '#dcfce7' }]}>
+              <Ionicons name="checkmark-circle" size={16} color="#16a34a" />
+            </View>
+          </View>
+          {KOBCIYE_PROS.map((p) => (
+            <View key={p} style={styles.compItem}>
+              <Ionicons name="checkmark-circle" size={16} color="#16a34a" />
+              <Text style={styles.compItemTextGood}>{p}</Text>
+            </View>
+          ))}
+        </View>
       </View>
-      <Text style={[TextStyles.h2, { marginTop: 16, marginBottom: 6 }]}>{title}</Text>
-      <Text style={TextStyles.bodyMuted}>{body}</Text>
     </View>
   );
 }
 
-function PlanCard({ name, price, capacity, description, tint, highlighted }) {
+// ─── About ────────────────────────────────────────────────────────────────────
+function AboutSection({ isDesktop, navigation }) {
   return (
-    <View style={[styles.planCard, highlighted && { borderColor: Colors.accent, borderWidth: 1.6 }]}>
-      {highlighted && (
-        <LinearGradient colors={Gradients.gold} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.popularBadge}>
-          <Text style={styles.popularText}>Most popular</Text>
-        </LinearGradient>
+    <View style={[styles.section, { backgroundColor: '#fff' }]}>
+      <View style={[styles.aboutRow, { flexDirection: isDesktop ? 'row' : 'column', gap: isDesktop ? 48 : 28 }]}>
+        <View style={{ flex: isDesktop ? 1 : undefined }}>
+          <Text style={styles.sectionTitle}>
+            Ku Saabsan <Text style={{ color: '#16a34a' }}>Kobciye</Text> Software
+          </Text>
+          <Text style={{ color: '#16a34a', fontWeight: '600', fontSize: 14, lineHeight: 22, marginBottom: 14 }}>
+            Kobciye waa barnaamij casri ah oo loogu talagalay in lagu fududeeyo maamulka iyo kaydinta macluumaadka ardayda, waxa uu kuu ogolaanaya inaad hal taabasho ku maamusho dhammaan xogaha ardayda.
+          </Text>
+          <Pressable onPress={() => navigation.navigate('Login')} style={styles.heroCta}>
+            <LinearGradient colors={['#0A2E6B', '#1E4F96']} style={styles.heroCtaGrad}>
+              <Text style={styles.heroCtaText}>Gal Akoonkaaga →</Text>
+            </LinearGradient>
+          </Pressable>
+        </View>
+        <View style={[styles.aboutImageBox, { flex: isDesktop ? 1 : undefined }]}>
+          <LinearGradient colors={['#dcfce7', '#bbf7d0']} style={styles.aboutImageInner}>
+            <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, gap: 12 }}>
+              <LinearGradient colors={['#0A2E6B', '#1E4F96']} style={{ width: 64, height: 64, borderRadius: 20, alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name="school" size={32} color="#fff" />
+              </LinearGradient>
+              <Text style={{ fontSize: 18, fontWeight: '800', color: '#0A2E6B' }}>Kobciye School System</Text>
+              <Text style={{ fontSize: 13, color: '#16a34a', fontWeight: '600', textAlign: 'center' }}>Si xaroogo leh u maamul xogta ardayda oo ka rayso waraaqihi.</Text>
+              <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+                {['Attendance', 'Payments', 'Exams'].map((b) => (
+                  <View key={b} style={{ backgroundColor: '#0A2E6B', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 }}>
+                    <Text style={{ color: '#fff', fontSize: 11, fontWeight: '700' }}>{b}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </LinearGradient>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+// ─── Features ─────────────────────────────────────────────────────────────────
+function FeaturesSection({ isDesktop }) {
+  return (
+    <View style={[styles.section, { backgroundColor: '#f8fafc' }]}>
+      <Text style={styles.sectionTitle}>Qaybaha Ugu Muhiimsan</Text>
+      <Text style={styles.sectionSub}>Kobciye waxaa ku jira qaybaha ugu muhiimsan ee maamulka dugsiga oo dhan</Text>
+      <View style={[styles.featureCardsRow, { flexDirection: isDesktop ? 'row' : 'column' }]}>
+        {FEATURES.map((f) => (
+          <FeatureCard key={f.title} feature={f} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function FeatureCard({ feature: f }) {
+  return (
+    <View style={styles.featureCard}>
+      {/* Mini mockup */}
+      <View style={[styles.featureCardMockup, { backgroundColor: f.bg }]}>
+        {f.items ? (
+          <View style={{ gap: 8 }}>
+            {f.items.map((s) => (
+              <View key={s.name} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#fff', borderRadius: 10, padding: 8 }}>
+                <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: `${f.color}22`, alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="person" size={13} color={f.color} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#0f172a' }}>{s.name}</Text>
+                  <Text style={{ fontSize: 9.5, color: '#64748b' }}>{s.grade}</Text>
+                </View>
+                <View style={{ backgroundColor: `${f.color}18`, paddingHorizontal: 7, paddingVertical: 3, borderRadius: 8 }}>
+                  <Text style={{ fontSize: 8.5, color: f.color, fontWeight: '700' }}>{s.type}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : f.stats ? (
+          <View style={{ backgroundColor: '#fff', borderRadius: 14, padding: 12, gap: 6 }}>
+            <Text style={{ fontSize: 10, color: '#64748b', fontWeight: '600' }}>Wadata Lacagta</Text>
+            <Text style={{ fontSize: 22, fontWeight: '800', color: f.color }}>{f.total}</Text>
+            {f.stats.map((s) => (
+              <View key={s.label} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={{ fontSize: 10.5, color: '#64748b' }}>{s.label}</Text>
+                <Text style={{ fontSize: 10.5, fontWeight: '700', color: '#0f172a' }}>{s.val}</Text>
+              </View>
+            ))}
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+              {['eDahab', 'Cash'].map((m) => (
+                <View key={m} style={{ backgroundColor: `${f.color}18`, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
+                  <Text style={{ fontSize: 9, color: f.color, fontWeight: '700' }}>{m}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        ) : (
+          <View style={{ gap: 6 }}>
+            {f.marks.map((m) => (
+              <View key={m.subject} style={{ backgroundColor: '#fff', borderRadius: 10, padding: 10 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                  <Text style={{ fontSize: 11, fontWeight: '600', color: '#0f172a' }}>{m.subject}</Text>
+                  <Text style={{ fontSize: 11, fontWeight: '800', color: f.color }}>{m.score}%</Text>
+                </View>
+                <View style={{ height: 5, borderRadius: 3, backgroundColor: `${f.color}22`, overflow: 'hidden' }}>
+                  <View style={{ width: `${m.score}%`, height: '100%', backgroundColor: f.color, borderRadius: 3 }} />
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+      </View>
+      {/* Text */}
+      <View style={{ padding: 16 }}>
+        <Text style={[styles.featureCardTitle, { color: '#0f172a' }]}>{f.title}</Text>
+        <Text style={styles.featureCardBody}>{f.body}</Text>
+      </View>
+    </View>
+  );
+}
+
+// ─── Pricing ──────────────────────────────────────────────────────────────────
+function PricingSection({ isDesktop }) {
+  return (
+    <View style={[styles.section, { backgroundColor: '#fff' }]}>
+      <Text style={styles.sectionTitle}>
+        Doorso <Text style={{ color: '#16a34a' }}>Qorshaha</Text> Kuu Haboon
+      </Text>
+      <Text style={styles.sectionSub}>Bil koowaad bilaash ah — keli keliya lacag bixin hadaad ku qanacsatid</Text>
+      <View style={[styles.planRow, { flexDirection: isDesktop ? 'row' : 'column', alignItems: isDesktop ? 'flex-end' : 'stretch' }]}>
+        {PLANS.map((p) => (
+          <PlanCard key={p.name} plan={p} isDesktop={isDesktop} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function PlanCard({ plan: p, isDesktop }) {
+  return (
+    <View style={[
+      styles.planCard,
+      { flex: isDesktop ? 1 : undefined },
+      p.highlighted && styles.planCardHighlighted,
+    ]}>
+      {p.highlighted && (
+        <View style={styles.popularBadge}>
+          <Text style={styles.popularText}>⭐  Ugu Caansan</Text>
+        </View>
       )}
-      <Text style={TextStyles.h2}>{name}</Text>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 10 }}>
-        <Text style={[styles.planPrice, { color: tint }]}>{price}</Text>
-        <Text style={[TextStyles.bodyMuted, { marginBottom: 6, marginLeft: 4 }]}>/month</Text>
+      <Text style={styles.planName}>{p.name}</Text>
+      <Text style={styles.planNameEn}>{p.nameEn}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 10, gap: 2 }}>
+        <Text style={[styles.planPrice, { color: p.color }]}>{p.price}</Text>
+        <Text style={{ color: '#64748b', marginBottom: 6, fontSize: 13 }}>/bil</Text>
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
-        <Ionicons name="people" size={16} color={tint} />
-        <Text style={[TextStyles.body, { fontWeight: '700', marginLeft: 6 }]}>{capacity}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+        <Ionicons name="people" size={14} color={p.color} />
+        <Text style={{ fontWeight: '700', fontSize: 13, color: '#374151' }}>{p.capacity}</Text>
       </View>
-      <Text style={[TextStyles.bodyMuted, { marginTop: 14 }]}>{description}</Text>
-      <Pressable
-        onPress={() => showRegisterSchoolSheet()}
-        style={[styles.planCta, { borderColor: tint }]}
-      >
-        <Text style={{ color: tint, fontWeight: '700' }}>Choose {name}</Text>
+      <View style={{ marginTop: 14, gap: 8 }}>
+        {p.features.map((f) => (
+          <View key={f} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+            <Ionicons name="checkmark-circle" size={15} color="#16a34a" />
+            <Text style={{ fontSize: 13, color: '#374151' }}>{f}</Text>
+          </View>
+        ))}
+      </View>
+      <Pressable onPress={() => showRegisterSchoolSheet()} style={[styles.planCta, p.highlighted && { backgroundColor: '#0A2E6B', borderWidth: 0 }]}>
+        <Text style={[styles.planCtaText, p.highlighted && { color: '#fff' }]}>Doorso →</Text>
       </Pressable>
     </View>
   );
 }
 
-function FeatureTeaserCard({ icon, tint, title, body, comingSoon }) {
+// ─── Footer ───────────────────────────────────────────────────────────────────
+function FooterSection() {
   return (
-    <View style={styles.featureCard}>
-      <View style={[styles.capIcon, { backgroundColor: `${tint}26` }]}>
-        <Ionicons name={icon} size={22} color={tint} />
-      </View>
-      <Text style={[TextStyles.h2, { marginTop: 16, marginBottom: 6, fontSize: 15, color: '#fff' }]}>{title}</Text>
-      <Text style={[TextStyles.bodyMuted, { fontSize: 12.5, color: 'rgba(148,163,184,0.85)' }]}>{body}</Text>
-      <View style={styles.comingSoonChip}>
-        <Text style={styles.comingSoonText}>{comingSoon}</Text>
-      </View>
-    </View>
+    <LinearGradient colors={['#0A2E6B', '#0f172a']} style={styles.footer}>
+      <AppLogo size={24} light />
+      <Text style={styles.footerText}>
+        Kobciye — Cloud-Based School Management System{'\n'}Gabiley, Somaliland · kobciye.com
+      </Text>
+      <Text style={styles.footerCopy}>© 2025 Kobciye. Dhammaan xuquuqda way ilaalisan yihiin.</Text>
+    </LinearGradient>
   );
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: Colors.background },
-  section: { paddingHorizontal: 24, alignItems: 'center' },
-  surface: { backgroundColor: Colors.surface },
-  center: { textAlign: 'center' },
-  lead: { marginTop: 10, maxWidth: 640, textAlign: 'center' },
-  gridRow: { flexDirection: 'row', gap: 16, marginBottom: 16 },
+  page: { flex: 1, backgroundColor: '#fff' },
 
-  hero: { paddingHorizontal: 24, paddingTop: 18, overflow: 'hidden', position: 'relative' },
-  heroBlob1: {
-    position: 'absolute', top: -60, right: -60, width: 220, height: 220, borderRadius: 110,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+  // Nav
+  nav: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 24, paddingVertical: 16,
+    backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#e2e8f0',
+    shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, shadowOffset: { width: 0, height: 2 },
   },
-  heroBlob2: {
-    position: 'absolute', bottom: -40, left: -40, width: 160, height: 160, borderRadius: 80,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+  navLinks: { flexDirection: 'row', gap: 28 },
+  navLink: { fontSize: 14, fontWeight: '600', color: '#374151' },
+  navLoginBtn: {
+    paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10,
+    backgroundColor: '#0A2E6B',
   },
-  heroTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', maxWidth: 1180, width: '100%', alignSelf: 'center' },
-  heroLoginBtn: { paddingVertical: 8, paddingHorizontal: 18, borderRadius: 10, borderWidth: 1.5, borderColor: glass(0.35) },
-  heroLoginBtnLabel: { color: '#fff', fontWeight: '700', fontSize: 13.5 },
-  pill: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 40, backgroundColor: glass(0.12), borderWidth: 1, borderColor: glass(0.22) },
-  pillText: { fontSize: 11, fontWeight: '600', letterSpacing: 0.4, color: 'rgba(255,255,255,0.85)' },
-  heroTitle: { fontWeight: '800', letterSpacing: -0.5, color: '#fff', textAlign: 'center', marginTop: 22, lineHeight: 42 },
-  heroSubtitle: { fontSize: 15.5, lineHeight: 23, color: 'rgba(255,255,255,0.8)', textAlign: 'center', marginTop: 16 },
-  statsRow: { flexDirection: 'row', justifyContent: 'center', gap: 32, marginTop: 30 },
-  statItem: { alignItems: 'center' },
-  statValue: { fontSize: 26, fontWeight: '800', color: '#fff', letterSpacing: -0.5 },
-  statLabel: { fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 2, fontWeight: '600' },
-  heroActions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 14, marginTop: 30 },
-  outlineLight: { paddingVertical: 16, paddingHorizontal: 28, borderRadius: 16, borderWidth: 1.5, borderColor: glass(0.4), alignItems: 'center', justifyContent: 'center' },
-  outlineLightLabel: { color: '#fff', fontWeight: '700', fontSize: 15 },
-  ghostLight: { paddingVertical: 16, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
-  ghostLightLabel: { color: 'rgba(255,255,255,0.85)', fontWeight: '700', fontSize: 14 },
-  featurePillsRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10, marginTop: 28 },
-  featurePill: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 30, backgroundColor: glass(0.1), borderWidth: 1, borderColor: glass(0.2) },
-  featurePillText: { fontSize: 12, color: 'rgba(255,255,255,0.85)', fontWeight: '600' },
+  navLoginText: { color: '#fff', fontWeight: '700', fontSize: 13.5 },
 
-  capCard: {
-    backgroundColor: Colors.surface, borderRadius: 20, borderWidth: 1, borderColor: Colors.border,
-    padding: 22, shadowColor: Colors.primary, shadowOpacity: 0.05, shadowRadius: 26, shadowOffset: { width: 0, height: 12 },
+  // Hero
+  hero: { paddingHorizontal: 24 },
+  heroInner: { maxWidth: 1100, alignSelf: 'center', width: '100%', gap: 40, alignItems: 'center' },
+  heroLeft: { flex: 1, gap: 0 },
+  heroBadge: {
+    alignSelf: 'flex-start', backgroundColor: 'rgba(22,163,74,0.1)',
+    paddingHorizontal: 14, paddingVertical: 7, borderRadius: 30,
+    borderWidth: 1, borderColor: 'rgba(22,163,74,0.25)', marginBottom: 18,
   },
-  capIcon: { width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  comingSoonChip: { marginTop: 16, alignSelf: 'flex-start', backgroundColor: `${Colors.accent}26`, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 },
-  comingSoonText: { fontSize: 11, fontWeight: '700', color: Colors.accent },
-
-  planCard: {
-    backgroundColor: Colors.surface, borderRadius: 24, borderWidth: 1, borderColor: Colors.border, padding: 24,
-    shadowColor: Colors.primary, shadowOpacity: 0.05, shadowRadius: 30, shadowOffset: { width: 0, height: 14 },
+  heroBadgeText: { fontSize: 12, fontWeight: '600', color: '#16a34a' },
+  heroTitle: { fontWeight: '900', color: '#0f172a', lineHeight: 54, letterSpacing: -1, marginBottom: 16 },
+  heroTitleAccent: { color: '#16a34a' },
+  heroSubtitle: { fontSize: 15.5, color: '#64748b', lineHeight: 24, marginBottom: 24, maxWidth: 480 },
+  heroActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 28 },
+  heroCta: { borderRadius: 12, overflow: 'hidden' },
+  heroCtaGrad: { paddingHorizontal: 24, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  heroCtaText: { color: '#fff', fontWeight: '800', fontSize: 15 },
+  heroOutline: {
+    paddingHorizontal: 20, paddingVertical: 14, borderRadius: 12,
+    borderWidth: 1.5, borderColor: '#0A2E6B',
   },
-  popularBadge: { alignSelf: 'flex-start', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, marginBottom: 14 },
-  popularText: { color: '#fff', fontSize: 12, fontWeight: '700' },
-  planPrice: { fontSize: 34, fontWeight: '800', letterSpacing: -0.5 },
-  planCta: { marginTop: 18, height: 48, borderRadius: 12, borderWidth: 1.4, alignItems: 'center', justifyContent: 'center' },
+  heroOutlineText: { color: '#0A2E6B', fontWeight: '700', fontSize: 14 },
+  statsRow: { flexDirection: 'row', gap: 24 },
+  statBox: { alignItems: 'center' },
+  statVal: { fontSize: 24, fontWeight: '800', color: '#0A2E6B' },
+  statLbl: { fontSize: 11, color: '#64748b', fontWeight: '600', marginTop: 2 },
 
-  darkSection: { backgroundColor: '#0F172A' },
-  sectionBadge: { alignSelf: 'center', backgroundColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 16, paddingVertical: 7, borderRadius: 30, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' },
-  sectionBadgeText: { fontSize: 11.5, fontWeight: '700', color: 'rgba(255,255,255,0.7)', letterSpacing: 0.5, textTransform: 'uppercase' },
+  // Mockup
+  heroMockupWrap: { flex: 1, maxWidth: 340 },
+  mockup: {
+    backgroundColor: '#fff', borderRadius: 20, overflow: 'hidden',
+    shadowColor: '#0A2E6B', shadowOpacity: 0.18, shadowRadius: 32, shadowOffset: { width: 0, height: 12 },
+    borderWidth: 1, borderColor: '#e2e8f0',
+  },
+  mockupHeader: { padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  mockupHeaderText: { color: '#fff', fontWeight: '800', fontSize: 14 },
+  schoolChip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
+  mockupRow: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderTopWidth: 1, borderTopColor: '#f1f5f9' },
+  mockupAvatar: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  mockupBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+
+  // Sections
+  section: { paddingHorizontal: 24, paddingVertical: 60, alignItems: 'center', backgroundColor: '#f8fafc' },
+  sectionTitle: { fontSize: 28, fontWeight: '900', color: '#0f172a', textAlign: 'center', letterSpacing: -0.5, marginBottom: 12 },
+  sectionSub: { fontSize: 14.5, color: '#64748b', textAlign: 'center', lineHeight: 22, maxWidth: 560, marginBottom: 32 },
+
+  // Comparison
+  compRow: { gap: 16, width: '100%', maxWidth: 860, alignSelf: 'center' },
+  compCard: { borderRadius: 20, padding: 22, borderWidth: 1.5 },
+  compCardBad: { backgroundColor: '#fff5f5', borderColor: '#fecaca' },
+  compCardGood: { backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' },
+  compCardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
+  compCardTitleBad: { fontSize: 15, fontWeight: '800', color: '#ef4444' },
+  compHeaderIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  compItem: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
+  compItemTextBad: { fontSize: 13.5, color: '#374151', flex: 1 },
+  compItemTextGood: { fontSize: 13.5, color: '#15803d', flex: 1, fontWeight: '600' },
+
+  // About
+  aboutRow: { width: '100%', maxWidth: 1000, alignSelf: 'center', alignItems: 'center' },
+  aboutImageBox: { borderRadius: 20, overflow: 'hidden', minHeight: 220 },
+  aboutImageInner: { flex: 1, padding: 28, minHeight: 220, borderRadius: 20 },
+
+  // Features
+  featureCardsRow: { gap: 18, width: '100%', maxWidth: 1000, alignSelf: 'center' },
   featureCard: {
-    backgroundColor: '#1E293B', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
-    padding: 22, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 20, shadowOffset: { width: 0, height: 8 },
+    flex: 1, backgroundColor: '#fff', borderRadius: 22, overflow: 'hidden',
+    borderWidth: 1, borderColor: '#e2e8f0',
+    shadowColor: '#0A2E6B', shadowOpacity: 0.07, shadowRadius: 20, shadowOffset: { width: 0, height: 8 },
   },
+  featureCardMockup: { padding: 16, minHeight: 160 },
+  featureCardTitle: { fontSize: 16, fontWeight: '800', marginBottom: 6 },
+  featureCardBody: { fontSize: 13, color: '#64748b', lineHeight: 20 },
+
+  // Pricing
+  planRow: { gap: 16, width: '100%', maxWidth: 900, alignSelf: 'center' },
+  planCard: {
+    backgroundColor: '#fff', borderRadius: 22, padding: 24,
+    borderWidth: 1.5, borderColor: '#e2e8f0',
+    shadowColor: '#0A2E6B', shadowOpacity: 0.06, shadowRadius: 24, shadowOffset: { width: 0, height: 8 },
+  },
+  planCardHighlighted: {
+    borderColor: '#0A2E6B', borderWidth: 2,
+    shadowColor: '#0A2E6B', shadowOpacity: 0.16, shadowRadius: 32, shadowOffset: { width: 0, height: 12 },
+  },
+  popularBadge: {
+    alignSelf: 'flex-start', backgroundColor: '#0A2E6B',
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 30, marginBottom: 14,
+  },
+  popularText: { color: '#fff', fontSize: 11.5, fontWeight: '700' },
+  planName: { fontSize: 18, fontWeight: '800', color: '#0f172a' },
+  planNameEn: { fontSize: 12, fontWeight: '600', color: '#94a3b8', marginTop: 2 },
+  planPrice: { fontSize: 36, fontWeight: '900', letterSpacing: -1 },
+  planCta: {
+    marginTop: 20, height: 48, borderRadius: 12,
+    borderWidth: 1.5, borderColor: '#0A2E6B',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  planCtaText: { color: '#0A2E6B', fontWeight: '800', fontSize: 15 },
+
+  // Footer
+  footer: { padding: 36, alignItems: 'center', gap: 14 },
+  footerText: { color: 'rgba(255,255,255,0.7)', fontSize: 13, textAlign: 'center', lineHeight: 20 },
+  footerCopy: { color: 'rgba(255,255,255,0.4)', fontSize: 11.5, textAlign: 'center' },
 });
