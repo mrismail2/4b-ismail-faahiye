@@ -130,7 +130,7 @@ export default function OnboardingScreen({ navigation }) {
 function NavBar({ navigation, t, isDesktop }) {
   return (
     <View style={styles.nav}>
-      <AppLogo size={20} />
+      <AppLogo size={15} />
       {isDesktop && (
         <View style={styles.navLinks}>
           {['Home', 'Features', 'Pricing', 'Contact'].map((l) => (
