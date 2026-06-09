@@ -124,7 +124,7 @@ export default function LoginScreen({ navigation }) {
 
           <Pressable onPress={() => showRegisterSchoolSheet()} style={styles.requestRow}>
             <Ionicons name="school-outline" size={16} color={Colors.primary} />
-            <Text style={[styles.link, { marginLeft: 6 }]}>{t('requestSchoolAccount')}</Text>
+            <Text style={[styles.link, { marginLeft: 6 }]}>Register your school</Text>
           </Pressable>
 
           <View style={styles.divider} />
@@ -206,7 +206,11 @@ export default function LoginScreen({ navigation }) {
   if (isDesktop) {
     return (
       <View style={styles.desktopRow}>
-        <LinearGradient colors={Gradients.brand} style={styles.desktopHero}>
+        <LinearGradient colors={Gradients.brandVibrant} style={styles.desktopHero}>
+          {/* Decorative floating circles */}
+          <View style={styles.heroCircle1} pointerEvents="none" />
+          <View style={styles.heroCircle2} pointerEvents="none" />
+          <View style={styles.heroCircle3} pointerEvents="none" />
           <AppLogo size={42} light showTagline />
           <Text style={styles.heroTitle}>Run your school with confidence</Text>
           <Text style={styles.heroSubtitle}>
@@ -214,9 +218,9 @@ export default function LoginScreen({ navigation }) {
           </Text>
           {FEATURE_PILLS.map((p) => (
             <View key={p} style={styles.pillRow}>
-              <View style={styles.pillCheck}>
+              <LinearGradient colors={['rgba(255,255,255,0.22)', 'rgba(255,255,255,0.1)']} style={styles.pillCheck}>
                 <Ionicons name="checkmark" size={16} color="#fff" />
-              </View>
+              </LinearGradient>
               <Text style={styles.pillLabel}>{p}</Text>
             </View>
           ))}
@@ -255,35 +259,38 @@ const styles = StyleSheet.create({
   fieldLabel: { ...TextStyles.bodyMuted, fontWeight: '700', marginTop: 18, marginBottom: 8 },
   inputWrap: {
     flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: Colors.border,
-    borderRadius: 12, paddingHorizontal: 14, backgroundColor: Colors.background,
+    borderRadius: 14, paddingHorizontal: 14, backgroundColor: Colors.background,
   },
-  input: { flex: 1, paddingVertical: 12, fontSize: 14, color: Colors.text },
+  input: { flex: 1, paddingVertical: 14, fontSize: 14, color: Colors.text },
   link: { color: Colors.primary, fontWeight: '700', fontSize: 13 },
   error: { color: Colors.danger, fontSize: 12.5, marginTop: 6, fontWeight: '600' },
   requestRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 16 },
   divider: { height: 1, backgroundColor: Colors.border, marginVertical: 18 },
   previewRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 },
   previewBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 11, paddingHorizontal: 16,
-    borderRadius: 12, backgroundColor: `${Colors.primaryLight}14`, borderWidth: 1.5, borderColor: `${Colors.primaryLight}33`,
+    flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 18,
+    borderRadius: 14, backgroundColor: `${Colors.primaryLight}10`, borderWidth: 1.5, borderColor: `${Colors.primary}40`,
   },
   previewBtnLabel: { fontSize: 13.5, fontWeight: '700', color: Colors.primary },
 
   desktopRow: { flex: 1, flexDirection: 'row' },
-  desktopHero: { flex: 1, padding: 56, justifyContent: 'center' },
-  heroTitle: { fontSize: 32, fontWeight: '800', color: '#fff', marginTop: 28, letterSpacing: -0.5 },
+  desktopHero: { flex: 1, padding: 56, justifyContent: 'center', overflow: 'hidden', position: 'relative' },
+  heroCircle1: { position: 'absolute', top: -80, right: -80, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(255,255,255,0.07)' },
+  heroCircle2: { position: 'absolute', bottom: -60, left: -60, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(255,255,255,0.05)' },
+  heroCircle3: { position: 'absolute', top: '40%', right: 40, width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.06)' },
+  heroTitle: { fontSize: 34, fontWeight: '800', color: '#fff', marginTop: 28, letterSpacing: -0.5, lineHeight: 42 },
   heroSubtitle: { fontSize: 16, color: 'rgba(255,255,255,0.8)', marginTop: 14, lineHeight: 24 },
   pillRow: { flexDirection: 'row', alignItems: 'center', marginTop: 14 },
-  pillCheck: { width: 28, height: 28, borderRadius: 9, backgroundColor: glass(0.16), alignItems: 'center', justifyContent: 'center' },
+  pillCheck: { width: 30, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   pillLabel: { color: 'rgba(255,255,255,0.85)', marginLeft: 12, fontSize: 14, flexShrink: 1 },
   desktopFormWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
 
   mobileHero: { paddingHorizontal: 24, paddingTop: 64, paddingBottom: 64, alignItems: 'flex-start' },
   mobileCardWrap: { marginTop: -28, paddingHorizontal: 20, paddingBottom: 32 },
 
-  tabRow: { flexDirection: 'row', marginTop: 18, borderRadius: 14, backgroundColor: Colors.background, padding: 4, gap: 4 },
-  tabBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 9, borderRadius: 11 },
-  tabBtnActive: { backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, shadowOffset: { width: 0, height: 2 } },
+  tabRow: { flexDirection: 'row', marginTop: 20, borderRadius: 16, backgroundColor: Colors.background, padding: 5, gap: 4, borderWidth: 1, borderColor: Colors.border },
+  tabBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, borderRadius: 12 },
+  tabBtnActive: { backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, shadowColor: Colors.primary, shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } },
   tabBtnLabel: { fontSize: 13.5, fontWeight: '600', color: Colors.muted },
   tabBtnLabelActive: { color: Colors.primary, fontWeight: '700' },
   inputWrapError: { borderColor: Colors.danger },

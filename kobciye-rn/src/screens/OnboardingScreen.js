@@ -8,7 +8,7 @@ import AppLogo from '../widgets/AppLogo';
 import AppButton from '../widgets/AppButton';
 import LanguageSwitcher from '../widgets/LanguageSwitcher';
 import { useLocalization } from '../context/LocalizationContext';
-import { showRequestSchoolAccountSheet } from '../widgets/RequestSchoolAccountSheet';
+import { showRegisterSchoolSheet } from '../widgets/RegisterSchoolSheet';
 
 const CAPABILITIES = [
   { icon: 'people', tint: Colors.primaryLight, title: 'Manage students', body: "Keep every student's record, class and family details organized in one place." },
@@ -87,9 +87,12 @@ export default function OnboardingScreen({ navigation }) {
         />
       </View>
 
-      <View style={[styles.section, styles.surface, { paddingVertical: isDesktop ? 64 : 40 }]}>
-        <Text style={[TextStyles.h1, styles.center]}>What's growing next for Kobciye</Text>
-        <Text style={[TextStyles.bodyMuted, styles.center, styles.lead]}>
+      <View style={[styles.section, styles.darkSection, { paddingVertical: isDesktop ? 64 : 40 }]}>
+        <View style={styles.sectionBadge}>
+          <Text style={styles.sectionBadgeText}>Roadmap</Text>
+        </View>
+        <Text style={[TextStyles.h1, styles.center, { color: '#fff' }]}>What's growing next for Kobciye</Text>
+        <Text style={[styles.center, styles.lead, { color: 'rgba(148,163,184,0.9)', marginTop: 10 }]}>
           These signature modules are being built with care and will roll out in upcoming phases —
           designed specifically around how schools actually work.
         </Text>
@@ -103,20 +106,47 @@ export default function OnboardingScreen({ navigation }) {
   );
 }
 
+const HERO_STATS = [
+  { value: '500+', label: 'Students' },
+  { value: '98%', label: 'Attendance' },
+  { value: '50+', label: 'Schools' },
+];
+
+const FEATURE_PILLS_HERO = ['📊 Smart Analytics', '📱 Mobile-First', '🌍 Somali & English', '✅ Easy Attendance'];
+
 function Hero({ isDesktop, navigation, t }) {
   return (
-    <LinearGradient colors={Gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.hero, { paddingVertical: isDesktop ? 56 : 40 }]}>
+    <LinearGradient colors={Gradients.brandVibrant} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.hero, { paddingVertical: isDesktop ? 56 : 40 }]}>
+      {/* Decorative blobs */}
+      <View style={styles.heroBlob1} pointerEvents="none" />
+      <View style={styles.heroBlob2} pointerEvents="none" />
+
       <View style={styles.heroTopRow}>
         <AppLogo size={28} light />
-        <LanguageSwitcher light />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <LanguageSwitcher light />
+          <Pressable onPress={() => navigation.navigate('Login')} style={styles.heroLoginBtn}>
+            <Text style={styles.heroLoginBtnLabel}>{t('login')}</Text>
+          </Pressable>
+        </View>
       </View>
 
       <View style={{ alignItems: 'center', marginTop: isDesktop ? 56 : 36, maxWidth: 720, alignSelf: 'center' }}>
         <View style={styles.pill}>
-          <Text style={styles.pillText}>🏫  Kobciye — School Management SaaS</Text>
+          <Text style={styles.pillText}>🏫  School Management Platform</Text>
         </View>
-        <Text style={[styles.heroTitle, { fontSize: isDesktop ? 40 : 28 }]}>{t('heroTitle')}</Text>
+        <Text style={[styles.heroTitle, { fontSize: isDesktop ? 44 : 30 }]}>{t('heroTitle')}</Text>
         <Text style={styles.heroSubtitle}>{t('heroSubtitle')}</Text>
+
+        {/* Stats row */}
+        <View style={styles.statsRow}>
+          {HERO_STATS.map((s, i) => (
+            <View key={i} style={styles.statItem}>
+              <Text style={styles.statValue}>{s.value}</Text>
+              <Text style={styles.statLabel}>{s.label}</Text>
+            </View>
+          ))}
+        </View>
 
         <View style={styles.heroActions}>
           <AppButton
@@ -124,14 +154,24 @@ function Hero({ isDesktop, navigation, t }) {
             icon={<Ionicons name="arrow-forward" size={18} color="#fff" />}
             gradient={Gradients.gold}
             onPress={() => navigation.navigate('Login')}
+            size="lg"
             style={{ minWidth: 180 }}
           />
           <Pressable onPress={() => navigation.navigate('Login')} style={styles.outlineLight}>
             <Text style={styles.outlineLightLabel}>{t('login')}</Text>
           </Pressable>
-          <Pressable onPress={() => showRequestSchoolAccountSheet(navigation)} style={styles.ghostLight}>
+          <Pressable onPress={() => showRegisterSchoolSheet(navigation)} style={styles.ghostLight}>
             <Text style={styles.ghostLightLabel}>{t('requestSchoolAccount')}</Text>
           </Pressable>
+        </View>
+
+        {/* Floating feature pills */}
+        <View style={styles.featurePillsRow}>
+          {FEATURE_PILLS_HERO.map((p, i) => (
+            <View key={i} style={styles.featurePill}>
+              <Text style={styles.featurePillText}>{p}</Text>
+            </View>
+          ))}
         </View>
       </View>
     </LinearGradient>
@@ -160,7 +200,7 @@ function CardGrid({ items, cols, renderItem }) {
 
 function CapabilityCard({ icon, tint, title, body }) {
   return (
-    <View style={styles.capCard}>
+    <View style={[styles.capCard, { borderLeftColor: tint, borderLeftWidth: 3 }]}>
       <View style={[styles.capIcon, { backgroundColor: `${tint}1F` }]}>
         <Ionicons name={icon} size={22} color={tint} />
       </View>
@@ -189,7 +229,7 @@ function PlanCard({ name, price, capacity, description, tint, highlighted }) {
       </View>
       <Text style={[TextStyles.bodyMuted, { marginTop: 14 }]}>{description}</Text>
       <Pressable
-        onPress={() => showRequestSchoolAccountSheet()}
+        onPress={() => showRegisterSchoolSheet()}
         style={[styles.planCta, { borderColor: tint }]}
       >
         <Text style={{ color: tint, fontWeight: '700' }}>Choose {name}</Text>
@@ -200,12 +240,12 @@ function PlanCard({ name, price, capacity, description, tint, highlighted }) {
 
 function FeatureTeaserCard({ icon, tint, title, body, comingSoon }) {
   return (
-    <View style={styles.capCard}>
-      <View style={[styles.capIcon, { backgroundColor: `${tint}1F` }]}>
+    <View style={styles.featureCard}>
+      <View style={[styles.capIcon, { backgroundColor: `${tint}26` }]}>
         <Ionicons name={icon} size={22} color={tint} />
       </View>
-      <Text style={[TextStyles.h2, { marginTop: 16, marginBottom: 6, fontSize: 15 }]}>{title}</Text>
-      <Text style={[TextStyles.bodyMuted, { fontSize: 12.5 }]}>{body}</Text>
+      <Text style={[TextStyles.h2, { marginTop: 16, marginBottom: 6, fontSize: 15, color: '#fff' }]}>{title}</Text>
+      <Text style={[TextStyles.bodyMuted, { fontSize: 12.5, color: 'rgba(148,163,184,0.85)' }]}>{body}</Text>
       <View style={styles.comingSoonChip}>
         <Text style={styles.comingSoonText}>{comingSoon}</Text>
       </View>
@@ -221,17 +261,34 @@ const styles = StyleSheet.create({
   lead: { marginTop: 10, maxWidth: 640, textAlign: 'center' },
   gridRow: { flexDirection: 'row', gap: 16, marginBottom: 16 },
 
-  hero: { paddingHorizontal: 24, paddingTop: 18 },
+  hero: { paddingHorizontal: 24, paddingTop: 18, overflow: 'hidden', position: 'relative' },
+  heroBlob1: {
+    position: 'absolute', top: -60, right: -60, width: 220, height: 220, borderRadius: 110,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+  },
+  heroBlob2: {
+    position: 'absolute', bottom: -40, left: -40, width: 160, height: 160, borderRadius: 80,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+  },
   heroTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', maxWidth: 1180, width: '100%', alignSelf: 'center' },
+  heroLoginBtn: { paddingVertical: 8, paddingHorizontal: 18, borderRadius: 10, borderWidth: 1.5, borderColor: glass(0.35) },
+  heroLoginBtnLabel: { color: '#fff', fontWeight: '700', fontSize: 13.5 },
   pill: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 40, backgroundColor: glass(0.12), borderWidth: 1, borderColor: glass(0.22) },
   pillText: { fontSize: 11, fontWeight: '600', letterSpacing: 0.4, color: 'rgba(255,255,255,0.85)' },
-  heroTitle: { fontWeight: '800', letterSpacing: -0.5, color: '#fff', textAlign: 'center', marginTop: 22, lineHeight: 38 },
+  heroTitle: { fontWeight: '800', letterSpacing: -0.5, color: '#fff', textAlign: 'center', marginTop: 22, lineHeight: 42 },
   heroSubtitle: { fontSize: 15.5, lineHeight: 23, color: 'rgba(255,255,255,0.8)', textAlign: 'center', marginTop: 16 },
+  statsRow: { flexDirection: 'row', justifyContent: 'center', gap: 32, marginTop: 30 },
+  statItem: { alignItems: 'center' },
+  statValue: { fontSize: 26, fontWeight: '800', color: '#fff', letterSpacing: -0.5 },
+  statLabel: { fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 2, fontWeight: '600' },
   heroActions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 14, marginTop: 30 },
-  outlineLight: { paddingVertical: 16, paddingHorizontal: 28, borderRadius: 14, borderWidth: 1.5, borderColor: glass(0.4), alignItems: 'center', justifyContent: 'center' },
+  outlineLight: { paddingVertical: 16, paddingHorizontal: 28, borderRadius: 16, borderWidth: 1.5, borderColor: glass(0.4), alignItems: 'center', justifyContent: 'center' },
   outlineLightLabel: { color: '#fff', fontWeight: '700', fontSize: 15 },
   ghostLight: { paddingVertical: 16, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
   ghostLightLabel: { color: 'rgba(255,255,255,0.85)', fontWeight: '700', fontSize: 14 },
+  featurePillsRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10, marginTop: 28 },
+  featurePill: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 30, backgroundColor: glass(0.1), borderWidth: 1, borderColor: glass(0.2) },
+  featurePillText: { fontSize: 12, color: 'rgba(255,255,255,0.85)', fontWeight: '600' },
 
   capCard: {
     backgroundColor: Colors.surface, borderRadius: 20, borderWidth: 1, borderColor: Colors.border,
@@ -249,4 +306,12 @@ const styles = StyleSheet.create({
   popularText: { color: '#fff', fontSize: 12, fontWeight: '700' },
   planPrice: { fontSize: 34, fontWeight: '800', letterSpacing: -0.5 },
   planCta: { marginTop: 18, height: 48, borderRadius: 12, borderWidth: 1.4, alignItems: 'center', justifyContent: 'center' },
+
+  darkSection: { backgroundColor: '#0F172A' },
+  sectionBadge: { alignSelf: 'center', backgroundColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 16, paddingVertical: 7, borderRadius: 30, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' },
+  sectionBadgeText: { fontSize: 11.5, fontWeight: '700', color: 'rgba(255,255,255,0.7)', letterSpacing: 0.5, textTransform: 'uppercase' },
+  featureCard: {
+    backgroundColor: '#1E293B', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
+    padding: 22, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 20, shadowOffset: { width: 0, height: 8 },
+  },
 });
