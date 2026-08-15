@@ -1,22 +1,20 @@
 /* ============================================================
-   Fasalkayga — Macalimiinta (maamulaha guud oo keliya)
+   KAABE — Macalimiinta (maamulaha guud oo keliya)
    Macalimiintu naftooda ayay isku diiwaan geliyaan; halkan waxaa
    fasalada loogu qoondeeyaa.
    ============================================================ */
 import React, { useMemo, useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '../../context/AppContext';
-import {
-  teachers as allTeachers, assignTeacher, getClassById, studentsByClass,
-} from '../../services/storage';
+import { teachers as allTeachers, getClassById, studentsByClass } from '../../services/model';
 import { Card, Button, Badge, Avatar, EmptyState } from '../../components/ui';
 import { colors, radius, spacing } from '../../theme/theme';
 
 export default function TeachersScreen({ navigation }) {
-  const { store, mutate } = useApp();
+  const { store, ops } = useApp();
   const [target, setTarget] = useState(null);
 
   const teacherList = useMemo(() => allTeachers(store), [store]);
@@ -24,7 +22,11 @@ export default function TeachersScreen({ navigation }) {
   const toggleClass = async (teacher, classId) => {
     const klass = getClassById(store, classId);
     const alreadyMine = klass?.teacher_id === teacher.user_id;
-    await mutate((s) => assignTeacher(s, classId, alreadyMine ? null : teacher.user_id));
+    try {
+      await ops.assignTeacher(classId, alreadyMine ? null : teacher.user_id);
+    } catch (e) {
+      Alert.alert('Khalad', e.message);
+    }
   };
 
   return (
@@ -53,10 +55,12 @@ export default function TeachersScreen({ navigation }) {
               return (
                 <Card key={teacher.user_id}>
                   <View style={styles.row}>
-                    <Avatar name={teacher.full_name} />
+                    <Avatar name={teacher.full_name} photoUri={teacher.photo_uri} />
                     <View style={{ flex: 1 }}>
                       <Text style={styles.name}>{teacher.full_name}</Text>
-                      <Text style={styles.meta}>{teacher.phone}</Text>
+                      <Text style={styles.meta}>
+                        {teacher.subject || 'Maado lama qorin'}{teacher.phone ? ` · ${teacher.phone}` : ''}
+                      </Text>
                     </View>
                     <Badge
                       label={`${mine.length} fasal`}

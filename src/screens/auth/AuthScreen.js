@@ -1,11 +1,10 @@
 /* ============================================================
-   Fasalkayga — Soo gal / Isdiiwaan geli
+   KAABE — Soo gal / Isdiiwaan geli
 
-   Laba dood oo keliya ayaa la diiwaan gelin karaa:
+   Laba dood oo keliya ayaa akoon leh:
      · Maamulaha Guud (super admin)
      · Macalin (teacher)
-   Ardayda iyo waalidiinta MA AHA isticmaalayaal — waa xog uu macalinku
-   fasalka ku dhex maamulo.
+   Ardaydu MA aha isticmaalayaal — waa diiwaan uu macalinku maamulo.
    ============================================================ */
 import React, { useState } from 'react';
 import {
@@ -14,54 +13,48 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '../../context/AppContext';
-import { ROLES, ROLE_LABEL } from '../../services/storage';
+import { ROLES, ROLE_LABEL } from '../../services/model';
 import { DEMO_CREDENTIALS } from '../../data/seed';
-import { Button, Field, Card } from '../../components/ui';
+import { Button, Field, Card, Badge } from '../../components/ui';
 import { colors, radius, spacing } from '../../theme/theme';
 
 const ROLE_OPTIONS = [
   {
     key: ROLES.SUPER_ADMIN,
     label: ROLE_LABEL.super_admin,
-    desc: 'Wuxuu abuuraa fasalada, macalimiinta ayuu u qoondeeyaa, wuxuuna arkaa warbixinta guud.',
+    desc: 'Abuuraa fasalada, macalimiinta ayuu u qoondeeyaa, wuxuu arkaa warbixinta guud.',
   },
   {
     key: ROLES.TEACHER,
     label: ROLE_LABEL.teacher,
-    desc: 'Wuxuu maamulaa fasalkiisa: magacyada ardayda, xaadiriska iyo lacagaha bilaha.',
+    desc: 'Wuxuu maamulaa fasalkiisa: ardayda, xaadiriska iyo lacagaha bilaha.',
   },
 ];
 
 export default function AuthScreen() {
-  const { login, register } = useApp();
+  const { signIn, signUp, busy, isLive } = useApp();
   const [mode, setMode] = useState('login');
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
+  const [form, setForm] = useState({ fullName: '', email: '', phone: '', password: '' });
   const [role, setRole] = useState(ROLES.TEACHER);
-  const [busy, setBusy] = useState(false);
 
   const isLogin = mode === 'login';
+  const set = (key) => (value) => setForm((prev) => ({ ...prev, [key]: value }));
 
   const submit = async () => {
-    setBusy(true);
     try {
       if (isLogin) {
-        await login(phone, password);
+        await signIn(form.email, form.password);
       } else {
-        await register({ fullName, phone, password, role });
+        await signUp({ ...form, role });
       }
     } catch (e) {
       Alert.alert('Khalad', e.message || 'Wax baa qaldamay.');
-    } finally {
-      setBusy(false);
     }
   };
 
   const useDemo = () => {
     setMode('login');
-    setPhone(DEMO_CREDENTIALS.phone);
-    setPassword(DEMO_CREDENTIALS.password);
+    setForm({ ...form, email: DEMO_CREDENTIALS.email, password: DEMO_CREDENTIALS.password });
   };
 
   return (
@@ -72,9 +65,15 @@ export default function AuthScreen() {
       >
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <View style={styles.brand}>
-            <View style={styles.logo}><Text style={styles.logoText}>F</Text></View>
-            <Text style={styles.appName}>Fasalkayga</Text>
-            <Text style={styles.tagline}>Xaadiris · Lacagaha bilaha · Ardayda</Text>
+            <View style={styles.logo}><Text style={styles.logoText}>K</Text></View>
+            <Text style={styles.appName}>KAABE</Text>
+            <Text style={styles.tagline}>Ardayda · Xaadiriska · Lacagaha bilaha</Text>
+            <Badge
+              label={isLive ? 'Ku xiran server-ka' : 'Habka tijaabada'}
+              bg={isLive ? colors.greenSoft : colors.amberSoft}
+              fg={isLive ? colors.green : colors.amber}
+              style={{ marginTop: spacing.md }}
+            />
           </View>
 
           <Card>
@@ -98,9 +97,17 @@ export default function AuthScreen() {
                 <Field
                   label="Magaca oo buuxa"
                   placeholder="Tusaale: Cabdi Xasan"
-                  value={fullName}
-                  onChangeText={setFullName}
+                  value={form.fullName}
+                  onChangeText={set('fullName')}
                 />
+                <Field
+                  label="Taleefanka"
+                  placeholder="061xxxxxxx"
+                  value={form.phone}
+                  onChangeText={set('phone')}
+                  keyboardType="phone-pad"
+                />
+
                 <Text style={styles.roleHeading}>Doorka</Text>
                 {ROLE_OPTIONS.map((opt) => {
                   const active = role === opt.key;
@@ -128,18 +135,20 @@ export default function AuthScreen() {
             )}
 
             <Field
-              label="Taleefanka"
-              placeholder="061xxxxxxx"
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
+              label="Email"
+              placeholder="magac@tusaale.so"
+              value={form.email}
+              onChangeText={set('email')}
+              keyboardType="email-address"
               autoCapitalize="none"
+              autoCorrect={false}
             />
             <Field
               label="Furaha sirta ah"
               placeholder="••••••"
-              value={password}
-              onChangeText={setPassword}
+              hint={isLogin ? undefined : 'Ugu yaraan 6 xaraf.'}
+              value={form.password}
+              onChangeText={set('password')}
               secureTextEntry
               autoCapitalize="none"
             />
@@ -151,14 +160,16 @@ export default function AuthScreen() {
             />
           </Card>
 
-          <TouchableOpacity onPress={useDemo} style={styles.demo}>
-            <Text style={styles.demoText}>
-              Isticmaal akoonka tijaabada (maamule): {DEMO_CREDENTIALS.phone} / {DEMO_CREDENTIALS.password}
-            </Text>
-          </TouchableOpacity>
+          {!isLive && (
+            <TouchableOpacity onPress={useDemo} style={styles.demo}>
+              <Text style={styles.demoText}>
+                Akoonka tijaabada: {DEMO_CREDENTIALS.email} / {DEMO_CREDENTIALS.password}
+              </Text>
+            </TouchableOpacity>
+          )}
 
           <Text style={styles.note}>
-            Ardayda iyo waalidiinta akoon ma laha — macalinka ayaa fasalka ku dhex qora.
+            Ardayda iyo waalidiintu akoon ma laha — macalinka ayaa fasalka ku dhex qora.
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -172,14 +183,14 @@ const styles = StyleSheet.create({
   scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
   brand: { alignItems: 'center', marginTop: spacing.lg, marginBottom: spacing.xl },
   logo: {
-    width: 62, height: 62, borderRadius: 20,
+    width: 66, height: 66, borderRadius: 22,
     backgroundColor: colors.primary,
     alignItems: 'center', justifyContent: 'center',
     marginBottom: spacing.md,
   },
-  logoText: { color: '#FFFFFF', fontSize: 30, fontWeight: '800' },
-  appName: { fontSize: 26, fontWeight: '800', color: colors.ink },
-  tagline: { fontSize: 13, color: colors.muted, marginTop: 4 },
+  logoText: { color: '#FFFFFF', fontSize: 32, fontWeight: '800' },
+  appName: { fontSize: 30, fontWeight: '800', color: colors.ink, letterSpacing: 2 },
+  tagline: { fontSize: 13, color: colors.muted, marginTop: 5 },
   tabs: {
     flexDirection: 'row',
     backgroundColor: colors.primarySoft,

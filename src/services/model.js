@@ -1,5 +1,5 @@
 /* ============================================================
-   Fasalkayga — Xisaabta saafiga ah (pure model)
+   KAABE — Xisaabta saafiga ah (pure model)
 
    Faylkani MA taabto AsyncStorage. Hawl walba waxay qaadataa store
    ka dibna waxay soo celisaa store CUSUB — sidaas awgeed waa la
@@ -96,25 +96,36 @@ export const ROLE_LABEL = {
   teacher: 'Macalin',
 };
 
-export function findUserByPhone(store, phone) {
-  const key = String(phone || '').trim();
-  return (store.users || []).find((u) => u.phone === key) || null;
+/* Emailka ayaa ah furaha soo galitaanka (sida Supabase Auth); taleefanku
+   waa xog xiriir oo profile-ka ku jirta. */
+export function normaliseEmail(email) {
+  return String(email || '').trim().toLowerCase();
 }
 
-export function registerUser(store, { fullName, phone, password, role }) {
+export function findUserByEmail(store, email) {
+  const key = normaliseEmail(email);
+  return (store.users || []).find((u) => normaliseEmail(u.email) === key) || null;
+}
+
+export function registerUser(store, { fullName, email, phone, password, role }) {
   if (!fullName?.trim()) throw new Error('Magaca waa qasab.');
-  if (!phone?.trim()) throw new Error('Taleefanka waa qasab.');
-  if (!password || password.length < 4) throw new Error('Furaha waa inuu ka badan yahay 4 xaraf.');
+  if (!normaliseEmail(email)) throw new Error('Emailka waa qasab.');
+  if (!normaliseEmail(email).includes('@')) throw new Error('Emailku ma saxna.');
+  if (!password || password.length < 6) throw new Error('Furaha waa inuu ugu yaraan 6 xaraf noqdo.');
   if (role !== ROLES.SUPER_ADMIN && role !== ROLES.TEACHER) throw new Error('Doorka la doortay ma saxna.');
-  if (findUserByPhone(store, phone)) throw new Error('Taleefankan hore ayaa loo diiwaan geliyay.');
+  if (findUserByEmail(store, email)) throw new Error('Emailkan hore ayaa loo diiwaan geliyay.');
 
   const user = {
     user_id: uid('user'),
     school_id: store.school.school_id,
     role,
     full_name: fullName.trim(),
-    phone: String(phone).trim(),
+    email: normaliseEmail(email),
+    phone: String(phone || '').trim(),
     password,
+    subject: '',
+    bio: '',
+    photo_uri: null,
     assigned_class_ids: [],
     created_at: now(),
   };
@@ -122,10 +133,27 @@ export function registerUser(store, { fullName, phone, password, role }) {
   return { store: { ...store, users: [...(store.users || []), user] }, user };
 }
 
-export function verifyLogin(store, phone, password) {
-  const user = findUserByPhone(store, phone);
-  if (!user || user.password !== password) throw new Error('Taleefanka ama furaha waa khalad.');
+export function verifyLogin(store, email, password) {
+  const user = findUserByEmail(store, email);
+  if (!user || user.password !== password) throw new Error('Emailka ama furaha waa khalad.');
   return user;
+}
+
+/* Profile-ka macalinka/maamulaha. Doorka iyo iskuulka lagama beddelo halkan
+   — sida database-ka, iskaa isma dhigi kartid maamule. */
+export function updateProfile(store, userId, { fullName, phone, subject, bio, photoUri }) {
+  const patch = {};
+  if (fullName !== undefined) {
+    if (!fullName.trim()) throw new Error('Magaca waa qasab.');
+    patch.full_name = fullName.trim();
+  }
+  if (phone !== undefined) patch.phone = String(phone).trim();
+  if (subject !== undefined) patch.subject = String(subject).trim();
+  if (bio !== undefined) patch.bio = String(bio).trim();
+  if (photoUri !== undefined) patch.photo_uri = photoUri;
+  patch.updated_at = now();
+
+  return updateUser(store, userId, patch);
 }
 
 export function updateUser(store, userId, patch) {
@@ -232,7 +260,7 @@ export function studentsByClass(store, classId) {
     .sort((a, b) => a.full_name.localeCompare(b.full_name));
 }
 
-export function addStudent(store, { classId, fullName, gender, guardianPhone, monthlyFee }) {
+export function addStudent(store, { classId, fullName, gender, guardianPhone, monthlyFee, photoUri }) {
   if (!fullName?.trim()) throw new Error('Magaca ardayga waa qasab.');
   const klass = getClassById(store, classId);
   if (!klass) throw new Error('Fasalka lama helin.');
@@ -248,11 +276,20 @@ export function addStudent(store, { classId, fullName, gender, guardianPhone, mo
     monthly_fee: monthlyFee === '' || monthlyFee == null
       ? Number(klass.monthly_fee) || 0
       : Number(monthlyFee) || 0,
+    photo_uri: photoUri || null,
     status: 'active',
     created_at: now(),
   };
 
   return { ...store, students: [...(store.students || []), student] };
+}
+
+export function setStudentPhoto(store, internalId, photoUri) {
+  return updateStudent(store, internalId, { photo_uri: photoUri });
+}
+
+export function getStudentById(store, internalId) {
+  return (store.students || []).find((s) => s.student_internal_id === internalId) || null;
 }
 
 export function updateStudent(store, internalId, patch) {

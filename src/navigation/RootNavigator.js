@@ -1,5 +1,5 @@
 /* ============================================================
-   Fasalkayga — Habka wareegga
+   KAABE — Habka wareegga
 
    Doorku wuxuu go'aamiyaa waxa la arko:
      · Maamulaha Guud → Guudmar · Fasalada · Macalimiin · Akoon
@@ -11,7 +11,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useApp } from '../context/AppContext';
-import { ROLES } from '../services/storage';
+import { ROLES } from '../services/model';
 import { colors } from '../theme/theme';
 import { Loading } from '../components/ui';
 
@@ -21,6 +21,7 @@ import ClassesScreen from '../screens/admin/ClassesScreen';
 import TeachersScreen from '../screens/admin/TeachersScreen';
 import TeacherHomeScreen from '../screens/teacher/TeacherHomeScreen';
 import ClassDetailScreen from '../screens/ClassDetailScreen';
+import StudentProfileScreen from '../screens/StudentProfileScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
@@ -32,20 +33,25 @@ const stackOptions = {
   headerTitleStyle: { fontWeight: '700' },
 };
 
-/* Shaashad kasta oo tab ah waxay leedahay stack si fasalka loo furo */
-function withClassStack(name, title, Component, { header = false } = {}) {
+/* Tab kastaa wuxuu leeyahay stack si fasalka iyo profile-ka ardayga loo furo */
+function withClassStack(name, title, Component) {
   return function StackScreen() {
     return (
       <Stack.Navigator screenOptions={stackOptions}>
         <Stack.Screen
           name={name}
           component={Component}
-          options={{ title, headerShown: header }}
+          options={{ title, headerShown: false }}
         />
         <Stack.Screen
           name="ClassDetail"
           component={ClassDetailScreen}
           options={{ title: 'Fasalka' }}
+        />
+        <Stack.Screen
+          name="StudentProfile"
+          component={StudentProfileScreen}
+          options={{ title: 'Ardayga' }}
         />
       </Stack.Navigator>
     );
@@ -70,7 +76,7 @@ function tabOptions({ route }) {
     headerShown: false,
     tabBarActiveTintColor: colors.primary,
     tabBarInactiveTintColor: colors.muted,
-    tabBarStyle: { borderTopColor: colors.line, height: 60, paddingBottom: 8, paddingTop: 6 },
+    tabBarStyle: { borderTopColor: colors.line, height: 62, paddingBottom: 9, paddingTop: 7 },
     tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
     tabBarIcon: ({ color, focused }) => {
       const base = ICONS[route.name] || 'ellipse';
@@ -103,8 +109,8 @@ function TeacherTabs() {
 export default function RootNavigator() {
   const { ready, user, store } = useApp();
 
-  if (!ready || !store) return <Loading label="Xogta la soo dejinayaa…" />;
-  if (!user) return <AuthScreen />;
+  if (!ready) return <Loading label="KAABE waa la furayaa…" />;
+  if (!user || !store) return <AuthScreen />;
 
   return user.role === ROLES.SUPER_ADMIN ? <AdminTabs /> : <TeacherTabs />;
 }

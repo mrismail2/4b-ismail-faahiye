@@ -1,5 +1,5 @@
 /* ============================================================
-   Fasalkayga — Bogga maamulaha guud
+   KAABE — Bogga maamulaha guud
    Guudmar iskuulka: fasalada, ardayda, macalimiinta iyo lacagta bisha.
    ============================================================ */
 import React, { useMemo, useState } from 'react';
@@ -9,7 +9,7 @@ import { useApp } from '../../context/AppContext';
 import {
   schoolSummary, classFeeSummary, currentMonth, monthLabel, shiftMonth,
   formatMoney, studentsByClass,
-} from '../../services/storage';
+} from '../../services/model';
 import { Card, Stat, SectionTitle, EmptyState, Badge, Button } from '../../components/ui';
 import { colors, radius, spacing } from '../../theme/theme';
 
@@ -116,10 +116,20 @@ export default function AdminHomeScreen({ navigation }) {
                         {row.students} arday · {row.teacher ? row.teacher.full_name : 'Macalin lama qoondayn'}
                       </Text>
                     </View>
+                    {/* Fasal aan arday lahayn "Dhammaystiran" lama dhihi karo —
+                        waxba lama sugayo. */}
                     <Badge
-                      label={row.balance > 0 ? formatMoney(row.balance, currency) : 'Dhammaystiran'}
-                      bg={row.balance > 0 ? colors.redSoft : colors.greenSoft}
-                      fg={row.balance > 0 ? colors.red : colors.green}
+                      label={row.students === 0
+                        ? 'Arday ma jiro'
+                        : row.balance > 0
+                          ? formatMoney(row.balance, currency)
+                          : 'Dhammaystiran'}
+                      bg={row.students === 0
+                        ? colors.line
+                        : row.balance > 0 ? colors.redSoft : colors.greenSoft}
+                      fg={row.students === 0
+                        ? colors.muted
+                        : row.balance > 0 ? colors.red : colors.green}
                     />
                   </View>
                   <View style={styles.progressTrack}>

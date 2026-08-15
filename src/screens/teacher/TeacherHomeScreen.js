@@ -1,5 +1,5 @@
 /* ============================================================
-   Fasalkayga — Bogga macalinka
+   KAABE — Bogga macalinka
    Wuxuu arkaa oo keliya fasalada loo qoondeeyay.
    ============================================================ */
 import React, { useMemo, useState } from 'react';
@@ -9,7 +9,7 @@ import { useApp } from '../../context/AppContext';
 import {
   classesForUser, studentsByClass, classFeeSummary, getRegister,
   currentMonth, monthLabel, todayISO, formatMoney,
-} from '../../services/storage';
+} from '../../services/model';
 import { Card, Stat, SectionTitle, EmptyState, Badge } from '../../components/ui';
 import { colors, spacing } from '../../theme/theme';
 

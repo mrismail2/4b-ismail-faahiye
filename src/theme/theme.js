@@ -1,5 +1,5 @@
 /* ============================================================
-   Fasalkayga — Design tokens
+   KAABE — Design tokens
    Hal meel oo midabada, meelaha banaan iyo hooska laga hagaajiyo.
    ============================================================ */
 

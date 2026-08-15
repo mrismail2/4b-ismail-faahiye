@@ -1,10 +1,11 @@
 /* ============================================================
-   Fasalkayga — Qaybaha UI-ga guud
+   KAABE — Qaybaha UI-ga guud
    Kaararka, badhamada, calaamadaha iyo goobaha qorista.
    ============================================================ */
 import React from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,
+  Image, Platform, Alert,
 } from 'react-native';
 import { colors, radius, spacing, shadow, avatarColor, initials } from '../theme/theme';
 
@@ -64,12 +65,45 @@ export function Badge({ label, bg = colors.primarySoft, fg = colors.primary, sty
   );
 }
 
-export function Avatar({ name, size = 42 }) {
+/* Sawirka haddii uu jiro; haddii kale xarfaha magaca oo midab leh */
+export function Avatar({ name, photoUri, size = 42, ring }) {
   const bg = avatarColor(name || '');
+  const frame = {
+    width: size,
+    height: size,
+    borderRadius: size / 2,
+    ...(ring ? { borderWidth: 2.5, borderColor: colors.surface } : null),
+  };
+
+  if (photoUri) {
+    return <Image source={{ uri: photoUri }} style={[styles.avatar, frame]} resizeMode="cover" />;
+  }
+
   return (
-    <View style={[styles.avatar, { width: size, height: size, borderRadius: size / 2, backgroundColor: bg }]}>
+    <View style={[styles.avatar, frame, { backgroundColor: bg }]}>
       <Text style={[styles.avatarText, { fontSize: size * 0.38 }]}>{initials(name)}</Text>
     </View>
+  );
+}
+
+/* Sawirka lagu beddelo: taabo → kamarad ama gallery */
+export function PhotoPicker({ name, photoUri, size = 96, onPick, label = 'Sawir' }) {
+  const choose = () => {
+    if (Platform.OS === 'web') return onPick({ camera: false });
+    Alert.alert(label, 'Halkee ka doonaysaa sawirka?', [
+      { text: 'Kamarad', onPress: () => onPick({ camera: true }) },
+      { text: 'Gallery', onPress: () => onPick({ camera: false }) },
+      { text: 'Jooji', style: 'cancel' },
+    ]);
+  };
+
+  return (
+    <TouchableOpacity onPress={choose} activeOpacity={0.85} style={styles.photoPicker}>
+      <Avatar name={name} photoUri={photoUri} size={size} />
+      <View style={[styles.photoBadge, { left: size / 2 + 6 }]}>
+        <Text style={styles.photoBadgeText}>{photoUri ? '↻' : '+'}</Text>
+      </View>
+    </TouchableOpacity>
   );
 }
 
@@ -192,11 +226,27 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   badgeText: { fontSize: 11, fontWeight: '700' },
-  avatar: { alignItems: 'center', justifyContent: 'center' },
+  avatar: { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.line },
   avatarText: { color: '#FFFFFF', fontWeight: '700' },
+  photoPicker: { alignSelf: 'center' },
+  photoBadge: {
+    position: 'absolute',
+    bottom: 0,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: colors.primary,
+    borderWidth: 2.5,
+    borderColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  photoBadgeText: { color: '#FFFFFF', fontSize: 15, fontWeight: '800', lineHeight: 18 },
   stat: {
     flex: 1,
-    minWidth: '45%',
+    /* 92 ayaa ka dhigaysa saddex Stat inay hal saf galaan, afarna ay
+       laba-laba u kala baxaan — 45% wuxuu had iyo jeer laba ku qasbi jiray. */
+    minWidth: 92,
     borderRadius: radius.md,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.sm,

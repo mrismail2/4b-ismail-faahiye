@@ -1,5 +1,5 @@
 /* ============================================================
-   Fasalkayga — Maamulka fasalada (maamulaha guud oo keliya)
+   KAABE — Maamulka fasalada (maamulaha guud oo keliya)
    Abuur fasal, u qoondee macalin, beddel lacagta bisha.
    ============================================================ */
 import React, { useMemo, useState } from 'react';
@@ -8,15 +8,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '../../context/AppContext';
-import {
-  addClass, updateClass, deleteClass, teachers as allTeachers,
-  studentsByClass, formatMoney,
-} from '../../services/storage';
+import { teachers as allTeachers, studentsByClass, formatMoney } from '../../services/model';
 import { Card, Button, Field, Badge, EmptyState, Avatar } from '../../components/ui';
 import { colors, radius, spacing } from '../../theme/theme';
 
 export default function ClassesScreen({ navigation }) {
-  const { store, mutate } = useApp();
+  const { store, ops, busy } = useApp();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ name: '', level: '', monthlyFee: '', teacherId: null });
@@ -44,18 +41,19 @@ export default function ClassesScreen({ navigation }) {
   const save = async () => {
     try {
       if (editing) {
-        await mutate((s) => updateClass(s, editing.class_id, {
+        await ops.updateClass(editing.class_id, {
           level: form.level.trim(),
           monthly_fee: Number(form.monthlyFee) || 0,
           teacher_id: form.teacherId,
-        }));
+        });
       } else {
-        await mutate((s) => addClass(s, {
+        if (!form.name.trim()) throw new Error('Magaca fasalka waa qasab.');
+        await ops.addClass({
           name: form.name,
           level: form.level,
           monthlyFee: form.monthlyFee,
           teacherId: form.teacherId,
-        }));
+        });
       }
       setOpen(false);
     } catch (e) {
@@ -73,8 +71,12 @@ export default function ClassesScreen({ navigation }) {
           text: 'Haa, tirtir',
           style: 'destructive',
           onPress: async () => {
-            await mutate((s) => deleteClass(s, klass.class_id));
-            setOpen(false);
+            try {
+              await ops.deleteClass(klass.class_id);
+              setOpen(false);
+            } catch (e) {
+              Alert.alert('Khalad', e.message);
+            }
           },
         },
       ],
@@ -187,7 +189,7 @@ export default function ClassesScreen({ navigation }) {
                         onPress={() => setForm({ ...form, teacherId: active ? null : t.user_id })}
                         activeOpacity={0.85}
                       >
-                        <Avatar name={t.full_name} size={34} />
+                        <Avatar name={t.full_name} photoUri={t.photo_uri} size={34} />
                         <View style={{ flex: 1 }}>
                           <Text style={styles.teacherName}>{t.full_name}</Text>
                           <Text style={styles.teacherMeta}>{t.phone}</Text>
@@ -201,7 +203,11 @@ export default function ClassesScreen({ navigation }) {
                 </View>
               )}
 
-              <Button title={editing ? 'Kaydi beddelka' : 'Abuur fasalka'} onPress={save} />
+              <Button
+                title={busy ? 'Sugaya…' : editing ? 'Kaydi beddelka' : 'Abuur fasalka'}
+                onPress={save}
+                disabled={busy}
+              />
               {editing && (
                 <Button
                   title="Tirtir fasalka"

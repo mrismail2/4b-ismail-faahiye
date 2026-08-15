@@ -1,10 +1,12 @@
-# Fasalkayga
+# KAABE
 
-App **React Native (Expo)** ah oo macalinku ku maamulo fasalkiisa: **magacyada
-ardayda**, **xaadiriska maalinlaha ah**, iyo **lacagaha bilaha**.
+App **React Native (Expo)** ah oo backend-kiisu yahay **Supabase**. Macalinku
+wuxuu ku maamulaa fasalkiisa: **ardayda**, **xaadiriska maalinlaha ah**, iyo
+**lacagaha bilaha** — si fudud.
 
-Qaab-dhismeedka xogta waxaa laga tixraacay softiweerka **Kobciye**, laakiin
-kani waa mid aad u fudud oo saddexdaas shaqo oo keliya diiradda saara.
+Qaab-dhismeedka xogta iyo ammaanka waxaa laga tixraacay softiweerka
+**Kobciye**, laakiin kani waa mid aad u fudud oo saddexdaas shaqo oo keliya
+diiradda saara.
 
 ---
 
@@ -12,95 +14,124 @@ kani waa mid aad u fudud oo saddexdaas shaqo oo keliya diiradda saara.
 
 | Doorka | Isdiiwaan gelin | Waxa uu qabto |
 |---|---|---|
-| **Maamulaha Guud** (super admin) | Haa | Abuuraa fasalada, macalimiinta ayuu u qoondeeyaa, wuxuu arkaa warbixinta guud |
-| **Macalin** | Haa | Wuxuu maamulaa fasaladiisa oo keliya: ardayda, xaadiriska, lacagaha |
+| **Maamulaha Guud** | Haa | Abuuraa fasalada, macalimiinta ayuu u qoondeeyaa, wuxuu arkaa warbixinta guud |
+| **Macalin** | Haa | Fasaladiisa **oo keliya**: ardayda, xaadiriska, lacagaha |
 
 > **Ardayda iyo waalidiintu akoon MA LAHA.** Ardaygu waa *xog* uu macalinku
-> fasalka ku dhex qoro — ma aha isticmaale app-ka soo gala. Waalidka waxaa laga
-> hayaa taleefan keliya (si loola xiriiro), akoonna ma leh.
+> fasalka ku dhex qoro. Waalidka waxaa laga hayaa taleefan keliya.
 
 ---
 
-## Saddexda shaqo ee muhiimka ah
+## Shaqooyinka
 
-### 1. Ardayda
-Macalinku wuxuu ku darayaa: **magaca**, jinsiga, taleefanka waalidka, iyo
-lacagta bisha. Arday kastaa wuxuu helaa laba aqoonsi:
+### 1. Ardayda — magac iyo sawir
+Arday walba: **sawir**, magac, jinsi, taleefanka waalidka, lacag bileed.
+Wuxuu leeyahay bog isaga u gaar ah oo muujinaya tirakoobka xaadiriska iyo
+taariikhda lacagta.
 
+Laba aqoonsi ayuu leeyahay:
 - `student_internal_id` — furaha gudaha ah ee xiriiriya xaadiriska iyo lacagta
-- `student_id` — aqoonsiga la arko (`ARD-000001`), oo si isdaba joog ah u kordha
+- `student_id` — aqoonsiga la arko (`ARD-000001`)
 
 Ardayga fasalka laga saaro **lama tirtiro** — waxaa loo calaamadiyaa `left` si
 taariikhdiisu u sii jirto, laakiinna lagama xisaabiyo lacagta.
 
 ### 2. Xaadiriska
-Maalin kasta, arday kasta wuxuu qaataa mid ka mid ah:
-
-`Jooga` · `Maqan` · `Soo daahay` · `Fasax`
-
-- Badhanka **"Dhammaan Jooga"** ayaa dhaqso u calaamadiya fasalka oo dhan
-- Diiwaanka dib haddii loo kaydiyo wuu **beddelmaa**, mana **tarmo**
-- Maalin kastaa waa madax bannaan tahay; taariikh mustaqbal ah lama gali karo
+Maalin kasta: `Jooga` · `Maqan` · `Soo daahay` · `Fasax`, iyo badhanka
+**"Dhammaan Jooga"**. Diiwaanka dib haddii loo kaydiyo wuu **beddelmaa**,
+mana **tarmo**. Taariikh mustaqbal ah lama gali karo.
 
 ### 3. Lacagaha bilaha
-Bil kasta (`2026-08`), arday kastaa wuxuu leeyahay:
+Bil kasta: **waajibka**, **wixii la bixiyay**, **hadhaaga**. Xaaladdu waa
+`Ma bixin` · `Qayb bixiyay` · `Bixiyay`, waana la xisaabiyaa si toos ah.
 
-- **Waajibka** — lacagta bisha ee ardayga (waxay ka dhaxashaa fasalka)
-- **La bixiyay** — waxa macalinku diiwaan geliyay
-- **Hadhaaga** — waajibka ka jar wixii la bixiyay
-
-Xaaladdu waa `Ma bixin` · `Qayb bixiyay` · `Bixiyay`, waana la xisaabiyaa
-si toos ah. Bil kastaa waa gooni; lacag dib loo qoro way beddelmaysaa,
-mana tarmayso.
+### 4. Profile-ka macalinka
+Macalin walba wuxuu leeyahay profile: **sawir**, magac, taleefan, maadada uu
+dhigo, iyo wax yar oo isaga ku saabsan.
 
 ---
 
-## Qaab-dhismeedka faylasha
+## Backend-ka Supabase
+
+Xogtu waxay ku jirtaa **Postgres**, soo galitaanku **Supabase Auth**,
+sawiraduna **Supabase Storage**.
+
+Habaynta oo dhan: [`supabase/README.md`](supabase/README.md)
+
+```bash
+cp .env.example .env      # buuxi URL + anon key
+```
+
+### Ammaanka — RLS
+
+Ogolaanshuhu **database-ka** ayuu ku jiraa, ma aha app-ka oo keliya badhamo
+qariya. Xudunta waa `can_touch_class(class_id)`:
+
+```sql
+p.role = 'super_admin' or c.teacher_id = p.id
+```
+
+`students`, `attendance` iyo `fees` dhammaantood isla xeerkaas ayay
+isticmaalaan — macalin isku dayaya inuu fasal kale galo, database-ka ayaa
+diidaya.
+
+Saddex ilaalin oo muhiim ah:
+
+1. **Doorka iskaa uma beddeli kartid.** Trigger (`guard_profile_changes`)
+   ayaa joojinaya in macalin isaga dhigo maamule.
+2. **Lambarka ardayga database-ka ayaa soo saara.** `next_student_code()`
+   wuxuu isticmaalaa `for update` — laba macalin oo isku mar arday galiya
+   isku lambar ma helayaan (tan app-ku keligiis xamili kari waayay).
+3. **Sawiradu bucket gaar ah ayay ku jiraan.** Jidka sawirka ardaygu wuxuu
+   ku bilaabmaa `class_id`, sidaas RLS-ku isla `can_touch_class()` ayuu ku
+   hubiyaa. Marka la akhrinayo waa **signed URL** (1 saac).
+
+### Habka maqan (offline)
+
+Haddii `.env` la banayo, app-ku wuxuu u shaqeeyaa **local mode** —
+AsyncStorage, tijaabo ahaan. Isla UI-ga, laakiin xogtu qalabka ayay ku
+harsan tahay. Marka `.env` la buuxiyo, wuxuu toos u galaa **live mode**.
+
+---
+
+## Qaab-dhismeedka
 
 ```
 src/
 ├── services/
-│   ├── model.js       ← xisaabta OO DHAN (saafi, AsyncStorage ma taabto)
-│   └── storage.js     ← kaydinta AsyncStorage + dib-u-dhoofinta model
-├── context/
-│   └── AppContext.js  ← store + qofka soo galay, `mutate()`
-├── data/seed.js       ← xogta bilowga (akoonka tijaabada)
-├── theme/theme.js     ← midabada iyo cabbirada
-├── components/ui.js   ← Card, Button, Field, Badge, Avatar, Stat…
-├── navigation/
-│   └── RootNavigator.js  ← tabs kala duwan doorka
+│   ├── model.js           ← xisaabta OO DHAN (saafi, la tijaabin karo)
+│   ├── localProvider.js   ← hirgelinta AsyncStorage
+│   ├── remoteProvider.js  ← hirgelinta Supabase
+│   ├── provider.js        ← midkee la isticmaalayo
+│   ├── supabase.js        ← client + tarjumaadda khaladaadka
+│   └── photos.js          ← kamarad/gallery (native + web)
+├── context/AppContext.js  ← store + session + `ops`
+├── theme/theme.js
+├── components/ui.js
+├── navigation/RootNavigator.js
 └── screens/
-    ├── auth/AuthScreen.js        ← soo gal / isdiiwaan geli
-    ├── admin/AdminHomeScreen.js  ← guudmarka iskuulka
-    ├── admin/ClassesScreen.js    ← abuur fasal, qoondee macalin
-    ├── admin/TeachersScreen.js   ← macalimiinta iyo fasaladooda
-    ├── teacher/TeacherHomeScreen.js ← fasalada macalinka
-    ├── ClassDetailScreen.js      ← Ardayda | Xaadiris | Lacag
-    └── ProfileScreen.js          ← akoonka
+    ├── auth/AuthScreen.js
+    ├── admin/{AdminHome,Classes,Teachers}Screen.js
+    ├── teacher/TeacherHomeScreen.js
+    ├── ClassDetailScreen.js     ← Ardayda | Xaadiris | Lacag
+    ├── StudentProfileScreen.js
+    └── ProfileScreen.js
+
+supabase/
+├── migrations/20260815000001_kaabe_core.sql
+└── README.md
 ```
 
-### Sababta `model.js` iyo `storage.js` loo kala saaray
+### Sababta laba provider loo sameeyay
 
-`model.js` **ma taabto AsyncStorage**. Hawl kastaa waxay qaadataa `store` waxayna
-soo celisaa `store` **cusub** (pure function). Taas macnaheedu waxaa weeye
-xisaabta oo dhan waa lagu tijaabin karaa Node — eeg `npm run check`.
+Shaashaduhu waxay wacaan `ops.addStudent(...)` — ma oga inay xogtu ka timid
+Supabase mise AsyncStorage. Labada provider isku interface ayay leeyihiin,
+`provider.js`na wuxuu doortaa mid marka `.env` la eego.
 
-`storage.js` wuxuu qabtaa kaydinta oo keliya, kadibna `export * from './model'`
-si shaashaduhu hal meel uga soo qaataan.
-
----
-
-## Aqoonsiga (Kobciye ayaa laga soo tixraacay)
-
-| Furaha | Tusaale | Loo isticmaalo |
-|---|---|---|
-| `school_id` | `school_001` | Furaha iskuulka |
-| `class_id` | `school_001_class_fasalka_1a` | Caalami ahaan **gaar** — laba iskuul way lahaan karaan "Fasalka 1A" iyagoo aan isku dhicin |
-| `student_internal_id` | `student_m3x9k2a4f` | Furaha xiriirka: xaadiris, lacag |
-| `student_id` | `ARD-000001` | Aqoonsiga la arko / la daabaco |
-
-Magacyadu (magaca fasalka, magaca ardayga) **waligood furaha xiriirka ma aha** —
-tusmo muuqaal ah oo keliya ayay yihiin.
+Muhiimadda ugu weyn: `remoteProvider.loadSnapshot()` wuxuu safafka Supabase
+u beddelaa **isla qaabka** store-ka maxalliga ah — sidaas hawlaha akhrinta
+ee `model.js` (`classFeeSummary`, `studentsByClass`, `attendanceSummary`)
+labada habba way u shaqeeyaan, hal jeer oo keliya ayaana la qoray.
 
 ---
 
@@ -108,55 +139,55 @@ tusmo muuqaal ah oo keliya ayay yihiin.
 
 ```bash
 npm install
-npm run check     # hubinta aasaaska (21 hubin)
+npm run check     # 27 hubin
 npm start         # Expo — QR-ka ku sawir Expo Go
 npm run android
 npm run ios
 ```
 
-### Akoonka tijaabada
-Marka ugu horreysa ee app-ka la furo waxaa jira hal akoon oo maamule ah:
+### Akoonka tijaabada (local mode oo keliya)
+- Email: `maamule@kaabe.so`
+- Fure: `kaabe123`
 
-- Taleefan: `0611111111`
-- Fure: `admin123`
-
-Macalimiintu naftooda ayay isku diiwaan geliyaan bogga **"Isdiiwaan geli"**,
-kadibna maamuluhu fasal buu u qoondeeyaa.
+Macalimiintu naftooda ayay isku diiwaan geliyaan, kadibna maamuluhu fasal
+buu u qoondeeyaa.
 
 ---
 
-## Hubinta (`npm run check`)
+## Hubinta
 
-21 hubin ayaa xisaabta ku ordaya Node, iyagoo xaqiijinaya:
+### `npm run check` — 27 hubin
+Xisaabta ayaa Node lagu ordiyaa, iyadoo la xaqiijinayo doorarka, aqoonsiyada,
+kala-soocidda macalimiinta, xaadiriska, lacagta iyo profile-ka.
 
-- doorka `super_admin` iyo `teacher` **oo keliya** in la aqbalo
-- taleefan la iska diiwaan geliyay mar labaad in la diido
-- `class_id` inuu gaar yahay, fasalna uu **hal** macalin lahaado
-- macalinku inuu arko **oo keliya** fasaladiisa
-- `student_id` inuusan is celcelin
-- xaadiriska: kaydin, beddelid (aan tarmin), maalmo aan is faragelin
-- lacagta: wadar sax ah, bilo aan is faragelin, arday la saaray oo aan la xisaabin
-
-> Hubintani waxay muujisay cillad dhab ah intii la dhisayay: aqoonsiyada
+> Hubintani waxay muujisay **cillad dhab ah** intii la dhisayay: aqoonsiyada
 > `Date.now()` ku salaysan way isku dhaci jireen marka laba diiwaan hal
-> millisecond lagu abuuro — taasoo isku dari lahayd xaadiriska iyo lacagta
-> laba arday. Hadda `uid()` wuxuu isticmaalaa waqti + tirin + random.
+> millisecond lagu abuuro — taasoo isku dari lahayd **xaadiriska iyo
+> lacagta laba arday**. Shan hubin ayaa hal mar fashilantay, halkaas ayaana
+> laga helay. Hadda `uid()` wuxuu isticmaalaa waqti + tirin + random,
+> Supabase-na `gen_random_uuid()`.
+
+### Screenshot — app-ka dhabta ah
+Web build ayaa la sameeyay, Playwright-na wuxuu app-ka dhabta ah ku maray:
+soo gal → abuur fasalo → gali 5 arday → calaamadee xaadiris → qaad lacag →
+fur profile-yada. **12 shaashadood, 0 khalad JS ah.**
+
+Laba cillad muuqaal ah ayaa halkaas laga helay oo la hagaajiyay:
+- fasal aan arday lahayn wuxuu ku qorayay "Dhammaystiran" — hadda
+  "Arday ma jiro"
+- `Stat` saddexaad wuxuu ka bixi jiray geeska profile-ka — hadda hal saf
+
+### Bundle
+`expo export` wuu dhammaystirmaa (web iyo android labadaba), khalad compile
+ah ma jiro.
 
 ---
-
-## Xaaladda
-
-Waxaa la xaqiijiyay:
-
-- `npm run check` — **21/21 way guuleysteen**
-- `npx expo export --platform android` — **bundle wuu dhammaystirmay** (2.55 MB), khalad compile ah ma jiro
 
 ## Digniin
 
-Kani waa **prototype frontend ah**. Xogta oo dhan waxay ku jirtaa qalabka
-(AsyncStorage), furayaasha sirta ahna waxay ku jiraan qaab **plain text** ah.
-Ka hor isticmaalka dhabta ah waa in la geliyaa backend leh:
+Habka **local mode** furayaasha sirta ah plain text ayay ku jiraan — waa demo.
+Wax dhab ah waxaad u isticmaashaa **Supabase**, halkaas oo furayaasha Auth
+maamulo, ogolaanshahana RLS xaqiijiyo.
 
-- authentication sax ah (furayaal la hash-gareeyay)
-- database dhexe iyo kaydin ammaan ah
-- kala soocidda iskuulada iyo oggolaanshaha server-ka lagu xaqiijiyo
+Furaha `service_role` **weligiis** app-ka ha gelin — wuxuu RLS oo dhan
+dhaafaa.

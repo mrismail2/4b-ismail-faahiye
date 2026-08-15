@@ -1,24 +1,36 @@
 {
   "expo": {
-    "name": "Fasalkayga",
-    "slug": "fasalkayga",
+    "name": "KAABE",
+    "slug": "kaabe",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "backgroundColor": "#F5F7FA",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.fasalkayga.app"
+      "bundleIdentifier": "com.kaabe.app"
     },
     "android": {
-      "package": "com.fasalkayga.app",
+      "package": "com.kaabe.app",
       "adaptiveIcon": {
         "backgroundColor": "#1D4E89"
       }
     },
     "web": {
       "bundler": "metro"
-    }
+    },
+    "scheme": "kaabe",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "KAABE wuxuu u baahan yahay sawirada si aad arday u geliso sawir.",
+          "cameraPermission": "KAABE wuxuu u baahan yahay kamaradda si aad sawir u qaaddo."
+        }
+      ]
+    ]
   }
 }

@@ -1,0 +1,131 @@
+# KAABE — Backend-ka Supabase
+
+Xogtu waxay ku jirtaa Supabase: **Postgres** (xogta), **Auth** (soo galitaanka)
+iyo **Storage** (sawirada).
+
+---
+
+## 1. Abuur project
+
+1. Tag [supabase.com/dashboard](https://supabase.com/dashboard) → **New project**
+2. Xafid furaha database-ka (`Database password`) — mar keliya ayuu muuqdaa
+3. Sug ilaa uu project-ku diyaar noqdo (~2 daqiiqo)
+
+## 2. Ku shub schema-ga
+
+**Dashboard** → **SQL Editor** → **New query** → ku dheji waxa ku jira
+`migrations/20260815000001_kaabe_core.sql` → **Run**.
+
+Ama haddii aad haysato Supabase CLI:
+
+```bash
+supabase link --project-ref <PROJECT-REF>
+supabase db push
+```
+
+## 3. Xir furayaasha app-ka
+
+**Dashboard** → **Settings** → **API**, ka soo qaad:
+
+- `Project URL`
+- `anon` / `public` key
+
+Kadibna abuur `.env` (ka koobi `.env.example`):
+
+```
+EXPO_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
+```
+
+> **Furaha `service_role` WELIGAA app-ka ha gelin.** Wuxuu RLS oo dhan
+> dhaafaa. Waa inuu ku sii jiraa server-ka oo keliya.
+
+## 4. Abuur iskuulka koowaad iyo maamulaha
+
+Schema-gu wuxuu ku iman doonaa faaruq. Si aad u bilowdo, SQL Editor ku orod:
+
+```sql
+-- 1. iskuulka
+insert into schools (name, student_prefix, currency)
+values ('Iskuulka KAABE', 'ARD', '$')
+returning id;
+```
+
+Kadib **Authentication → Users → Add user** ku samee maamulaha (email + fure),
+ugana dhig profile:
+
+```sql
+-- 2. profile-ka maamulaha (beddel labada uuid)
+insert into profiles (id, school_id, role, full_name, phone)
+values (
+  '<AUTH-USER-ID>',      -- Authentication → Users
+  '<SCHOOL-ID>',         -- kii kore ka soo baxay
+  'super_admin',
+  'Magaca Maamulaha',
+  '0611111111'
+);
+```
+
+Kadib macalimiintu app-ka ayay iskaga diiwaan gelin karaan — profile-kooda
+`teacher` ayaa toos loo abuuraa, iskuulkuna wuxuu noqonayaa kan la doortay.
+
+---
+
+## Sida ammaanku u shaqeeyo (RLS)
+
+Ogolaanshuhu **database-ka** ayuu ku jiraa, ma aha app-ka oo keliya badhamo
+qariya. Xitaa haddii qof toos u wacdo API-ga, isla xeerarka ayaa khusaya.
+
+| Jaantus | Macalin | Maamule |
+|---|---|---|
+| `classes` | wuu akhriyaa iskuulkiisa | wuu abuuraa/beddelaa |
+| `students` | fasaladiisa **oo keliya** | dhammaan iskuulka |
+| `attendance` | fasaladiisa **oo keliya** | dhammaan iskuulka |
+| `fees` | fasaladiisa **oo keliya** | dhammaan iskuulka |
+| `profiles` | kiisa + liiska iskuulka | wuu maamulaa kuwa iskuulka |
+
+Xudunta waa `can_touch_class(class_id)`:
+
+```sql
+p.role = 'super_admin' or c.teacher_id = p.id
+```
+
+### Ilaalinta doorka
+
+Trigger (`guard_profile_changes`) ayaa joojinaya in isticmaaluhu **iskiis**
+`role` ama `school_id` u beddelo — haddii kale macalin kastaa wuxuu isaga
+dhigi kari lahaa maamule.
+
+### Aqoonsiga ardayga
+
+`next_student_code()` waa hawl **database** ah oo `for update` isticmaasha.
+Haddii laba macalin isku mar arday galiyaan, midkoodna ma helayo lambar
+isku mid ah — taasoo app-ku keligiis xamili kari waayay.
+
+---
+
+## Sawirada
+
+Laba bucket oo **gaar ah** (public maaha):
+
+| Bucket | Jidka | Yaa arka |
+|---|---|---|
+| `avatars` | `<profile_id>/avatar.jpg` | qof kastaa kiisa wuu beddelaa; xubnaha iskuulku way arkaan |
+| `student-photos` | `<class_id>/<student_id>.jpg` | macalinka fasalka leh oo keliya |
+
+Sawirka ardayga jidkiisu wuxuu ku bilaabmaa `class_id` — sidaas RLS-ku wuxuu
+isla `can_touch_class()` ku hubin karaa.
+
+Marka la akhrinayo waxaa la isticmaalaa **signed URL** (1 saac) — bucket-yadu
+public ma aha.
+
+---
+
+## Habka maqan (offline mode)
+
+Haddii `.env` la'aan la ordo, app-ku wuxuu u shaqeeyaa **local mode**:
+xogtu waxay ku jirtaa AsyncStorage. Taasi waa tijaabo/demo — waa isla
+UI-ga, laakiin xogtu qalabka ayay ku harsan tahay.
+
+Marka `.env` la buuxiyo, app-ku wuxuu toos u galaa **live mode**
+(`isSupabaseConfigured()` — eeg `src/services/supabase.js`).
