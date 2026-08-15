@@ -1,205 +1,110 @@
+/* ============================================================
+   Fasalkayga — Habka wareegga
+
+   Doorku wuxuu go'aamiyaa waxa la arko:
+     · Maamulaha Guud → Guudmar · Fasalada · Macalimiin · Akoon
+     · Macalin        → Fasaladayda · Akoon
+   ============================================================ */
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useAuth } from '../context/AuthContext';
-import LoginScreen from '../screens/LoginScreen';
-import DashboardScreen from '../screens/DashboardScreen';
-import PlanningScreen from '../screens/PlanningScreen';
-import ExecutionScreen from '../screens/ExecutionScreen';
-import MonitoringScreen from '../screens/MonitoringScreen';
-import PhaseDetailScreen from '../screens/PhaseDetailScreen';
-import TaskDetailScreen from '../screens/TaskDetailScreen';
+import { createStackNavigator } from '@react-navigation/stack';
+import { Ionicons } from '@expo/vector-icons';
 
-const Stack = createNativeStackNavigator();
+import { useApp } from '../context/AppContext';
+import { ROLES } from '../services/storage';
+import { colors } from '../theme/theme';
+import { Loading } from '../components/ui';
+
+import AuthScreen from '../screens/auth/AuthScreen';
+import AdminHomeScreen from '../screens/admin/AdminHomeScreen';
+import ClassesScreen from '../screens/admin/ClassesScreen';
+import TeachersScreen from '../screens/admin/TeachersScreen';
+import TeacherHomeScreen from '../screens/teacher/TeacherHomeScreen';
+import ClassDetailScreen from '../screens/ClassDetailScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
-const LoginNavigator = () => {
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen name="Login" component={LoginScreen} />
-    </Stack.Navigator>
-  );
+const stackOptions = {
+  headerStyle: { backgroundColor: colors.primary, elevation: 0, shadowOpacity: 0 },
+  headerTintColor: '#FFFFFF',
+  headerTitleStyle: { fontWeight: '700' },
 };
 
-const PlanningStack = () => {
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: '#3B82F6' },
-        headerTintColor: '#fff',
-        headerTitleStyle: { fontWeight: 'bold' },
-      }}
-    >
-      <Stack.Screen
-        name="PlanningList"
-        component={PlanningScreen}
-        options={{ title: 'Planning Phase' }}
-      />
-      <Stack.Screen
-        name="PhaseDetail"
-        component={PhaseDetailScreen}
-        options={({ route }) => ({ title: route.params?.phase?.name || 'Phase Details' })}
-      />
-      <Stack.Screen
-        name="TaskDetail"
-        component={TaskDetailScreen}
-        options={({ route }) => ({ title: route.params?.task?.title || 'Task Details' })}
-      />
-    </Stack.Navigator>
-  );
+/* Shaashad kasta oo tab ah waxay leedahay stack si fasalka loo furo */
+function withClassStack(name, title, Component, { header = false } = {}) {
+  return function StackScreen() {
+    return (
+      <Stack.Navigator screenOptions={stackOptions}>
+        <Stack.Screen
+          name={name}
+          component={Component}
+          options={{ title, headerShown: header }}
+        />
+        <Stack.Screen
+          name="ClassDetail"
+          component={ClassDetailScreen}
+          options={{ title: 'Fasalka' }}
+        />
+      </Stack.Navigator>
+    );
+  };
+}
+
+const AdminHomeStack = withClassStack('AdminHome', 'Guudmar', AdminHomeScreen);
+const ClassesStack = withClassStack('Classes', 'Fasalada', ClassesScreen);
+const TeachersStack = withClassStack('Teachers', 'Macalimiinta', TeachersScreen);
+const TeacherHomeStack = withClassStack('TeacherHome', 'Fasaladayda', TeacherHomeScreen);
+
+const ICONS = {
+  Guudmar: 'home',
+  Fasalada: 'albums',
+  Fasaladayda: 'albums',
+  Macalimiin: 'people',
+  Akoon: 'person-circle',
 };
 
-const ExecutionStack = () => {
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: '#10B981' },
-        headerTintColor: '#fff',
-        headerTitleStyle: { fontWeight: 'bold' },
-      }}
-    >
-      <Stack.Screen
-        name="ExecutionList"
-        component={ExecutionScreen}
-        options={{ title: 'Execution Phase' }}
-      />
-      <Stack.Screen
-        name="PhaseDetail"
-        component={PhaseDetailScreen}
-        options={({ route }) => ({ title: route.params?.phase?.name || 'Phase Details' })}
-      />
-      <Stack.Screen
-        name="TaskDetail"
-        component={TaskDetailScreen}
-        options={({ route }) => ({ title: route.params?.task?.title || 'Task Details' })}
-      />
-    </Stack.Navigator>
-  );
-};
+function tabOptions({ route }) {
+  return {
+    headerShown: false,
+    tabBarActiveTintColor: colors.primary,
+    tabBarInactiveTintColor: colors.muted,
+    tabBarStyle: { borderTopColor: colors.line, height: 60, paddingBottom: 8, paddingTop: 6 },
+    tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+    tabBarIcon: ({ color, focused }) => {
+      const base = ICONS[route.name] || 'ellipse';
+      const name = focused ? base : `${base}-outline`;
+      return <Ionicons name={name} size={22} color={color} />;
+    },
+  };
+}
 
-const MonitoringStack = () => {
+function AdminTabs() {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: '#F59E0B' },
-        headerTintColor: '#fff',
-        headerTitleStyle: { fontWeight: 'bold' },
-      }}
-    >
-      <Stack.Screen
-        name="MonitoringList"
-        component={MonitoringScreen}
-        options={{ title: 'Monitoring Phase' }}
-      />
-      <Stack.Screen
-        name="PhaseDetail"
-        component={PhaseDetailScreen}
-        options={({ route }) => ({ title: route.params?.phase?.name || 'Phase Details' })}
-      />
-      <Stack.Screen
-        name="TaskDetail"
-        component={TaskDetailScreen}
-        options={({ route }) => ({ title: route.params?.task?.title || 'Task Details' })}
-      />
-    </Stack.Navigator>
-  );
-};
-
-const DashboardStack = () => {
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: '#1F2937' },
-        headerTintColor: '#fff',
-        headerTitleStyle: { fontWeight: 'bold' },
-      }}
-    >
-      <Stack.Screen
-        name="DashboardList"
-        component={DashboardScreen}
-        options={{ title: 'Dashboard' }}
-      />
-      <Stack.Screen
-        name="PhaseDetail"
-        component={PhaseDetailScreen}
-        options={({ route }) => ({ title: route.params?.phase?.name || 'Phase Details' })}
-      />
-      <Stack.Screen
-        name="TaskDetail"
-        component={TaskDetailScreen}
-        options={({ route }) => ({ title: route.params?.task?.title || 'Task Details' })}
-      />
-    </Stack.Navigator>
-  );
-};
-
-const AppNavigator = () => {
-  return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#3B82F6',
-        tabBarInactiveTintColor: '#9CA3AF',
-      }}
-    >
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardStack}
-        options={{
-          tabBarLabel: 'Dashboard',
-          tabBarIcon: ({ color }) => <Icon name="grid" size={24} color={color} />,
-        }}
-      />
-      <Tab.Screen
-        name="Planning"
-        component={PlanningStack}
-        options={{
-          tabBarLabel: 'Planning',
-          tabBarIcon: ({ color }) => <Icon name="calendar" size={24} color={color} />,
-        }}
-      />
-      <Tab.Screen
-        name="Execution"
-        component={ExecutionStack}
-        options={{
-          tabBarLabel: 'Execution',
-          tabBarIcon: ({ color }) => <Icon name="zap" size={24} color={color} />,
-        }}
-      />
-      <Tab.Screen
-        name="Monitoring"
-        component={MonitoringStack}
-        options={{
-          tabBarLabel: 'Monitoring',
-          tabBarIcon: ({ color }) => <Icon name="eye" size={24} color={color} />,
-        }}
-      />
+    <Tab.Navigator screenOptions={tabOptions}>
+      <Tab.Screen name="Guudmar" component={AdminHomeStack} />
+      <Tab.Screen name="Fasalada" component={ClassesStack} />
+      <Tab.Screen name="Macalimiin" component={TeachersStack} />
+      <Tab.Screen name="Akoon" component={ProfileScreen} />
     </Tab.Navigator>
   );
-};
+}
 
-const Icon = ({ name, size, color }) => {
-  const icons = {
-    grid: '◻',
-    calendar: '📅',
-    zap: '⚡',
-    eye: '👁',
-  };
-  return <Text style={{ fontSize: size, color }}>{icons[name] || '•'}</Text>;
-};
-
-import { Text } from 'react-native';
+function TeacherTabs() {
+  return (
+    <Tab.Navigator screenOptions={tabOptions}>
+      <Tab.Screen name="Fasaladayda" component={TeacherHomeStack} />
+      <Tab.Screen name="Akoon" component={ProfileScreen} />
+    </Tab.Navigator>
+  );
+}
 
 export default function RootNavigator() {
-  const { isAuthenticated, loading } = useAuth();
+  const { ready, user, store } = useApp();
 
-  if (loading) {
-    return null;
-  }
+  if (!ready || !store) return <Loading label="Xogta la soo dejinayaa…" />;
+  if (!user) return <AuthScreen />;
 
-  return isAuthenticated ? <AppNavigator /> : <LoginNavigator />;
+  return user.role === ROLES.SUPER_ADMIN ? <AdminTabs /> : <TeacherTabs />;
 }

@@ -1,256 +1,162 @@
-# Phase Manager App
+# Fasalkayga
 
-A modular React Native application for managing multiple phases and sections with role-based access control, task management, and progress tracking.
+App **React Native (Expo)** ah oo macalinku ku maamulo fasalkiisa: **magacyada
+ardayda**, **xaadiriska maalinlaha ah**, iyo **lacagaha bilaha**.
 
-## Overview
+Qaab-dhismeedka xogta waxaa laga tixraacay softiweerka **Kobciye**, laakiin
+kani waa mid aad u fudud oo saddexdaas shaqo oo keliya diiradda saara.
 
-Phase Manager is a comprehensive project management system built with React Native and Expo, inspired by enterprise-level management systems. It provides role-based dashboards, phase organization, task tracking, and progress monitoring.
+---
 
-## Architecture
+## Doorarka — laba oo keliya
 
-### Core Structure
+| Doorka | Isdiiwaan gelin | Waxa uu qabto |
+|---|---|---|
+| **Maamulaha Guud** (super admin) | Haa | Abuuraa fasalada, macalimiinta ayuu u qoondeeyaa, wuxuu arkaa warbixinta guud |
+| **Macalin** | Haa | Wuxuu maamulaa fasaladiisa oo keliya: ardayda, xaadiriska, lacagaha |
+
+> **Ardayda iyo waalidiintu akoon MA LAHA.** Ardaygu waa *xog* uu macalinku
+> fasalka ku dhex qoro — ma aha isticmaale app-ka soo gala. Waalidka waxaa laga
+> hayaa taleefan keliya (si loola xiriiro), akoonna ma leh.
+
+---
+
+## Saddexda shaqo ee muhiimka ah
+
+### 1. Ardayda
+Macalinku wuxuu ku darayaa: **magaca**, jinsiga, taleefanka waalidka, iyo
+lacagta bisha. Arday kastaa wuxuu helaa laba aqoonsi:
+
+- `student_internal_id` — furaha gudaha ah ee xiriiriya xaadiriska iyo lacagta
+- `student_id` — aqoonsiga la arko (`ARD-000001`), oo si isdaba joog ah u kordha
+
+Ardayga fasalka laga saaro **lama tirtiro** — waxaa loo calaamadiyaa `left` si
+taariikhdiisu u sii jirto, laakiinna lagama xisaabiyo lacagta.
+
+### 2. Xaadiriska
+Maalin kasta, arday kasta wuxuu qaataa mid ka mid ah:
+
+`Jooga` · `Maqan` · `Soo daahay` · `Fasax`
+
+- Badhanka **"Dhammaan Jooga"** ayaa dhaqso u calaamadiya fasalka oo dhan
+- Diiwaanka dib haddii loo kaydiyo wuu **beddelmaa**, mana **tarmo**
+- Maalin kastaa waa madax bannaan tahay; taariikh mustaqbal ah lama gali karo
+
+### 3. Lacagaha bilaha
+Bil kasta (`2026-08`), arday kastaa wuxuu leeyahay:
+
+- **Waajibka** — lacagta bisha ee ardayga (waxay ka dhaxashaa fasalka)
+- **La bixiyay** — waxa macalinku diiwaan geliyay
+- **Hadhaaga** — waajibka ka jar wixii la bixiyay
+
+Xaaladdu waa `Ma bixin` · `Qayb bixiyay` · `Bixiyay`, waana la xisaabiyaa
+si toos ah. Bil kastaa waa gooni; lacag dib loo qoro way beddelmaysaa,
+mana tarmayso.
+
+---
+
+## Qaab-dhismeedka faylasha
 
 ```
 src/
-├── context/               # Global state management
-│   ├── AuthContext.js    # User authentication & roles
-│   └── AppDataContext.js # App data & phases management
-├── screens/              # UI screens
-│   ├── LoginScreen.js
-│   ├── DashboardScreen.js
-│   ├── PlanningScreen.js
-│   ├── ExecutionScreen.js
-│   ├── MonitoringScreen.js
-│   ├── PhaseDetailScreen.js
-│   └── TaskDetailScreen.js
-├── services/             # Business logic & data
-│   └── dataRepository.js # AsyncStorage CRUD operations
-├── data/                 # Data models & seeding
-│   └── seedData.js      # Initial data seed
-└── navigation/          # Navigation configuration
-    └── RootNavigator.js # Tab & stack navigation
+├── services/
+│   ├── model.js       ← xisaabta OO DHAN (saafi, AsyncStorage ma taabto)
+│   └── storage.js     ← kaydinta AsyncStorage + dib-u-dhoofinta model
+├── context/
+│   └── AppContext.js  ← store + qofka soo galay, `mutate()`
+├── data/seed.js       ← xogta bilowga (akoonka tijaabada)
+├── theme/theme.js     ← midabada iyo cabbirada
+├── components/ui.js   ← Card, Button, Field, Badge, Avatar, Stat…
+├── navigation/
+│   └── RootNavigator.js  ← tabs kala duwan doorka
+└── screens/
+    ├── auth/AuthScreen.js        ← soo gal / isdiiwaan geli
+    ├── admin/AdminHomeScreen.js  ← guudmarka iskuulka
+    ├── admin/ClassesScreen.js    ← abuur fasal, qoondee macalin
+    ├── admin/TeachersScreen.js   ← macalimiinta iyo fasaladooda
+    ├── teacher/TeacherHomeScreen.js ← fasalada macalinka
+    ├── ClassDetailScreen.js      ← Ardayda | Xaadiris | Lacag
+    └── ProfileScreen.js          ← akoonka
 ```
 
-## Key Features
+### Sababta `model.js` iyo `storage.js` loo kala saaray
 
-### 1. **Role-Based Access Control**
+`model.js` **ma taabto AsyncStorage**. Hawl kastaa waxay qaadataa `store` waxayna
+soo celisaa `store` **cusub** (pure function). Taas macnaheedu waxaa weeye
+xisaabta oo dhan waa lagu tijaabin karaa Node — eeg `npm run check`.
 
-Four user roles with different permissions:
+`storage.js` wuxuu qabtaa kaydinta oo keliya, kadibna `export * from './model'`
+si shaashaduhu hal meel uga soo qaataan.
 
-- **Administrator**: Full access to all phases and sections
-- **Manager**: Access to Planning, Execution, and Monitoring phases
-- **Coordinator**: Access to Execution and Monitoring phases only
-- **Viewer**: Read-only access to Monitoring phase
+---
 
-### 2. **Phase Organization**
+## Aqoonsiga (Kobciye ayaa laga soo tixraacay)
 
-Phases are organized into three main sections:
+| Furaha | Tusaale | Loo isticmaalo |
+|---|---|---|
+| `school_id` | `school_001` | Furaha iskuulka |
+| `class_id` | `school_001_class_fasalka_1a` | Caalami ahaan **gaar** — laba iskuul way lahaan karaan "Fasalka 1A" iyagoo aan isku dhicin |
+| `student_internal_id` | `student_m3x9k2a4f` | Furaha xiriirka: xaadiris, lacag |
+| `student_id` | `ARD-000001` | Aqoonsiga la arko / la daabaco |
 
-- **Planning Phase**: Define objectives, scope, and resources
-- **Execution Phase**: Implement and deliver projects
-- **Monitoring Phase**: Track progress and evaluate results
+Magacyadu (magaca fasalka, magaca ardayga) **waligood furaha xiriirka ma aha** —
+tusmo muuqaal ah oo keliya ayay yihiin.
 
-Each phase contains:
-- Status (active, pending, completed)
-- Progress percentage
-- Task list
-- Owner information
-- Timeline (start/end dates)
+---
 
-### 3. **Task Management**
-
-Tasks within phases provide:
-- Task title and description
-- Priority levels (low, medium, high)
-- Assignment tracking
-- Status management (pending, in_progress, completed)
-- Due dates
-- Audit trail (created/updated timestamps)
-
-### 4. **Dashboard Overview**
-
-The main dashboard provides:
-- Total phases and tasks count
-- Overall progress percentage
-- Active phase count
-- Quick access to all phases
-- Role-specific filtering
-
-### 5. **Data Persistence**
-
-All data persists using AsyncStorage:
-- Single normalized data store
-- Automatic initialization on first launch
-- CRUD operations through data repository
-- No backend required (frontend demo)
-
-## Usage
-
-### Installation
+## Ordinta
 
 ```bash
 npm install
-# or
-npm ci
-```
-
-### Running the App
-
-```bash
-# Development mode with Expo
-npm start
-
-# Run on Android
+npm run check     # hubinta aasaaska (21 hubin)
+npm start         # Expo — QR-ka ku sawir Expo Go
 npm run android
-
-# Run on iOS
 npm run ios
-
-# Build for web
-npm run web
 ```
 
-### Navigation Structure
+### Akoonka tijaabada
+Marka ugu horreysa ee app-ka la furo waxaa jira hal akoon oo maamule ah:
 
-```
-RootNavigator
-├── LoginScreen (Auth)
-└── AppNavigator (Authenticated)
-    ├── Dashboard
-    │   ├── DashboardScreen
-    │   ├── PhaseDetailScreen
-    │   └── TaskDetailScreen
-    ├── Planning
-    │   ├── PlanningScreen
-    │   ├── PhaseDetailScreen
-    │   └── TaskDetailScreen
-    ├── Execution
-    │   ├── ExecutionScreen
-    │   ├── PhaseDetailScreen
-    │   └── TaskDetailScreen
-    └── Monitoring
-        ├── MonitoringScreen
-        ├── PhaseDetailScreen
-        └── TaskDetailScreen
-```
+- Taleefan: `0611111111`
+- Fure: `admin123`
 
-## Context & Hooks
+Macalimiintu naftooda ayay isku diiwaan geliyaan bogga **"Isdiiwaan geli"**,
+kadibna maamuluhu fasal buu u qoondeeyaa.
 
-### AuthContext
+---
 
-Manages user authentication and roles:
+## Hubinta (`npm run check`)
 
-```javascript
-const { user, role, login, logout, isAuthenticated } = useAuth();
-```
+21 hubin ayaa xisaabta ku ordaya Node, iyagoo xaqiijinaya:
 
-**Methods:**
-- `login(userId, userRole, userData)` - Authenticate user
-- `logout()` - Clear authentication
-- `isAuthenticated` - Check auth status
+- doorka `super_admin` iyo `teacher` **oo keliya** in la aqbalo
+- taleefan la iska diiwaan geliyay mar labaad in la diido
+- `class_id` inuu gaar yahay, fasalna uu **hal** macalin lahaado
+- macalinku inuu arko **oo keliya** fasaladiisa
+- `student_id` inuusan is celcelin
+- xaadiriska: kaydin, beddelid (aan tarmin), maalmo aan is faragelin
+- lacagta: wadar sax ah, bilo aan is faragelin, arday la saaray oo aan la xisaabin
 
-### AppDataContext
+> Hubintani waxay muujisay cillad dhab ah intii la dhisayay: aqoonsiyada
+> `Date.now()` ku salaysan way isku dhaci jireen marka laba diiwaan hal
+> millisecond lagu abuuro — taasoo isku dari lahayd xaadiriska iyo lacagta
+> laba arday. Hadda `uid()` wuxuu isticmaalaa waqti + tirin + random.
 
-Manages all application data:
+---
 
-```javascript
-const { appData, loading, addPhase, updatePhase, deletePhase } = useAppData();
-```
+## Xaaladda
 
-**Methods:**
-- `addPhase(phaseData)` - Create new phase
-- `updatePhase(phaseId, updates)` - Update phase
-- `deletePhase(phaseId)` - Delete phase
+Waxaa la xaqiijiyay:
 
-## Data Repository API
+- `npm run check` — **21/21 way guuleysteen**
+- `npx expo export --platform android` — **bundle wuu dhammaystirmay** (2.55 MB), khalad compile ah ma jiro
 
-The `dataRepository.js` service provides:
+## Digniin
 
-### Initialization
-- `initializeAppData()` - Initialize app on first launch
+Kani waa **prototype frontend ah**. Xogta oo dhan waxay ku jirtaa qalabka
+(AsyncStorage), furayaasha sirta ahna waxay ku jiraan qaab **plain text** ah.
+Ka hor isticmaalka dhabta ah waa in la geliyaa backend leh:
 
-### Data Operations
-- `loadAppData()` - Load from AsyncStorage
-- `saveAppData(data)` - Save to AsyncStorage
-- `clearAppData()` - Clear all data
-
-### Query Functions
-- `getPhasesByRole(appData, userRole)` - Filter phases by role
-- `getTasksByPhase(appData, phaseId)` - Get all tasks in phase
-
-### Phase Operations
-- `addTaskToPhase(appData, phaseId, taskData)` - Add task
-- `updateTaskStatus(appData, phaseId, taskId, status)` - Update task
-
-## Seed Data
-
-Initial app data includes:
-
-### Phases (4 total)
-1. **Planning Phase** (65% progress) - 2 tasks
-2. **Execution Phase** (45% progress) - 2 tasks
-3. **Testing Phase** (0% progress) - 1 task
-4. **Deployment Phase** (0% progress) - 0 tasks
-
-### Sections (3 total)
-- Planning
-- Execution
-- Monitoring
-
-## Styling
-
-The app uses consistent color scheme and typography:
-
-- **Primary Colors**:
-  - Planning: #3B82F6 (Blue)
-  - Execution: #10B981 (Green)
-  - Monitoring: #F59E0B (Amber)
-  - Admin: #1F2937 (Dark)
-
-- **Semantic Colors**:
-  - Success: #DCFCE7 (Light Green)
-  - Warning: #FEF3C7 (Light Amber)
-  - Info: #DBEAFE (Light Blue)
-  - Error: #FEE2E2 (Light Red)
-
-## State Management Flow
-
-```
-User Login
-    ↓
-AuthContext sets role
-    ↓
-AppDataContext loads data
-    ↓
-RoleBasedFiltering applied
-    ↓
-Screen renders role-specific content
-```
-
-## Future Enhancements
-
-- Backend API integration
-- Real authentication
-- Real-time collaboration
-- Calendar integration
-- File attachments
-- Comments and discussions
-- Notification system
-- Analytics & reporting
-
-## Demo Credentials
-
-For demo purposes, use any email:
-- Email: `user@example.com`
-- Role: Select from dropdown (admin, manager, coordinator, viewer)
-
-## Dependencies
-
-- **React Native** 0.76.5
-- **Expo** 52.0.0
-- **React Navigation** 6.x
-- **AsyncStorage** 1.23.1
-
-## License
-
-Proprietary - All rights reserved
+- authentication sax ah (furayaal la hash-gareeyay)
+- database dhexe iyo kaydin ammaan ah
+- kala soocidda iskuulada iyo oggolaanshaha server-ka lagu xaqiijiyo

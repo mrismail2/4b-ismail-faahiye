@@ -1,34 +1,31 @@
 {
-  "name": "phase-manager-app",
+  "name": "fasalkayga",
   "version": "1.0.0",
-  "description": "A modular React Native app for managing multiple phases and sections",
+  "description": "App React Native ah oo macalinku ku maamulo fasalada: ardayda, xaadiriska iyo lacagaha bilaha",
   "main": "index.js",
   "scripts": {
     "start": "expo start --clear",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "eject": "expo eject",
-    "test": "jest",
-    "lint": "eslint ."
+    "check": "node scripts/check-foundation.js"
   },
   "dependencies": {
-    "react": "18.2.0",
-    "react-native": "0.73.0",
+    "@expo/vector-icons": "^14.0.0",
+    "@react-native-async-storage/async-storage": "1.21.0",
+    "@react-navigation/bottom-tabs": "6.5.11",
+    "@react-navigation/native": "6.1.9",
+    "@react-navigation/stack": "6.3.20",
     "expo": "~50.0.0",
     "expo-status-bar": "~1.11.1",
-    "@react-navigation/native": "6.1.9",
-    "@react-navigation/bottom-tabs": "6.5.11",
-    "@react-navigation/stack": "6.3.20",
-    "react-native-screens": "3.27.0",
-    "react-native-safe-area-context": "4.7.2",
+    "react": "18.2.0",
+    "react-native": "0.73.0",
     "react-native-gesture-handler": "2.14.0",
-    "@react-native-async-storage/async-storage": "1.21.0"
+    "react-native-safe-area-context": "4.7.2",
+    "react-native-screens": "3.27.0"
   },
   "devDependencies": {
-    "@babel/core": "7.23.0",
-    "babel-jest": "29.7.0",
-    "jest": "29.7.0"
+    "@babel/core": "7.23.0"
   },
   "private": true
 }
