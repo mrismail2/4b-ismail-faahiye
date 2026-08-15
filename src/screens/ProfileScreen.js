@@ -8,7 +8,7 @@
    diidaya, sidaas macalinku iskiis isuma dhigi karo maamule.
    ============================================================ */
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
 import {
@@ -16,6 +16,7 @@ import {
   currentMonth, formatMoney,
 } from '../services/model';
 import { pickPhoto } from '../services/photos';
+import { confirm, notify } from '../utils/dialog';
 import {
   Card, Button, Avatar, Badge, SectionTitle, Field, PhotoPicker, Stat,
 } from '../components/ui';
@@ -54,38 +55,36 @@ export default function ProfileScreen() {
       await ops.updateProfile(form);
       setEditing(false);
     } catch (e) {
-      Alert.alert('Khalad', e.message);
+      notify('Khalad', e.message);
     }
   };
 
   const changePhoto = async ({ camera }) => {
     const { uri, error } = await pickPhoto({ camera });
-    if (error) return Alert.alert('Khalad', error);
+    if (error) return notify('Khalad', error);
     if (!uri) return;
     try {
       await ops.updateProfile({ photoUri: uri });
     } catch (e) {
-      Alert.alert('Khalad', e.message);
+      notify('Khalad', e.message);
     }
   };
 
-  const confirmSignOut = () => {
-    Alert.alert('Ka bax', 'Ma ka baxaysaa akoonkaaga?', [
-      { text: 'Maya', style: 'cancel' },
-      { text: 'Haa, ka bax', style: 'destructive', onPress: signOut },
-    ]);
-  };
+  const confirmSignOut = () => confirm({
+    title: 'Ka bax',
+    message: 'Ma ka baxaysaa akoonkaaga?',
+    confirmLabel: 'Haa, ka bax',
+    destructive: true,
+    onConfirm: signOut,
+  });
 
-  const confirmReset = () => {
-    Alert.alert(
-      'Nadiifi xogta',
-      'Dhammaan fasalada, ardayda, xaadiriska iyo lacagaha waa la tirtirayaa. Dib looma celin karo.',
-      [
-        { text: 'Maya', style: 'cancel' },
-        { text: 'Haa, nadiifi', style: 'destructive', onPress: resetAll },
-      ],
-    );
-  };
+  const confirmReset = () => confirm({
+    title: 'Nadiifi xogta',
+    message: 'Dhammaan fasalada, ardayda, xaadiriska iyo lacagaha waa la tirtirayaa. Dib looma celin karo.',
+    confirmLabel: 'Haa, nadiifi',
+    destructive: true,
+    onConfirm: resetAll,
+  });
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>

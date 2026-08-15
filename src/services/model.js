@@ -107,7 +107,9 @@ export function findUserByEmail(store, email) {
   return (store.users || []).find((u) => normaliseEmail(u.email) === key) || null;
 }
 
-export function registerUser(store, { fullName, email, phone, password, role }) {
+/* Macalinku IMA diiwaan gelin karo naftiisa — maamulaha guud ayaa casumaya.
+   Hawshan waxaa isticmaala `redeemInvite` iyo maamulaha kaliya. */
+export function createUser(store, { fullName, email, phone, password, role }) {
   if (!fullName?.trim()) throw new Error('Magaca waa qasab.');
   if (!normaliseEmail(email)) throw new Error('Emailka waa qasab.');
   if (!normaliseEmail(email).includes('@')) throw new Error('Emailku ma saxna.');
@@ -137,6 +139,140 @@ export function verifyLogin(store, email, password) {
   const user = findUserByEmail(store, email);
   if (!user || user.password !== password) throw new Error('Emailka ama furaha waa khalad.');
   return user;
+}
+
+/* ---------- casuumaadda macalimiinta ----------
+   Macalinku ISKIIS akoon ma abuuri karo. Maamulaha guud ayaa casuumaad
+   sameeya, macalinkuna koodhka ayuu ku soo galaa. Sidaas doorka iyo
+   iskuulka waxaa go'aamiya maamulaha, ma aha qofka isdiiwaan gelinaya. */
+
+const INVITE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 0/O/1/I waa laga saaray
+const INVITE_DAYS = 14;
+
+function makeInviteCode(store) {
+  const used = new Set((store.invites || []).map((i) => i.code));
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    let body = '';
+    for (let i = 0; i < 6; i += 1) {
+      body += INVITE_ALPHABET[Math.floor(Math.random() * INVITE_ALPHABET.length)];
+    }
+    const code = `KAB-${body}`;
+    if (!used.has(code)) return code;
+  }
+  throw new Error('Koodh cusub lama abuuri karin. Isku day mar kale.');
+}
+
+export function normaliseCode(code) {
+  return String(code || '').trim().toUpperCase();
+}
+
+export function inviteExpired(invite) {
+  return new Date(invite.expires_at).getTime() < Date.now();
+}
+
+export function inviteState(invite) {
+  if (invite.status === 'accepted') return 'accepted';
+  if (invite.status === 'revoked') return 'revoked';
+  return inviteExpired(invite) ? 'expired' : 'pending';
+}
+
+export const INVITE_STATE_LABEL = {
+  pending: 'La sugayo',
+  accepted: 'La aqbalay',
+  revoked: 'La joojiyay',
+  expired: 'Dhacay',
+};
+
+export function createInvite(store, { fullName, email, classIds = [], createdBy }) {
+  if (!fullName?.trim()) throw new Error('Magaca macalinka waa qasab.');
+  const cleanEmail = normaliseEmail(email);
+  if (!cleanEmail || !cleanEmail.includes('@')) throw new Error('Emailka macalinka ma saxna.');
+  if (findUserByEmail(store, cleanEmail)) throw new Error('Emailkan hore ayuu akoon u lahaa.');
+
+  const open = (store.invites || []).find(
+    (i) => normaliseEmail(i.email) === cleanEmail && inviteState(i) === 'pending');
+  if (open) throw new Error('Emailkan casuumaad furan ayuu hore u lahaa.');
+
+  const invite = {
+    invite_id: uid('invite'),
+    school_id: store.school.school_id,
+    code: makeInviteCode(store),
+    full_name: fullName.trim(),
+    email: cleanEmail,
+    role: ROLES.TEACHER,
+    class_ids: classIds,
+    created_by: createdBy || null,
+    created_at: now(),
+    expires_at: new Date(Date.now() + INVITE_DAYS * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'pending',
+    accepted_by: null,
+  };
+
+  return { store: { ...store, invites: [...(store.invites || []), invite] }, invite };
+}
+
+export function findInviteByCode(store, code) {
+  const key = normaliseCode(code);
+  return (store.invites || []).find((i) => i.code === key) || null;
+}
+
+export function revokeInvite(store, inviteId) {
+  return {
+    ...store,
+    invites: (store.invites || []).map((i) =>
+      (i.invite_id === inviteId && i.status === 'pending'
+        ? { ...i, status: 'revoked' }
+        : i)),
+  };
+}
+
+export function listInvites(store) {
+  return [...(store.invites || [])].sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
+/* Macalinku koodhka ayuu ku sameeyaa akoonkiisa. Doorka iyo iskuulka
+   casuumaadda ayay ka yimaadaan — qofku ma dooran karo. */
+export function redeemInvite(store, { code, email, password }) {
+  const invite = findInviteByCode(store, code);
+  if (!invite) throw new Error('Koodhkan ma jiro.');
+
+  const state = inviteState(invite);
+  if (state === 'accepted') throw new Error('Koodhkan hore ayaa loo isticmaalay.');
+  if (state === 'revoked') throw new Error('Koodhkan waa la joojiyay.');
+  if (state === 'expired') throw new Error('Koodhkan wuu dhacay. Maamulaha ka codso mid cusub.');
+
+  /* Emailka waa inuu la mid noqdaa kii la casumay — si koodhka la helay
+     uusan qof kale u isticmaalin. */
+  if (normaliseEmail(email) !== normaliseEmail(invite.email)) {
+    throw new Error('Emailkani kama mid aha kii la casumay.');
+  }
+
+  const { store: withUser, user } = createUser(store, {
+    fullName: invite.full_name,
+    email: invite.email,
+    password,
+    role: invite.role,
+  });
+
+  let next = {
+    ...withUser,
+    invites: (withUser.invites || []).map((i) =>
+      (i.invite_id === invite.invite_id
+        ? { ...i, status: 'accepted', accepted_by: user.user_id, accepted_at: now() }
+        : i)),
+  };
+
+  /* Fasalada maamuluhu casuumaadda kula soo daray */
+  (invite.class_ids || []).forEach((classId) => {
+    if (getClassById(next, classId)) next = assignTeacher(next, classId, user.user_id);
+  });
+
+  /* Qofka waa in laga soo saaro store-ka DAMBE, ma aha kii `createUser`
+     soo celiyay: kaasi wuxuu leeyahay `assigned_class_ids` madhan, maxaa
+     yeelay fasalada waxaa la qoondeeyay ka dib. */
+  const fresh = (next.users || []).find((u) => u.user_id === user.user_id) || user;
+  return { store: next, user: fresh };
 }
 
 /* Profile-ka macalinka/maamulaha. Doorka iyo iskuulka lagama beddelo halkan

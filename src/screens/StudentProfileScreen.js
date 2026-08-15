@@ -5,7 +5,7 @@
    tirakoobka xaadiriska bisha, iyo taariikhda lacagta.
    ============================================================ */
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
 import {
@@ -13,6 +13,7 @@ import {
   FEE_STATUS_LABEL, currentMonth, monthLabel, shiftMonth, formatMoney,
 } from '../services/model';
 import { pickPhoto } from '../services/photos';
+import { confirm, notify } from '../utils/dialog';
 import {
   Card, Button, Field, Badge, Stat, SectionTitle, EmptyState, PhotoPicker,
 } from '../components/ui';
@@ -75,42 +76,35 @@ export default function StudentProfileScreen({ route, navigation }) {
       });
       setEditing(false);
     } catch (e) {
-      Alert.alert('Khalad', e.message);
+      notify('Khalad', e.message);
     }
   };
 
   const changePhoto = async ({ camera }) => {
     const { uri, error } = await pickPhoto({ camera });
-    if (error) return Alert.alert('Khalad', error);
+    if (error) return notify('Khalad', error);
     if (!uri) return;
     try {
       await ops.setStudentPhoto(studentId, uri);
     } catch (e) {
-      Alert.alert('Khalad', e.message);
+      notify('Khalad', e.message);
     }
   };
 
-  const confirmRemove = () => {
-    Alert.alert(
-      'Ka saar fasalka',
-      `${student.full_name} ma ka saaraysaa fasalka? Taariikhdiisu way sii jiri doontaa.`,
-      [
-        { text: 'Maya', style: 'cancel' },
-        {
-          text: 'Haa, ka saar',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await ops.removeStudent(studentId);
-              navigation.goBack();
-            } catch (e) {
-              Alert.alert('Khalad', e.message);
-            }
-          },
-        },
-      ],
-    );
-  };
+  const confirmRemove = () => confirm({
+    title: 'Ka saar fasalka',
+    message: `${student.full_name} ma ka saaraysaa fasalka? Taariikhdiisu way sii jiri doontaa.`,
+    confirmLabel: 'Haa, ka saar',
+    destructive: true,
+    onConfirm: async () => {
+      try {
+        await ops.removeStudent(studentId);
+        navigation.goBack();
+      } catch (e) {
+        notify('Khalad', e.message);
+      }
+    },
+  });
 
   const feeTone = {
     paid: { bg: colors.greenSoft, fg: colors.green },

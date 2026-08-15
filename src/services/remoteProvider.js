@@ -41,39 +41,45 @@ export async function signIn({ email, password }) {
   return { userId: data.user.id };
 }
 
-/* Isdiiwaan gelin: akoon auth ah + saf `profiles` ah. Iskuulku waa kan
-   la doortay (ama kan kaliya ee jira haddii mid keliya uu jiro). */
-export async function signUp({ fullName, email, phone, password, role, schoolId }) {
+/* Macalinku ISKIIS akoon ma abuuro. Koodhka casuumaadda ayuu ku sameeyaa:
+   marka hore akoon Auth ah, kadibna `redeem_invite` ayaa profile-ka u
+   abuurta iyadoo doorka iyo iskuulka ka soo qaadanaysa casuumaadda. */
+export async function redeemInvite({ code, email, password }) {
   const db = client();
 
   const { data, error } = await db.auth.signUp({
     email: String(email).trim().toLowerCase(),
     password,
-    options: { data: { full_name: fullName } },
   });
   guard(error);
 
   const userId = data.user?.id;
   if (!userId) throw new Error('Akoonka lama abuurin. Hubi emailkaaga.');
 
-  let targetSchool = schoolId;
-  if (!targetSchool) {
-    const { data: schools, error: schoolErr } = await db.from('schools').select('id').limit(2);
-    guard(schoolErr);
-    if (!schools?.length) throw new Error('Weli iskuul lama abuurin. La xiriir maamulaha.');
-    targetSchool = schools[0].id;
+  /* Haddii project-ka email-xaqiijin loo shiday, session ma jirto weli */
+  if (!data.session) {
+    throw new Error('Emailkaaga ayaa xaqiijin loo diray. Xaqiiji kadibna soo gal.');
   }
 
-  const { error: profileErr } = await db.from('profiles').insert({
-    id: userId,
-    school_id: targetSchool,
-    role,
-    full_name: fullName.trim(),
-    phone: String(phone || '').trim(),
-  });
-  guard(profileErr);
+  const { error: redeemErr } = await db.rpc('redeem_invite', { p_code: String(code).trim().toUpperCase() });
+  guard(redeemErr);
 
   return { userId };
+}
+
+/* Faahfaahin yar oo la tuso qofka koodhka haysta, ka hor akoon-samaynta */
+export async function peekInvite(code) {
+  const { data, error } = await client().rpc('peek_invite', {
+    p_code: String(code).trim().toUpperCase(),
+  });
+  guard(error);
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) throw new Error('Koodhkan ma jiro.');
+  return {
+    fullName: row.full_name,
+    schoolName: row.school_name,
+    classes: row.class_names || [],
+  };
 }
 
 export async function signOut() {
@@ -125,12 +131,16 @@ export async function loadSnapshot(userId) {
 
   /* Xaadiriska iyo lacagta waxaa RLS-ku kala soocayaa — macalinku wuxuu
      helayaa kuwa fasaladiisa oo keliya. */
-  const [attendanceRes, feeRes] = await Promise.all([
+  const [attendanceRes, feeRes, inviteRes] = await Promise.all([
     db.from('attendance').select('*'),
     db.from('fees').select('*'),
+    db.from('invites').select('*').order('created_at', { ascending: false }),
   ]);
   guard(attendanceRes.error);
   guard(feeRes.error);
+  /* casuumaadaha maamulaha oo keliya ayaa arka — RLS ayaa go'aamiya,
+     macalinkuna wuxuu helayaa liis madhan, taasoo sax ah. */
+  guard(inviteRes.error);
 
   const classes = (classRes.data || []).map((c) => ({
     class_id: c.id,
@@ -192,6 +202,19 @@ export async function loadSnapshot(userId) {
       date: a.attendance_date,
       status: a.status,
       recorded_by: a.recorded_by,
+    })),
+    invites: (inviteRes.data || []).map((i) => ({
+      invite_id: i.id,
+      school_id: i.school_id,
+      code: i.code,
+      full_name: i.full_name,
+      email: i.email,
+      role: i.role,
+      class_ids: i.class_ids || [],
+      created_at: i.created_at,
+      expires_at: i.expires_at,
+      status: i.status,
+      accepted_by: i.accepted_by,
     })),
     fees: (feeRes.data || []).map((f) => ({
       fee_id: f.id,
@@ -367,6 +390,23 @@ export async function updateProfile(userId, { fullName, phone, subject, bio, pho
   /* Ogow: `role` iyo `school_id` halkan lagama dirayo — trigger-ka
      database-ku wuu diidayaa isbeddelkooda. */
   const { error } = await db.from('profiles').update(row).eq('id', userId);
+  guard(error);
+}
+
+/* ---------- casuumaadda ---------- */
+
+export async function createInvite({ fullName, email, classIds }) {
+  const { error } = await client().rpc('create_invite', {
+    p_full_name: fullName,
+    p_email: email,
+    p_class_ids: classIds || [],
+  });
+  guard(error);
+}
+
+export async function revokeInvite(inviteId) {
+  const { error } = await client().from('invites')
+    .update({ status: 'revoked' }).eq('id', inviteId).eq('status', 'pending');
   guard(error);
 }
 

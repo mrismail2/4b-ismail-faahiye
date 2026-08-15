@@ -4,9 +4,9 @@
    ============================================================ */
 import React from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,
-  Image, Platform, Alert,
+  View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Image,
 } from 'react-native';
+import { choose as chooseDialog } from '../utils/dialog';
 import { colors, radius, spacing, shadow, avatarColor, initials } from '../theme/theme';
 
 export function Card({ children, style, ...rest }) {
@@ -88,17 +88,18 @@ export function Avatar({ name, photoUri, size = 42, ring }) {
 
 /* Sawirka lagu beddelo: taabo → kamarad ama gallery */
 export function PhotoPicker({ name, photoUri, size = 96, onPick, label = 'Sawir' }) {
-  const choose = () => {
-    if (Platform.OS === 'web') return onPick({ camera: false });
-    Alert.alert(label, 'Halkee ka doonaysaa sawirka?', [
-      { text: 'Kamarad', onPress: () => onPick({ camera: true }) },
-      { text: 'Gallery', onPress: () => onPick({ camera: false }) },
-      { text: 'Jooji', style: 'cancel' },
-    ]);
-  };
+  const pick = () => chooseDialog({
+    title: label,
+    message: 'Halkee ka doonaysaa sawirka?',
+    options: [
+      { label: 'Kamarad', onPress: () => onPick({ camera: true }) },
+      { label: 'Gallery', onPress: () => onPick({ camera: false }) },
+    ],
+    fallback: () => onPick({ camera: false }),
+  });
 
   return (
-    <TouchableOpacity onPress={choose} activeOpacity={0.85} style={styles.photoPicker}>
+    <TouchableOpacity onPress={pick} activeOpacity={0.85} style={styles.photoPicker}>
       <Avatar name={name} photoUri={photoUri} size={size} />
       <View style={[styles.photoBadge, { left: size / 2 + 6 }]}>
         <Text style={styles.photoBadgeText}>{photoUri ? '↻' : '+'}</Text>

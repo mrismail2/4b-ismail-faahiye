@@ -12,10 +12,19 @@ diiradda saara.
 
 ## Doorarka — laba oo keliya
 
-| Doorka | Isdiiwaan gelin | Waxa uu qabto |
+| Doorka | Sida loo helo | Waxa uu qabto |
 |---|---|---|
-| **Maamulaha Guud** | Haa | Abuuraa fasalada, macalimiinta ayuu u qoondeeyaa, wuxuu arkaa warbixinta guud |
-| **Macalin** | Haa | Fasaladiisa **oo keliya**: ardayda, xaadiriska, lacagaha |
+| **Maamulaha Guud** | SQL (qofka koowaad) | Abuuraa fasalada, **macalimiinta ayuu casuumaa**, wuxuu arkaa warbixinta guud |
+| **Macalin** | **Koodh casuumaad** | Fasaladiisa **oo keliya**: ardayda, xaadiriska, lacagaha |
+
+### Macalinku iskiis akoon ma abuuro
+
+Maamuluhu casuumaad buu sameeyaa → koodh (`KAB-K7QM2X`) → macalinka ayuu u
+diraa → macalinku koodhka ku sameeyaa akoonkiisa.
+
+**Doorka iyo iskuulka casuumaadda ayay ka yimaadaan, ma aha waxa qofku qoro.**
+Emailka akoonku waa inuu la mid noqdaa kii la casumay, koodhna hal mar ayuu
+shaqeeyaa. Faahfaahin: [`supabase/README.md`](supabase/README.md).
 
 > **Ardayda iyo waalidiintu akoon MA LAHA.** Ardaygu waa *xog* uu macalinku
 > fasalka ku dhex qoro. Waalidka waxaa laga hayaa taleefan keliya.
@@ -75,7 +84,7 @@ p.role = 'super_admin' or c.teacher_id = p.id
 isticmaalaan — macalin isku dayaya inuu fasal kale galo, database-ka ayaa
 diidaya.
 
-Saddex ilaalin oo muhiim ah:
+Afar ilaalin oo muhiim ah:
 
 1. **Doorka iskaa uma beddeli kartid.** Trigger (`guard_profile_changes`)
    ayaa joojinaya in macalin isaga dhigo maamule.
@@ -85,6 +94,9 @@ Saddex ilaalin oo muhiim ah:
 3. **Sawiradu bucket gaar ah ayay ku jiraan.** Jidka sawirka ardaygu wuxuu
    ku bilaabmaa `class_id`, sidaas RLS-ku isla `can_touch_class()` ayuu ku
    hubiyaa. Marka la akhrinayo waa **signed URL** (1 saac).
+4. **Profile iskaa uma abuuri kartid.** Policy-gii `insert own profile` waa
+   la tirtiray — wuxuu u oggolaanayay qof kasta inuu `role` iyo `school_id`
+   iska doorto. Hadda hal jid oo keliya ayaa jira: `redeem_invite()`.
 
 ### Habka maqan (offline)
 
@@ -106,11 +118,14 @@ src/
 │   ├── supabase.js        ← client + tarjumaadda khaladaadka
 │   └── photos.js          ← kamarad/gallery (native + web)
 ├── context/AppContext.js  ← store + session + `ops`
+├── utils/dialog.js        ← confirm/notify (native + web)
 ├── theme/theme.js
-├── components/ui.js
+├── components/
+│   ├── ui.js              ← Card, Button, Field, Avatar, PhotoPicker…
+│   └── blocks.js          ← GreetingHeader, QuickAccess, MetricRow, HeroCard
 ├── navigation/RootNavigator.js
 └── screens/
-    ├── auth/AuthScreen.js
+    ├── auth/AuthScreen.js  ← soo gal | koodh casuumaad
     ├── admin/{AdminHome,Classes,Teachers}Screen.js
     ├── teacher/TeacherHomeScreen.js
     ├── ClassDetailScreen.js     ← Ardayda | Xaadiris | Lacag
@@ -118,7 +133,9 @@ src/
     └── ProfileScreen.js
 
 supabase/
-├── migrations/20260815000001_kaabe_core.sql
+├── migrations/
+│   ├── 20260815000001_kaabe_core.sql     ← jaantusyada + RLS + storage
+│   └── 20260815000002_kaabe_invites.sql  ← casuumaadda + xidhidda profile
 └── README.md
 ```
 
@@ -139,7 +156,7 @@ labada habba way u shaqeeyaan, hal jeer oo keliya ayaana la qoray.
 
 ```bash
 npm install
-npm run check     # 27 hubin
+npm run check     # 36 hubin
 npm start         # Expo — QR-ka ku sawir Expo Go
 npm run android
 npm run ios
@@ -149,16 +166,18 @@ npm run ios
 - Email: `maamule@kaabe.so`
 - Fure: `kaabe123`
 
-Macalimiintu naftooda ayay isku diiwaan geliyaan, kadibna maamuluhu fasal
-buu u qoondeeyaa.
+Kadib: **Macalimiin → Casuumaadaha → + Casuun macalin** → koodh ayaa soo
+baxaya. Ka bax, dooro **"Koodh casuumaad"**, koodhka geli — macalinka ayaad
+noqonaysaa.
 
 ---
 
 ## Hubinta
 
-### `npm run check` — 27 hubin
+### `npm run check` — 36 hubin
 Xisaabta ayaa Node lagu ordiyaa, iyadoo la xaqiijinayo doorarka, aqoonsiyada,
-kala-soocidda macalimiinta, xaadiriska, lacagta iyo profile-ka.
+kala-soocidda macalimiinta, xaadiriska, lacagta, profile-ka iyo **casuumaadda**
+(koodh gaar ah, email khaldan oo la diido, koodh la aqbalay/joojiyay/dhacay).
 
 > Hubintani waxay muujisay **cillad dhab ah** intii la dhisayay: aqoonsiyada
 > `Date.now()` ku salaysan way isku dhaci jireen marka laba diiwaan hal
@@ -168,18 +187,39 @@ kala-soocidda macalimiinta, xaadiriska, lacagta iyo profile-ka.
 > Supabase-na `gen_random_uuid()`.
 
 ### Screenshot — app-ka dhabta ah
-Web build ayaa la sameeyay, Playwright-na wuxuu app-ka dhabta ah ku maray:
-soo gal → abuur fasalo → gali 5 arday → calaamadee xaadiris → qaad lacag →
-fur profile-yada. **12 shaashadood, 0 khalad JS ah.**
+Web build ayaa la sameeyay, Playwright-na wuxuu **wareega oo dhan** ku maray:
+maamule soo gal → abuur fasalo → **casuun macalin** → koodhka shaashadda ka
+qaad → ka bax → **macalinku koodhka ku soo galo** → gali 5 arday →
+calaamadee xaadiris → qaad lacag → fur profile-yada.
+**17 shaashadood, 0 khalad JS ah, 0 digniin khalad ah.**
 
-Laba cillad muuqaal ah ayaa halkaas laga helay oo la hagaajiyay:
+Saddex cillad ayaa halkaas laga helay oo la hagaajiyay:
 - fasal aan arday lahayn wuxuu ku qorayay "Dhammaystiran" — hadda
   "Arday ma jiro"
 - `Stat` saddexaad wuxuu ka bixi jiray geeska profile-ka — hadda hal saf
+- **`Alert` oo badhamo leh web-ka kuma shaqaynayn** (react-native-web wuxuu
+  u beddelaa `window.alert`, `onPress`na waligiis ma dhaco) — sidaas "Ka bax",
+  "Tirtir" iyo "Ka saar" waxba ma qaban jirin web-ka. Hadda `utils/dialog.js`
+  ayaa native `Alert` u isticmaala, web-na `window.confirm`.
 
 ### Bundle
 `expo export` wuu dhammaystirmaa (web iyo android labadaba), khalad compile
 ah ma jiro.
+
+---
+
+## UI-ga
+
+Naqshaddu waa mid **kaar-ku-salaysan**: salaan + taariikh, kaararka
+"Guudmarka maanta", badhamada midabka leh ee "Si dhaqso ah", kaarka madaxa
+ee lacagta, iyo safafka tirakoobka (`components/blocks.js`).
+
+| Shaashad | Waxa uu leeyahay |
+|---|---|
+| Maamulaha | Guudmar · Fasalada · Macalimiin · Akoon |
+| Macalinka | Fasaladayda · Akoon |
+
+Tab-yada macalinku waa laba oo keliya — wax uusan u baahnayn lama tuso.
 
 ---
 

@@ -11,7 +11,7 @@
    ============================================================ */
 import React, { useMemo, useState, useEffect } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Alert,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
@@ -25,6 +25,7 @@ import {
   Card, Button, Field, Badge, Avatar, Stat, EmptyState, SegmentedControl,
   SectionTitle, PhotoPicker,
 } from '../components/ui';
+import { notify } from '../utils/dialog';
 import { colors, radius, spacing, attendanceColors } from '../theme/theme';
 
 const TABS = [
@@ -34,9 +35,10 @@ const TABS = [
 ];
 
 export default function ClassDetailScreen({ route, navigation }) {
-  const { classId } = route.params;
+  const { classId, tab: initialTab } = route.params;
   const { store, user } = useApp();
-  const [tab, setTab] = useState('students');
+  /* Quick Access wuxuu soo diri karaa tabka la doonayo */
+  const [tab, setTab] = useState(initialTab || 'students');
 
   const klass = useMemo(() => getClassById(store, classId), [store, classId]);
   const roster = useMemo(() => studentsByClass(store, classId), [store, classId]);
@@ -119,7 +121,7 @@ function StudentsTab({ store, klass, roster, navigation }) {
 
   const choosePhoto = async ({ camera }) => {
     const { uri, error } = await pickPhoto({ camera });
-    if (error) return Alert.alert('Khalad', error);
+    if (error) return notify('Khalad', error);
     if (uri) setForm((prev) => ({ ...prev, photoUri: uri }));
   };
 
@@ -128,7 +130,7 @@ function StudentsTab({ store, klass, roster, navigation }) {
       await ops.addStudent({ classId: klass.class_id, ...form });
       setOpen(false);
     } catch (e) {
-      Alert.alert('Khalad', e.message);
+      notify('Khalad', e.message);
     }
   };
 
@@ -290,9 +292,9 @@ function AttendanceTab({ store, klass, roster }) {
     try {
       await ops.saveRegister({ classId: klass.class_id, date, register: clean });
       setDirty(false);
-      Alert.alert('La kaydiyay', `Xaadiriska ${date} waa la kaydiyay.`);
+      notify('La kaydiyay', `Xaadiriska ${date} waa la kaydiyay.`);
     } catch (e) {
-      Alert.alert('Khalad', e.message);
+      notify('Khalad', e.message);
     }
   };
 
@@ -426,7 +428,7 @@ function FeesTab({ store, klass, roster }) {
       });
       setTarget(null);
     } catch (e) {
-      Alert.alert('Khalad', e.message);
+      notify('Khalad', e.message);
     }
   };
 

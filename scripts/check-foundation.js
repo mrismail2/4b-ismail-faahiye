@@ -6,6 +6,7 @@
      · aqoonsiga fasalka caalami ahaan gaar yahay
      · aqoonsiga ardayga uusan is celcelin
      · macalinku arko oo keliya fasaladiisa
+     · casuumaaddu si sax ah u shaqayso (koodh, email, dhicitaan)
      · xaadiriska si sax ah loo kaydiyo/loo beddelo
      · lacagta bisha si sax ah loo xisaabiyo
    ============================================================ */
@@ -79,11 +80,11 @@ check('doorka super_admin iyo teacher oo keliya la aqbalo', () => {
   const s = freshStore();
   let threw = false;
   try {
-    M.registerUser(s, { fullName: 'Arday', email: 'u070@k.so', password: 'kaabe123', role: 'student' });
+    M.createUser(s, { fullName: 'Arday', email: 'u070@k.so', password: 'kaabe123', role: 'student' });
   } catch (e) { threw = true; }
   assert(threw, 'doorka "student" waa in la diido');
 
-  const admin = M.registerUser(s, {
+  const admin = M.createUser(s, {
     fullName: 'Maamule', email: 'u061@k.so', password: 'kaabe123', role: M.ROLES.SUPER_ADMIN,
   });
   assertEqual(admin.user.role, 'super_admin');
@@ -91,17 +92,17 @@ check('doorka super_admin iyo teacher oo keliya la aqbalo', () => {
 
 check('email la iska diiwaan geliyay mar labaad waa la diidaa', () => {
   let s = freshStore();
-  s = M.registerUser(s, { fullName: 'A', email: 'u061@k.so', password: 'kaabe123', role: M.ROLES.TEACHER }).store;
+  s = M.createUser(s, { fullName: 'A', email: 'u061@k.so', password: 'kaabe123', role: M.ROLES.TEACHER }).store;
   let threw = false;
   try {
-    M.registerUser(s, { fullName: 'B', email: 'u061@k.so', password: 'kaabe456', role: M.ROLES.TEACHER });
+    M.createUser(s, { fullName: 'B', email: 'u061@k.so', password: 'kaabe456', role: M.ROLES.TEACHER });
   } catch (e) { threw = true; }
   assert(threw, 'emailka isku mid ah waa in la diido');
 });
 
 check('furaha khaldan waa la diidaa', () => {
   let s = freshStore();
-  s = M.registerUser(s, { fullName: 'A', email: 'u061@k.so', password: 'saxsax', role: M.ROLES.TEACHER }).store;
+  s = M.createUser(s, { fullName: 'A', email: 'u061@k.so', password: 'saxsax', role: M.ROLES.TEACHER }).store;
   let threw = false;
   try { M.verifyLogin(s, 'u061@k.so', 'khalad'); } catch (e) { threw = true; }
   assert(threw, 'furaha khaldan waa in la diido');
@@ -123,9 +124,9 @@ check('class_id wuxuu ku bilaabmaa school_id waana gaar', () => {
 
 check('hal fasal wuxuu leeyahay hal macalin oo keliya', () => {
   let s = freshStore();
-  const a = M.registerUser(s, { fullName: 'Macalin A', email: 'u061@k.so', password: 'kaabe123', role: M.ROLES.TEACHER });
+  const a = M.createUser(s, { fullName: 'Macalin A', email: 'u061@k.so', password: 'kaabe123', role: M.ROLES.TEACHER });
   s = a.store;
-  const b = M.registerUser(s, { fullName: 'Macalin B', email: 'u062@k.so', password: 'kaabe123', role: M.ROLES.TEACHER });
+  const b = M.createUser(s, { fullName: 'Macalin B', email: 'u062@k.so', password: 'kaabe123', role: M.ROLES.TEACHER });
   s = b.store;
 
   s = M.addClass(s, { name: 'Fasalka 1A', monthlyFee: 10, teacherId: a.user.user_id });
@@ -141,9 +142,9 @@ check('hal fasal wuxuu leeyahay hal macalin oo keliya', () => {
 
 check('macalinku wuxuu arkaa fasaladiisa, maamuluhuna dhammaan', () => {
   let s = freshStore();
-  const admin = M.registerUser(s, { fullName: 'Maamule', email: 'u060@k.so', password: 'kaabe123', role: M.ROLES.SUPER_ADMIN });
+  const admin = M.createUser(s, { fullName: 'Maamule', email: 'u060@k.so', password: 'kaabe123', role: M.ROLES.SUPER_ADMIN });
   s = admin.store;
-  const t = M.registerUser(s, { fullName: 'Macalin', email: 'u061@k.so', password: 'kaabe123', role: M.ROLES.TEACHER });
+  const t = M.createUser(s, { fullName: 'Macalin', email: 'u061@k.so', password: 'kaabe123', role: M.ROLES.TEACHER });
   s = t.store;
 
   s = M.addClass(s, { name: 'Fasalka 1A', monthlyFee: 10, teacherId: t.user.user_id });
@@ -361,7 +362,7 @@ console.log('\nProfile-ka iyo sawirada');
 
 check('emailku kiis ma eexdo (Case) marka la soo galo', () => {
   let s = freshStore();
-  s = M.registerUser(s, {
+  s = M.createUser(s, {
     fullName: 'Macalin', email: 'Macalin@Kaabe.SO', password: 'kaabe123', role: M.ROLES.TEACHER,
   }).store;
   assertEqual(M.verifyLogin(s, 'macalin@kaabe.so', 'kaabe123').full_name, 'Macalin');
@@ -372,7 +373,7 @@ check('furaha gaaban waa la diidaa', () => {
   const s = freshStore();
   let threw = false;
   try {
-    M.registerUser(s, {
+    M.createUser(s, {
       fullName: 'A', email: 'a@k.so', password: '123', role: M.ROLES.TEACHER,
     });
   } catch (e) { threw = true; }
@@ -381,7 +382,7 @@ check('furaha gaaban waa la diidaa', () => {
 
 check('profile-ka macalinku wuu beddelmaa, doorkiisuse ma beddelmo', () => {
   let s = freshStore();
-  const t = M.registerUser(s, {
+  const t = M.createUser(s, {
     fullName: 'Macalin', email: 't@k.so', password: 'kaabe123', role: M.ROLES.TEACHER,
   });
   s = t.store;
@@ -404,7 +405,7 @@ check('profile-ka macalinku wuu beddelmaa, doorkiisuse ma beddelmo', () => {
 
 check('magac banaan lama kaydiyo', () => {
   let s = freshStore();
-  const t = M.registerUser(s, {
+  const t = M.createUser(s, {
     fullName: 'Macalin', email: 't@k.so', password: 'kaabe123', role: M.ROLES.TEACHER,
   });
   s = t.store;
@@ -436,7 +437,133 @@ check('ardaygu sawir la\'aan wuu shaqeeyaa', () => {
   assertEqual(s.students[0].photo_uri, null);
 });
 
-/* ---------- 7. Caawiyayaasha taariikhda ---------- */
+/* ---------- 7. Casuumaadda macalimiinta ---------- */
+console.log('\nCasuumaadda macalimiinta');
+
+function storeWithAdmin() {
+  const s = freshStore();
+  s.invites = [];
+  const admin = M.createUser(s, {
+    fullName: 'Maamule', email: 'admin@k.so', password: 'kaabe123', role: M.ROLES.SUPER_ADMIN,
+  });
+  return { store: admin.store, adminId: admin.user.user_id };
+}
+
+check('casuumaadda koodhkeedu waa gaar yahay', () => {
+  let { store: s, adminId } = storeWithAdmin();
+  const codes = new Set();
+  for (let i = 0; i < 40; i += 1) {
+    const r = M.createInvite(s, { fullName: `Macalin ${i}`, email: `m${i}@k.so`, createdBy: adminId });
+    s = r.store;
+    codes.add(r.invite.code);
+  }
+  assertEqual(codes.size, 40, 'koodh kastaa waa inuu gaar noqdo');
+  assert([...codes].every((c) => /^KAB-[A-Z2-9]{6}$/.test(c)), 'qaabka koodhka');
+});
+
+check('koodhka waa la aqbali karaa, macalinkuna wuu soo gali karaa', () => {
+  let { store: s, adminId } = storeWithAdmin();
+  s = M.addClass(s, { name: 'Fasalka 1A', monthlyFee: 10 });
+  const classId = s.classes[0].class_id;
+
+  const r = M.createInvite(s, {
+    fullName: 'Xaliimo Cali', email: 'xaliimo@k.so', classIds: [classId], createdBy: adminId,
+  });
+  s = r.store;
+
+  const redeemed = M.redeemInvite(s, {
+    code: r.invite.code, email: 'xaliimo@k.so', password: 'kaabe123',
+  });
+  s = redeemed.store;
+
+  /* doorka casuumaadda ayaa go'aamiyay, ma aha qofka */
+  assertEqual(redeemed.user.role, 'teacher');
+  assertEqual(redeemed.user.full_name, 'Xaliimo Cali');
+  /* fasalkii lagu daray casuumaadda waa in loo qoondeeyay */
+  assertEqual(M.classesForUser(s, redeemed.user).length, 1, 'fasalka la qoondeeyay');
+  assertEqual(M.getClassById(s, classId).teacher_id, redeemed.user.user_id);
+  /* wuu soo geli karaa */
+  assertEqual(M.verifyLogin(s, 'xaliimo@k.so', 'kaabe123').user_id, redeemed.user.user_id);
+});
+
+check('koodh la isticmaalay mar labaad lama isticmaali karo', () => {
+  let { store: s, adminId } = storeWithAdmin();
+  const r = M.createInvite(s, { fullName: 'Xaliimo', email: 'x@k.so', createdBy: adminId });
+  s = M.redeemInvite(r.store, { code: r.invite.code, email: 'x@k.so', password: 'kaabe123' }).store;
+
+  assertEqual(M.inviteState(M.findInviteByCode(s, r.invite.code)), 'accepted');
+  let threw = false;
+  try { M.redeemInvite(s, { code: r.invite.code, email: 'x@k.so', password: 'kaabe456' }); } catch (e) { threw = true; }
+  assert(threw, 'koodh la aqbalay waa in la diido');
+});
+
+check('email kale koodhka kuma isticmaali karo', () => {
+  const { store: s, adminId } = storeWithAdmin();
+  const r = M.createInvite(s, { fullName: 'Xaliimo', email: 'xaliimo@k.so', createdBy: adminId });
+  let threw = false;
+  try {
+    M.redeemInvite(r.store, { code: r.invite.code, email: 'qofkale@k.so', password: 'kaabe123' });
+  } catch (e) { threw = true; }
+  assert(threw, 'email aan la mid ahayn waa in la diido');
+});
+
+check('koodh la joojiyay lama aqbali karo', () => {
+  const { store: s, adminId } = storeWithAdmin();
+  const r = M.createInvite(s, { fullName: 'Xaliimo', email: 'x@k.so', createdBy: adminId });
+  const revoked = M.revokeInvite(r.store, r.invite.invite_id);
+
+  assertEqual(M.inviteState(M.findInviteByCode(revoked, r.invite.code)), 'revoked');
+  let threw = false;
+  try { M.redeemInvite(revoked, { code: r.invite.code, email: 'x@k.so', password: 'kaabe123' }); } catch (e) { threw = true; }
+  assert(threw, 'koodh la joojiyay waa in la diido');
+});
+
+check('koodh dhacay lama aqbali karo', () => {
+  const { store: s, adminId } = storeWithAdmin();
+  const r = M.createInvite(s, { fullName: 'Xaliimo', email: 'x@k.so', createdBy: adminId });
+
+  /* taariikhda dhicitaanka gadaal u celi */
+  const expired = {
+    ...r.store,
+    invites: r.store.invites.map((i) => ({
+      ...i, expires_at: new Date(Date.now() - 1000).toISOString(),
+    })),
+  };
+  assertEqual(M.inviteState(M.findInviteByCode(expired, r.invite.code)), 'expired');
+  let threw = false;
+  try { M.redeemInvite(expired, { code: r.invite.code, email: 'x@k.so', password: 'kaabe123' }); } catch (e) { threw = true; }
+  assert(threw, 'koodh dhacay waa in la diido');
+});
+
+check('koodhku kiis iyo meel-banaan ma eexdo', () => {
+  const { store: s, adminId } = storeWithAdmin();
+  const r = M.createInvite(s, { fullName: 'Xaliimo', email: 'x@k.so', createdBy: adminId });
+  const messy = `  ${r.invite.code.toLowerCase()}  `;
+  const redeemed = M.redeemInvite(r.store, { code: messy, email: 'x@k.so', password: 'kaabe123' });
+  assertEqual(redeemed.user.role, 'teacher');
+});
+
+check('email hore u akoon leh lama casuumi karo', () => {
+  let { store: s, adminId } = storeWithAdmin();
+  let threw = false;
+  try { M.createInvite(s, { fullName: 'Maamule Kale', email: 'admin@k.so', createdBy: adminId }); } catch (e) { threw = true; }
+  assert(threw, 'email akoon leh waa in la diido');
+});
+
+check('hal email hal casuumaad furan ayuu haystaa', () => {
+  let { store: s, adminId } = storeWithAdmin();
+  s = M.createInvite(s, { fullName: 'Xaliimo', email: 'x@k.so', createdBy: adminId }).store;
+  let threw = false;
+  try { M.createInvite(s, { fullName: 'Xaliimo', email: 'x@k.so', createdBy: adminId }); } catch (e) { threw = true; }
+  assert(threw, 'casuumaad labaad oo furan waa in la diido');
+
+  /* laakiin marka la joojiyo, mid cusub waa la samayn karaa */
+  const revoked = M.revokeInvite(s, s.invites[0].invite_id);
+  const again = M.createInvite(revoked, { fullName: 'Xaliimo', email: 'x@k.so', createdBy: adminId });
+  assertEqual(M.inviteState(again.invite), 'pending');
+});
+
+/* ---------- 8. Caawiyayaasha taariikhda ---------- */
 console.log('\nTaariikhda');
 
 check('shiftMonth wuxuu si sax ah u gudbaa sanadka', () => {

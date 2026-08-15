@@ -61,12 +61,32 @@ export async function signIn({ email, password }) {
   return { userId: user.user_id };
 }
 
-export async function signUp({ fullName, email, phone, password, role }) {
+/* Macalinku ISKIIS akoon ma abuuro — koodhka casuumaadda ayuu ku galaa */
+export async function redeemInvite({ code, email, password }) {
   const store = await read();
-  const { store: next, user } = M.registerUser(store, { fullName, email, phone, password, role });
+  const { store: next, user } = M.redeemInvite(store, { code, email, password });
   await write(next);
   await AsyncStorage.setItem(SESSION_KEY, user.user_id);
   return { userId: user.user_id };
+}
+
+/* Faahfaahinta casuumaadda ka hor inta aan la aqbalin */
+export async function peekInvite(code) {
+  const store = await read();
+  const invite = M.findInviteByCode(store, code);
+  if (!invite) throw new Error('Koodhkan ma jiro.');
+  const state = M.inviteState(invite);
+  if (state !== 'pending') {
+    throw new Error(state === 'expired' ? 'Koodhkan wuu dhacay.' : 'Koodhkan lama isticmaali karo.');
+  }
+  return {
+    fullName: invite.full_name,
+    email: invite.email,
+    schoolName: store.school.name,
+    classes: (invite.class_ids || [])
+      .map((id) => M.getClassById(store, id)?.name)
+      .filter(Boolean),
+  };
 }
 
 export async function signOut() {
@@ -108,3 +128,8 @@ export const setPayment = (args) => apply((s) => M.setPayment(s, args));
 /* ---------- profile-ka ---------- */
 
 export const updateProfile = (userId, patch) => apply((s) => M.updateProfile(s, userId, patch));
+
+/* ---------- casuumaadda ---------- */
+
+export const createInvite = (args) => apply((s) => M.createInvite(s, args).store);
+export const revokeInvite = (inviteId) => apply((s) => M.revokeInvite(s, inviteId));

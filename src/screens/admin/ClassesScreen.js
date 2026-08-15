@@ -4,12 +4,13 @@
    ============================================================ */
 import React, { useMemo, useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Alert,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '../../context/AppContext';
 import { teachers as allTeachers, studentsByClass, formatMoney } from '../../services/model';
 import { Card, Button, Field, Badge, EmptyState, Avatar } from '../../components/ui';
+import { confirm, notify } from '../../utils/dialog';
 import { colors, radius, spacing } from '../../theme/theme';
 
 export default function ClassesScreen({ navigation }) {
@@ -57,31 +58,24 @@ export default function ClassesScreen({ navigation }) {
       }
       setOpen(false);
     } catch (e) {
-      Alert.alert('Khalad', e.message);
+      notify('Khalad', e.message);
     }
   };
 
-  const confirmDelete = (klass) => {
-    Alert.alert(
-      'Tirtir fasalka',
-      `${klass.name} iyo dhammaan ardaydiisa, xaadiriskiisa iyo lacagihiisa waa la tirtirayaa. Ma hubtaa?`,
-      [
-        { text: 'Maya', style: 'cancel' },
-        {
-          text: 'Haa, tirtir',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await ops.deleteClass(klass.class_id);
-              setOpen(false);
-            } catch (e) {
-              Alert.alert('Khalad', e.message);
-            }
-          },
-        },
-      ],
-    );
-  };
+  const confirmDelete = (klass) => confirm({
+    title: 'Tirtir fasalka',
+    message: `${klass.name} iyo dhammaan ardaydiisa, xaadiriskiisa iyo lacagihiisa waa la tirtirayaa. Ma hubtaa?`,
+    confirmLabel: 'Haa, tirtir',
+    destructive: true,
+    onConfirm: async () => {
+      try {
+        await ops.deleteClass(klass.class_id);
+        setOpen(false);
+      } catch (e) {
+        notify('Khalad', e.message);
+      }
+    },
+  });
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>

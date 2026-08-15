@@ -39,6 +39,7 @@ export function buildSeed() {
     students: [],
     attendance: [],
     fees: [],
+    invites: [],
   };
 }
 

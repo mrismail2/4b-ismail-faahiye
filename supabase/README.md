@@ -40,7 +40,17 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
 > **Furaha `service_role` WELIGAA app-ka ha gelin.** Wuxuu RLS oo dhan
 > dhaafaa. Waa inuu ku sii jiraa server-ka oo keliya.
 
-## 4. Abuur iskuulka koowaad iyo maamulaha
+## 4. Ku shub casuumaadda
+
+Isla habka: SQL Editor → ku dheji `migrations/20260815000002_kaabe_invites.sql` → **Run**.
+
+Tani waxay:
+- abuurtaa jaantuska `invites`
+- samaysaa `create_invite()`, `peek_invite()`, `redeem_invite()`
+- **tirtirtaa** policy-gii `insert own profile` — kaasoo u oggolaanayay qof
+  kasta inuu profile isu abuuro isagoo dooran kara `role` iyo `school_id`
+
+## 5. Abuur iskuulka koowaad iyo maamulaha
 
 Schema-gu wuxuu ku iman doonaa faaruq. Si aad u bilowdo, SQL Editor ku orod:
 
@@ -66,8 +76,29 @@ values (
 );
 ```
 
-Kadib macalimiintu app-ka ayay iskaga diiwaan gelin karaan — profile-kooda
-`teacher` ayaa toos loo abuuraa, iskuulkuna wuxuu noqonayaa kan la doortay.
+> Maamulaha koowaad **SQL ayaa lagu abuuraa**. Tani waa qasab: `redeem_invite`
+> keliya ayaa profile abuuri kara, casuumaadna waxaa sameeya maamule — sidaas
+> qofka koowaad meel kale kuma iman karo.
+
+## 6. Casuumaadda macalimiinta
+
+Macalinku **iskiis akoon ma abuuro**. Wareegu waa:
+
+1. Maamuluhu app-ka ku sameeyaa casuumaad → `create_invite()` koodh soo saara
+   (tusaale `KAB-K7QM2X`), 14 maalmood shaqaynaya
+2. Maamuluhu koodhka macalinka u diraa (WhatsApp, SMS, iwm)
+3. Macalinku app-ka ka doortaa **"Koodh casuumaad"**, koodhka geliyaa →
+   `peek_invite()` wuxuu tusaa magaca iyo iskuulka
+4. Macalinku fure cusub sameeyaa → akoon Auth ah + `redeem_invite()`
+
+**Doorka iyo iskuulka casuumaadda ayay ka yimaadaan** — macalinku ma dooran
+karo. Sidoo kale:
+
+- emailka akoonku waa inuu la mid noqdaa kii la casumay (`redeem_invite`
+  wuxuu ka hubiyaa `auth.users`), sidaas koodh la helay qof kale uma shaqeeyo
+- koodh la aqbalay, la joojiyay ama dhacay lama isticmaali karo
+- `for update` ayaa xiraya safka si laba qof aysan isku koodh u aqbalin
+- hal email hal casuumaad furan ayuu haysan karaa (unique index)
 
 ---
 

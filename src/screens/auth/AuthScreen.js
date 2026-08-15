@@ -1,60 +1,81 @@
 /* ============================================================
-   KAABE — Soo gal / Isdiiwaan geli
+   KAABE — Soo gal / Koodh casuumaad
 
-   Laba dood oo keliya ayaa akoon leh:
-     · Maamulaha Guud (super admin)
-     · Macalin (teacher)
-   Ardaydu MA aha isticmaalayaal — waa diiwaan uu macalinku maamulo.
+   Laba jid oo keliya ayaa jira:
+     · Soo gal — qofka akoon hore u leh
+     · Koodh casuumaad — macalinka maamuluhu casumay
+
+   Qofna ISKIIS doorkiisa ma dooran karo: casuumaadda ayaa go'aamisa
+   in uu macalin yahay iyo iskuulka uu ka tirsan yahay. Maamulaha
+   koowaad SQL ayaa lagu abuuraa (eeg supabase/README.md).
    ============================================================ */
 import React, { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, Alert,
+  KeyboardAvoidingView, Platform, 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../../context/AppContext';
-import { ROLES, ROLE_LABEL } from '../../services/model';
 import { DEMO_CREDENTIALS } from '../../data/seed';
 import { Button, Field, Card, Badge } from '../../components/ui';
+import { notify } from '../../utils/dialog';
 import { colors, radius, spacing } from '../../theme/theme';
 
-const ROLE_OPTIONS = [
-  {
-    key: ROLES.SUPER_ADMIN,
-    label: ROLE_LABEL.super_admin,
-    desc: 'Abuuraa fasalada, macalimiinta ayuu u qoondeeyaa, wuxuu arkaa warbixinta guud.',
-  },
-  {
-    key: ROLES.TEACHER,
-    label: ROLE_LABEL.teacher,
-    desc: 'Wuxuu maamulaa fasalkiisa: ardayda, xaadiriska iyo lacagaha bilaha.',
-  },
-];
-
 export default function AuthScreen() {
-  const { signIn, signUp, busy, isLive } = useApp();
+  const { signIn, redeemInvite, peekInvite, busy, isLive } = useApp();
   const [mode, setMode] = useState('login');
-  const [form, setForm] = useState({ fullName: '', email: '', phone: '', password: '' });
-  const [role, setRole] = useState(ROLES.TEACHER);
+  const [form, setForm] = useState({ email: '', password: '', code: '', confirm: '' });
+  const [invite, setInvite] = useState(null);
+  const [checking, setChecking] = useState(false);
 
   const isLogin = mode === 'login';
   const set = (key) => (value) => setForm((prev) => ({ ...prev, [key]: value }));
 
-  const submit = async () => {
+  const login = async () => {
     try {
-      if (isLogin) {
-        await signIn(form.email, form.password);
-      } else {
-        await signUp({ ...form, role });
-      }
+      await signIn(form.email, form.password);
     } catch (e) {
-      Alert.alert('Khalad', e.message || 'Wax baa qaldamay.');
+      notify('Khalad', e.message || 'Wax baa qaldamay.');
+    }
+  };
+
+  /* Koodhka hubi ka hor inta aan furaha la weydiin */
+  const checkCode = async () => {
+    setChecking(true);
+    try {
+      const found = await peekInvite(form.code);
+      setInvite(found);
+    } catch (e) {
+      notify('Koodhka', e.message || 'Koodhkan ma shaqaynayo.');
+    } finally {
+      setChecking(false);
+    }
+  };
+
+  const join = async () => {
+    if (form.password.length < 6) {
+      return notify('Furaha', 'Furaha waa inuu ugu yaraan 6 xaraf noqdo.');
+    }
+    if (form.password !== form.confirm) {
+      return notify('Furaha', 'Labada fure isku mid ma aha.');
+    }
+    try {
+      await redeemInvite({ code: form.code, email: form.email, password: form.password });
+    } catch (e) {
+      notify('Khalad', e.message || 'Wax baa qaldamay.');
     }
   };
 
   const useDemo = () => {
     setMode('login');
     setForm({ ...form, email: DEMO_CREDENTIALS.email, password: DEMO_CREDENTIALS.password });
+  };
+
+  const switchMode = (next) => {
+    setMode(next);
+    setInvite(null);
+    setForm({ email: '', password: '', code: '', confirm: '' });
   };
 
   return (
@@ -80,87 +101,131 @@ export default function AuthScreen() {
             <View style={styles.tabs}>
               <TouchableOpacity
                 style={[styles.tab, isLogin && styles.tabActive]}
-                onPress={() => setMode('login')}
+                onPress={() => switchMode('login')}
               >
                 <Text style={[styles.tabText, isLogin && styles.tabTextActive]}>Soo gal</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.tab, !isLogin && styles.tabActive]}
-                onPress={() => setMode('register')}
+                onPress={() => switchMode('invite')}
               >
-                <Text style={[styles.tabText, !isLogin && styles.tabTextActive]}>Isdiiwaan geli</Text>
+                <Text style={[styles.tabText, !isLogin && styles.tabTextActive]}>Koodh casuumaad</Text>
               </TouchableOpacity>
             </View>
 
-            {!isLogin && (
+            {isLogin ? (
               <>
                 <Field
-                  label="Magaca oo buuxa"
-                  placeholder="Tusaale: Cabdi Xasan"
-                  value={form.fullName}
-                  onChangeText={set('fullName')}
+                  label="Email"
+                  placeholder="magac@tusaale.so"
+                  value={form.email}
+                  onChangeText={set('email')}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
                 />
                 <Field
-                  label="Taleefanka"
-                  placeholder="061xxxxxxx"
-                  value={form.phone}
-                  onChangeText={set('phone')}
-                  keyboardType="phone-pad"
+                  label="Furaha sirta ah"
+                  placeholder="••••••"
+                  value={form.password}
+                  onChangeText={set('password')}
+                  secureTextEntry
+                  autoCapitalize="none"
+                />
+                <Button
+                  title={busy ? 'Sugaya…' : 'Soo gal'}
+                  onPress={login}
+                  disabled={busy}
+                />
+              </>
+            ) : !invite ? (
+              <>
+                <View style={styles.hint}>
+                  <Ionicons name="key-outline" size={16} color={colors.primary} />
+                  <Text style={styles.hintText}>
+                    Maamuluhu koodh buu ku soo diray. Halkan geli si aad akoonkaaga u samayso.
+                  </Text>
+                </View>
+
+                <Field
+                  label="Koodhka casuumaadda"
+                  placeholder="KAB-XXXXXX"
+                  value={form.code}
+                  onChangeText={(v) => set('code')(v.toUpperCase())}
+                  autoCapitalize="characters"
+                  autoCorrect={false}
+                  style={styles.codeInput}
+                />
+                <Button
+                  title={checking ? 'La hubinayo…' : 'Hubi koodhka'}
+                  onPress={checkCode}
+                  disabled={checking || !form.code.trim()}
+                />
+              </>
+            ) : (
+              <>
+                <View style={styles.inviteBox}>
+                  <View style={styles.inviteIcon}>
+                    <Ionicons name="checkmark" size={20} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.inviteName}>{invite.fullName}</Text>
+                  <Text style={styles.inviteSchool}>{invite.schoolName}</Text>
+                  {invite.classes?.length > 0 && (
+                    <View style={styles.inviteChips}>
+                      {invite.classes.map((c) => (
+                        <View key={c} style={styles.chip}>
+                          <Text style={styles.chipText}>{c}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                  <Text style={styles.inviteRole}>Doorka: Macalin</Text>
+                </View>
+
+                <Field
+                  label="Emailkaaga"
+                  hint="Waa inuu la mid noqdaa kii maamuluhu casumay."
+                  placeholder="magac@tusaale.so"
+                  value={form.email}
+                  onChangeText={set('email')}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+                <Field
+                  label="Fure cusub"
+                  placeholder="••••••"
+                  hint="Ugu yaraan 6 xaraf."
+                  value={form.password}
+                  onChangeText={set('password')}
+                  secureTextEntry
+                  autoCapitalize="none"
+                />
+                <Field
+                  label="Ku celi furaha"
+                  placeholder="••••••"
+                  value={form.confirm}
+                  onChangeText={set('confirm')}
+                  secureTextEntry
+                  autoCapitalize="none"
                 />
 
-                <Text style={styles.roleHeading}>Doorka</Text>
-                {ROLE_OPTIONS.map((opt) => {
-                  const active = role === opt.key;
-                  return (
-                    <TouchableOpacity
-                      key={opt.key}
-                      style={[styles.roleCard, active && styles.roleCardActive]}
-                      onPress={() => setRole(opt.key)}
-                      activeOpacity={0.85}
-                    >
-                      <View style={styles.roleRow}>
-                        <View style={[styles.radio, active && styles.radioActive]}>
-                          {active && <View style={styles.radioDot} />}
-                        </View>
-                        <Text style={[styles.roleLabel, active && styles.roleLabelActive]}>
-                          {opt.label}
-                        </Text>
-                      </View>
-                      <Text style={styles.roleDesc}>{opt.desc}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-                <View style={{ height: spacing.md }} />
+                <Button
+                  title={busy ? 'Sugaya…' : 'Ku biir KAABE'}
+                  onPress={join}
+                  disabled={busy}
+                />
+                <Button
+                  title="Koodh kale"
+                  variant="ghost"
+                  onPress={() => setInvite(null)}
+                  style={{ marginTop: spacing.sm }}
+                />
               </>
             )}
-
-            <Field
-              label="Email"
-              placeholder="magac@tusaale.so"
-              value={form.email}
-              onChangeText={set('email')}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <Field
-              label="Furaha sirta ah"
-              placeholder="••••••"
-              hint={isLogin ? undefined : 'Ugu yaraan 6 xaraf.'}
-              value={form.password}
-              onChangeText={set('password')}
-              secureTextEntry
-              autoCapitalize="none"
-            />
-
-            <Button
-              title={busy ? 'Sugaya…' : isLogin ? 'Soo gal' : 'Akoon samee'}
-              onPress={submit}
-              disabled={busy}
-            />
           </Card>
 
-          {!isLive && (
+          {!isLive && isLogin && (
             <TouchableOpacity onPress={useDemo} style={styles.demo}>
               <Text style={styles.demoText}>
                 Akoonka tijaabada: {DEMO_CREDENTIALS.email} / {DEMO_CREDENTIALS.password}
@@ -169,7 +234,8 @@ export default function AuthScreen() {
           )}
 
           <Text style={styles.note}>
-            Ardayda iyo waalidiintu akoon ma laha — macalinka ayaa fasalka ku dhex qora.
+            Macalinku iskiis akoon ma abuuro — maamulaha guud ayaa casuumaya.
+            Ardayda iyo waalidiintuna akoon ma laha.
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -201,28 +267,42 @@ const styles = StyleSheet.create({
   },
   tab: { flex: 1, paddingVertical: 10, borderRadius: radius.sm - 3, alignItems: 'center' },
   tabActive: { backgroundColor: colors.surface },
-  tabText: { fontSize: 14, fontWeight: '600', color: colors.primary },
+  tabText: { fontSize: 13.5, fontWeight: '600', color: colors.primary },
   tabTextActive: { color: colors.ink },
-  roleHeading: { fontSize: 13, fontWeight: '600', color: colors.ink2, marginBottom: 8 },
-  roleCard: {
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius.sm,
+  hint: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    backgroundColor: colors.primarySoft,
     padding: spacing.md,
+    borderRadius: radius.sm,
+    marginBottom: spacing.lg,
+  },
+  hintText: { flex: 1, fontSize: 12.5, color: colors.ink2, lineHeight: 18 },
+  codeInput: { fontSize: 19, fontWeight: '800', letterSpacing: 3, textAlign: 'center' },
+  inviteBox: {
+    alignItems: 'center',
+    backgroundColor: colors.greenSoft,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  inviteIcon: {
+    width: 42, height: 42, borderRadius: 21,
+    backgroundColor: colors.green,
+    alignItems: 'center', justifyContent: 'center',
     marginBottom: spacing.sm,
   },
-  roleCardActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
-  roleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  radio: {
-    width: 18, height: 18, borderRadius: 9,
-    borderWidth: 2, borderColor: colors.muted,
-    alignItems: 'center', justifyContent: 'center',
+  inviteName: { fontSize: 17, fontWeight: '800', color: colors.ink },
+  inviteSchool: { fontSize: 13, color: colors.ink2, marginTop: 3 },
+  inviteChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: spacing.sm },
+  chip: {
+    backgroundColor: colors.surface,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
   },
-  radioActive: { borderColor: colors.primary },
-  radioDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary },
-  roleLabel: { fontSize: 14, fontWeight: '700', color: colors.ink },
-  roleLabelActive: { color: colors.primary },
-  roleDesc: { fontSize: 12, color: colors.muted, marginTop: 6, lineHeight: 17 },
+  chipText: { fontSize: 12, fontWeight: '600', color: colors.green },
+  inviteRole: { fontSize: 12, color: colors.green, fontWeight: '700', marginTop: spacing.sm },
   demo: { marginTop: spacing.lg, alignItems: 'center' },
   demoText: { fontSize: 12, color: colors.primary, textAlign: 'center' },
   note: {

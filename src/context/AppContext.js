@@ -82,10 +82,11 @@ export function AppProvider({ children }) {
     }
   }, []);
 
-  const signUp = useCallback(async (payload) => {
+  /* Macalinku koodhka casuumaadda ayuu ku sameeyaa akoonkiisa */
+  const redeemInvite = useCallback(async (payload) => {
     setBusy(true);
     try {
-      const { userId: id } = await provider.signUp(payload);
+      const { userId: id } = await provider.redeemInvite(payload);
       const snapshot = await provider.loadSnapshot(id);
       setStore(snapshot);
       setUserId(id);
@@ -93,6 +94,8 @@ export function AppProvider({ children }) {
       setBusy(false);
     }
   }, []);
+
+  const peekInvite = useCallback((code) => provider.peekInvite(code), []);
 
   const signOut = useCallback(async () => {
     await provider.signOut();
@@ -165,13 +168,16 @@ export function AppProvider({ children }) {
       }),
 
       updateProfile: (patch) => run(() => provider.updateProfile(userId, patch)),
+
+      createInvite: (args) => run(() => provider.createInvite({ ...args, createdBy: userId })),
+      revokeInvite: (inviteId) => run(() => provider.revokeInvite(inviteId)),
     };
   }, [refresh, userId]);
 
   const value = useMemo(() => ({
     store, user, ready, busy, isLive,
-    signIn, signUp, signOut, resetAll, refresh, ops,
-  }), [store, user, ready, busy, signIn, signUp, signOut, resetAll, refresh, ops]);
+    signIn, redeemInvite, peekInvite, signOut, resetAll, refresh, ops,
+  }), [store, user, ready, busy, signIn, redeemInvite, peekInvite, signOut, resetAll, refresh, ops]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
