@@ -1,0 +1,38 @@
+{
+  "name": "phase-manager-app",
+  "version": "1.0.0",
+  "description": "A modular React Native app for managing multiple phases and sections",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start --clear",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "eject": "expo eject",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-native": "^0.76.5",
+    "expo": "~52.0.0",
+    "expo-status-bar": "~1.12.1",
+    "expo-font": "~13.0.0",
+    "@react-navigation/native": "^6.1.12",
+    "@react-navigation/bottom-tabs": "^6.5.20",
+    "@react-navigation/stack": "^6.4.5",
+    "react-native-screens": "^3.29.0",
+    "react-native-safe-area-context": "^4.8.2",
+    "react-native-gesture-handler": "^2.14.5",
+    "@react-native-async-storage/async-storage": "^1.23.1",
+    "react-native-uuid": "^2.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "@types/react": "^18.2.0",
+    "@types/react-native": "^0.76.0"
+  },
+  "private": true
+}
