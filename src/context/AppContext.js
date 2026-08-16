@@ -13,7 +13,7 @@ import React, {
   createContext, useContext, useEffect, useMemo, useState, useCallback, useRef,
 } from 'react';
 import { provider, isLive } from '../services/provider';
-import { getClassById, getStudentById } from '../services/model';
+import { getClassById, getStudentById, ownerForNewClass } from '../services/model';
 
 const AppContext = createContext(null);
 
@@ -118,6 +118,7 @@ export function AppProvider({ children }) {
   const ops = useMemo(() => {
     const current = () => storeRef.current;
     const schoolId = () => current()?.school?.school_id;
+    const currentUser = () => (current()?.users || []).find((u) => u.user_id === userId) || null;
 
     const run = async (fn) => {
       setBusy(true);
@@ -130,7 +131,14 @@ export function AppProvider({ children }) {
     };
 
     return {
-      addClass: (args) => run(() => provider.addClass({ ...args, schoolId: schoolId() })),
+      /* Macalinku fasal wuu samayn karaa — kiisa ayuu noqonayaa.
+         `ownerForNewClass` ayaa go'aaminaya, si macalin uusan cid kale
+         fasal ugu samayn. */
+      addClass: (args) => run(() => provider.addClass({
+        ...args,
+        schoolId: schoolId(),
+        teacherId: ownerForNewClass(currentUser(), args.teacherId),
+      })),
       updateClass: (classId, patch) => run(() => provider.updateClass(classId, patch)),
       deleteClass: (classId) => run(() => provider.deleteClass(classId)),
       assignTeacher: (classId, teacherId) => run(() => provider.assignTeacher(classId, teacherId)),
@@ -145,6 +153,7 @@ export function AppProvider({ children }) {
       }),
       updateStudent: (id, patch) => run(() => provider.updateStudent(id, patch)),
       removeStudent: (id) => run(() => provider.removeStudent(id)),
+      deleteStudent: (id) => run(() => provider.deleteStudent(id)),
       setStudentPhoto: (id, uri) => run(() => {
         const student = getStudentById(current(), id);
         return provider.setStudentPhoto(id, uri, student?.class_id);
@@ -169,13 +178,24 @@ export function AppProvider({ children }) {
 
       updateProfile: (patch) => run(() => provider.updateProfile(userId, patch)),
 
-      createInvite: (args) => run(() => provider.createInvite({ ...args, createdBy: userId })),
+      /* Natiijada emailka waa la soo celinayaa si UI-gu u sheego in
+         email la diray iyo in koodhka gacanta loo diro. */
+      createInvite: async (args) => {
+        setBusy(true);
+        try {
+          const result = await provider.createInvite({ ...args, createdBy: userId });
+          const snapshot = await refresh();
+          return { ...(result || {}), store: snapshot };
+        } finally {
+          setBusy(false);
+        }
+      },
       revokeInvite: (inviteId) => run(() => provider.revokeInvite(inviteId)),
     };
   }, [refresh, userId]);
 
   const value = useMemo(() => ({
-    store, user, ready, busy, isLive,
+    store, user, ready, busy, isLive, emailDelivery: provider.emailDelivery,
     signIn, redeemInvite, peekInvite, signOut, resetAll, refresh, ops,
   }), [store, user, ready, busy, signIn, redeemInvite, peekInvite, signOut, resetAll, refresh, ops]);
 

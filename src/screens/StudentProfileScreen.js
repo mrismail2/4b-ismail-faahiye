@@ -106,6 +106,21 @@ export default function StudentProfileScreen({ route, navigation }) {
     },
   });
 
+  const confirmDelete = () => confirm({
+    title: 'Tirtir ardayga',
+    message: `${student.full_name}, xaadiriskiisa iyo lacagihiisa oo dhan waa la tirtirayaa. Dib looma celin karo. Ma hubtaa?`,
+    confirmLabel: 'Haa, tirtir',
+    destructive: true,
+    onConfirm: async () => {
+      try {
+        await ops.deleteStudent(studentId);
+        navigation.goBack();
+      } catch (e) {
+        notify('Khalad', e.message);
+      }
+    },
+  });
+
   const feeTone = {
     paid: { bg: colors.greenSoft, fg: colors.green },
     partial: { bg: colors.amberSoft, fg: colors.amber },
@@ -269,12 +284,34 @@ export default function StudentProfileScreen({ route, navigation }) {
               <Row label="Lacagta bisha" value={formatMoney(student.monthly_fee, currency)} last />
             </Card>
 
-            <Button
-              title="Ka saar fasalka"
-              variant="danger"
-              onPress={confirmRemove}
-              style={{ marginTop: spacing.lg }}
-            />
+            <SectionTitle>Ka saarid</SectionTitle>
+            <Card>
+              <Text style={styles.dangerText}>
+                <Text style={styles.dangerStrong}>Ka saar</Text> — ardaygu liiska
+                wuu ka baxayaa, lacagtiisana lagama xisaabinayo, laakiin
+                taariikhdiisu way sii jiraysaa.
+              </Text>
+              <Button
+                title="Ka saar fasalka"
+                variant="ghost"
+                onPress={confirmRemove}
+                style={{ marginTop: spacing.md }}
+              />
+
+              <View style={styles.divider} />
+
+              <Text style={styles.dangerText}>
+                <Text style={styles.dangerStrong}>Tirtir</Text> — ardayga,
+                xaadiriskiisa iyo lacagihiisa oo dhan waa la tirtirayaa.
+                Dib looma celin karo.
+              </Text>
+              <Button
+                title="Tirtir ardayga gebi ahaanba"
+                variant="danger"
+                onPress={confirmDelete}
+                style={{ marginTop: spacing.md }}
+              />
+            </Card>
           </>
         )}
       </ScrollView>
@@ -353,6 +390,13 @@ const styles = StyleSheet.create({
   rowLabel: { fontSize: 13, color: colors.muted },
   rowValue: { fontSize: 13, fontWeight: '600', color: colors.ink, flexShrink: 1 },
   link: { fontSize: 13, fontWeight: '700', color: colors.primary },
+  dangerText: { fontSize: 12.5, color: colors.ink2, lineHeight: 18 },
+  dangerStrong: { fontWeight: '800', color: colors.ink },
+  divider: {
+    height: 1,
+    backgroundColor: colors.line,
+    marginVertical: spacing.lg,
+  },
   fieldLabel: { fontSize: 13, fontWeight: '600', color: colors.ink2, marginBottom: 6 },
   genderRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
   genderBtn: {

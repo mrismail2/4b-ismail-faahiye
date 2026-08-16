@@ -6,7 +6,7 @@
 
    Macalinku wuxuu arkaa fasalada loo qoondeeyay OO KELIYA.
    ============================================================ */
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,7 +15,8 @@ import {
   classesForUser, studentsByClass, classFeeSummary, getRegister,
   attendanceSummary, currentMonth, monthLabel, todayISO, formatMoney,
 } from '../../services/model';
-import { Card, SectionTitle, EmptyState, Badge } from '../../components/ui';
+import { Card, SectionTitle, EmptyState, Badge, Button } from '../../components/ui';
+import ClassFormModal from '../ClassFormModal';
 import {
   GreetingHeader, InfoCard, QuickAccess, MetricRow, HeroCard,
 } from '../../components/blocks';
@@ -23,6 +24,7 @@ import { colors, spacing } from '../../theme/theme';
 
 export default function TeacherHomeScreen({ navigation }) {
   const { store, user } = useApp();
+  const [formOpen, setFormOpen] = useState(false);
   const month = currentMonth();
   const today = todayISO();
   const currency = store.school.currency;
@@ -82,15 +84,32 @@ export default function TeacherHomeScreen({ navigation }) {
 
         {rows.length === 0 ? (
           <EmptyState
-            title="Weli fasal lagumaa qoondayn"
-            text="Maamulaha guud ayaa fasal kuu qoondaynaya. La xiriir isaga."
+            title="Weli fasal ma lihid"
+            text="Samee fasalkaaga koowaad — adiga ayaa leh, macalimiinta kalena ma arkayaan. Maamuluhuna mid buu ku siin karaa."
+            action={<Button title="+ Samee fasal" onPress={() => setFormOpen(true)} />}
           />
         ) : (
           <>
             {/* ---- maanta ---- */}
             <SectionTitle>Maanta</SectionTitle>
             <View style={{ gap: spacing.sm }}>
-              {totals.pending > 0 ? (
+              {/* Arday la'aan "dhammaystiran" lama dhihi karo — waxba
+                  lama sugayo. */}
+              {totals.students === 0 ? (
+                <InfoCard
+                  icon="person-add-outline"
+                  tone="blue"
+                  title="Weli arday ma jiro"
+                  subtitle={nextClass
+                    ? `Ku dar ardayda ${nextClass.klass.name}`
+                    : 'Ku dar ardayga koowaad'}
+                  onPress={nextClass
+                    ? () => navigation.navigate('ClassDetail', {
+                      classId: nextClass.klass.class_id, tab: 'students',
+                    })
+                    : undefined}
+                />
+              ) : totals.pending > 0 ? (
                 <InfoCard
                   icon="alert-circle-outline"
                   tone="amber"
@@ -150,11 +169,11 @@ export default function TeacherHomeScreen({ navigation }) {
                   }),
                 },
                 {
-                  key: 'profile',
-                  icon: 'person-circle-outline',
-                  label: 'Profile-kayga',
+                  key: 'newclass',
+                  icon: 'add-circle-outline',
+                  label: 'Fasal cusub',
                   tone: 'slate',
-                  onPress: () => navigation.navigate('Akoon'),
+                  onPress: () => setFormOpen(true),
                 },
               ]}
             />
@@ -197,7 +216,15 @@ export default function TeacherHomeScreen({ navigation }) {
             </Card>
 
             {/* ---- fasaladayda ---- */}
-            <SectionTitle>Fasaladayda</SectionTitle>
+            <SectionTitle
+              right={(
+                <TouchableOpacity onPress={() => setFormOpen(true)}>
+                  <Text style={styles.link}>+ Fasal cusub</Text>
+                </TouchableOpacity>
+              )}
+            >
+              Fasaladayda
+            </SectionTitle>
             <View style={{ gap: spacing.sm }}>
               {rows.map((row) => (
                 <TouchableOpacity
@@ -242,6 +269,8 @@ export default function TeacherHomeScreen({ navigation }) {
           </>
         )}
       </ScrollView>
+
+      <ClassFormModal visible={formOpen} onClose={() => setFormOpen(false)} />
     </SafeAreaView>
   );
 }
@@ -262,4 +291,5 @@ const styles = StyleSheet.create({
   },
   footItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   footText: { fontSize: 11.5, color: colors.muted },
+  link: { fontSize: 13, fontWeight: '700', color: colors.primary },
 });

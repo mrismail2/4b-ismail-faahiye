@@ -17,14 +17,35 @@ diiradda saara.
 | **Maamulaha Guud** | SQL (qofka koowaad) | Abuuraa fasalada, **macalimiinta ayuu casuumaa**, wuxuu arkaa warbixinta guud |
 | **Macalin** | **Koodh casuumaad** | Fasaladiisa **oo keliya**: ardayda, xaadiriska, lacagaha |
 
-### Macalinku iskiis akoon ma abuuro
+### Macalinku iskiis akoon ma abuuro — email ayaa loo dirayaa
 
-Maamuluhu casuumaad buu sameeyaa → koodh (`KAB-K7QM2X`) → macalinka ayuu u
-diraa → macalinku koodhka ku sameeyaa akoonkiisa.
+**Maamulaha guud OO KELIYA** ayaa casuumi kara:
+
+1. Maamuluhu magaca + emailka macalinka geliyaa
+2. Koodh (`KAB-K7QM2X`) ayaa la abuuraa, **emailkana toos ayaa loo dirayaa**
+   (Edge Function + Resend)
+3. Macalinku app-ka ka doortaa "Koodh casuumaad", koodhka geliyaa
+4. Macalinku **fure sirta ah oo isaga u gaar ah** ayuu samaystaa
 
 **Doorka iyo iskuulka casuumaadda ayay ka yimaadaan, ma aha waxa qofku qoro.**
 Emailka akoonku waa inuu la mid noqdaa kii la casumay, koodhna hal mar ayuu
-shaqeeyaa. Faahfaahin: [`supabase/README.md`](supabase/README.md).
+shaqeeyaa. Haddii adeegga emailku aanu diyaar ahayn, koodhka waa la tusayaa
+maamulaha, badhanka **"Email u dir"**na app-ka emailka ayuu furayaa.
+
+Faahfaahin: [`supabase/README.md`](supabase/README.md).
+
+### Macalin kastaa gooni ayuu u shaqeeyaa
+
+**Macalinku fasalkiisa isagaa samaysta** — kiisa ayuu noqonayaa, macalimiinta
+kalena ma arkayaan. Maamuluhuna fasal buu u qoondayn karaa.
+
+| Tallaabo | Macalin | Maamule |
+|---|---|---|
+| Casuumaad samee | **Maya** | Haa |
+| Fasal samee | Haa — **kiisa** | Haa — cidduu doorto |
+| Fasalka qof kale beddel | **Maya** | Haa |
+| Arday ku dar / beddel / tirtir | Fasaladiisa | Dhammaan |
+| Lacagta beddel | Fasaladiisa | Dhammaan |
 
 > **Ardayda iyo waalidiintu akoon MA LAHA.** Ardaygu waa *xog* uu macalinku
 > fasalka ku dhex qoro. Waalidka waxaa laga hayaa taleefan keliya.
@@ -33,10 +54,17 @@ shaqeeyaa. Faahfaahin: [`supabase/README.md`](supabase/README.md).
 
 ## Shaqooyinka
 
-### 1. Ardayda — magac iyo sawir
-Arday walba: **sawir**, magac, jinsi, taleefanka waalidka, lacag bileed.
-Wuxuu leeyahay bog isaga u gaar ah oo muujinaya tirakoobka xaadiriska iyo
-taariikhda lacagta.
+### 1. Ardayda — magac, sawir, tirtirid
+Arday walba: **sawir** (kamarad ama gallery), magac, jinsi, taleefanka
+waalidka, lacag bileed. Wuxuu leeyahay bog isaga u gaar ah oo muujinaya
+tirakoobka xaadiriska iyo taariikhda lacagta.
+
+Macalinku wuxuu samayn karaa: **ku dar · wax ka beddel · sawir · ka saar ·
+tirtir**. Laba jid oo kala duwan:
+
+- **Ka saar** — liiska wuu ka baxayaa, lacagta lagama xisaabinayo, laakiin
+  taariikhdiisu way sii jiraysaa (`status: left`)
+- **Tirtir** — isaga, xaadiriskiisa iyo lacagihiisa oo dhan waa la tirtirayaa
 
 Laba aqoonsi ayuu leeyahay:
 - `student_internal_id` — furaha gudaha ah ee xiriiriya xaadiriska iyo lacagta
@@ -53,6 +81,10 @@ mana **tarmo**. Taariikh mustaqbal ah lama gali karo.
 ### 3. Lacagaha bilaha
 Bil kasta: **waajibka**, **wixii la bixiyay**, **hadhaaga**. Xaaladdu waa
 `Ma bixin` · `Qayb bixiyay` · `Bixiyay`, waana la xisaabiyaa si toos ah.
+
+Lacagta **mar walba waa la beddeli karaa** — arday kastaa qiimahiisa,
+fasalkuna qiimaha caadiga ah. Beddelka fasalku ardaydii hore ma taabanayo;
+mid walba kiisa ayuu leeyahay.
 
 ### 4. Profile-ka macalinka
 Macalin walba wuxuu leeyahay profile: **sawir**, magac, taleefan, maadada uu
@@ -125,7 +157,8 @@ src/
 │   └── blocks.js          ← GreetingHeader, QuickAccess, MetricRow, HeroCard
 ├── navigation/RootNavigator.js
 └── screens/
-    ├── auth/AuthScreen.js  ← soo gal | koodh casuumaad
+    ├── auth/AuthScreen.js   ← soo gal | koodh casuumaad
+    ├── ClassFormModal.js    ← foomka fasalka (maamule + macalin)
     ├── admin/{AdminHome,Classes,Teachers}Screen.js
     ├── teacher/TeacherHomeScreen.js
     ├── ClassDetailScreen.js     ← Ardayda | Xaadiris | Lacag
@@ -134,8 +167,10 @@ src/
 
 supabase/
 ├── migrations/
-│   ├── 20260815000001_kaabe_core.sql     ← jaantusyada + RLS + storage
-│   └── 20260815000002_kaabe_invites.sql  ← casuumaadda + xidhidda profile
+│   ├── 20260815000001_kaabe_core.sql             ← jaantusyada + RLS + storage
+│   ├── 20260815000002_kaabe_invites.sql          ← casuumaadda + xidhidda profile
+│   └── 20260815000003_kaabe_teacher_classes.sql  ← macalinku fasalkiisa
+├── functions/invite-teacher/index.ts             ← emailka casuumaadda
 └── README.md
 ```
 
@@ -156,7 +191,7 @@ labada habba way u shaqeeyaan, hal jeer oo keliya ayaana la qoray.
 
 ```bash
 npm install
-npm run check     # 36 hubin
+npm run check     # 43 hubin
 npm start         # Expo — QR-ka ku sawir Expo Go
 npm run android
 npm run ios
@@ -174,10 +209,11 @@ noqonaysaa.
 
 ## Hubinta
 
-### `npm run check` — 36 hubin
+### `npm run check` — 43 hubin
 Xisaabta ayaa Node lagu ordiyaa, iyadoo la xaqiijinayo doorarka, aqoonsiyada,
-kala-soocidda macalimiinta, xaadiriska, lacagta, profile-ka iyo **casuumaadda**
-(koodh gaar ah, email khaldan oo la diido, koodh la aqbalay/joojiyay/dhacay).
+kala-soocidda macalimiinta, xaadiriska, lacagta, profile-ka, **casuumaadda**
+(koodh gaar ah, email khaldan oo la diido, koodh la aqbalay/joojiyay/dhacay),
+iyo **kala-soocidda macalimiinta** (mid kastaa fasalkiisa, isku ma dhex qasmayaan).
 
 > Hubintani waxay muujisay **cillad dhab ah** intii la dhisayay: aqoonsiyada
 > `Date.now()` ku salaysan way isku dhaci jireen marka laba diiwaan hal
@@ -189,9 +225,10 @@ kala-soocidda macalimiinta, xaadiriska, lacagta, profile-ka iyo **casuumaadda**
 ### Screenshot — app-ka dhabta ah
 Web build ayaa la sameeyay, Playwright-na wuxuu **wareega oo dhan** ku maray:
 maamule soo gal → abuur fasalo → **casuun macalin** → koodhka shaashadda ka
-qaad → ka bax → **macalinku koodhka ku soo galo** → gali 5 arday →
-calaamadee xaadiris → qaad lacag → fur profile-yada.
-**17 shaashadood, 0 khalad JS ah, 0 digniin khalad ah.**
+qaad → ka bax → **macalinku koodhka ku soo galo** → **macalinku fasalkiisa
+samaysto** → gali 5 arday → calaamadee xaadiris → qaad lacag →
+fur profile-yada.
+**19 shaashadood, 0 khalad JS ah, 0 digniin khalad ah.**
 
 Saddex cillad ayaa halkaas laga helay oo la hagaajiyay:
 - fasal aan arday lahayn wuxuu ku qorayay "Dhammaystiran" — hadda
@@ -213,6 +250,18 @@ ah ma jiro.
 Naqshaddu waa mid **kaar-ku-salaysan**: salaan + taariikh, kaararka
 "Guudmarka maanta", badhamada midabka leh ee "Si dhaqso ah", kaarka madaxa
 ee lacagta, iyo safafka tirakoobka (`components/blocks.js`).
+
+### Midabada iyo farta (`theme/theme.js`)
+
+| | | | |
+|---|---|---|---|
+| **Buluug** | `#0045AD` | `#005CE6` | `#B0CCF7` · `#D9E7FB` |
+| **Casaan** | `#B43333` | `#F04444` | `#FAC5C5` · `#FDE3E3` |
+| **Cagaar** | `#0F8A63` | `#14B888` | `#B7E9D8` · `#E3F7F0` |
+| **Madow** | `#171717` | `#313131` | `#FBFBFB` · `#FFFFFF` |
+
+Farta waa **Inter**, cabbirradana `type` ayaa hayaa (H1 → Tag), si qoraalku
+uu shaashad kasta isku mid u ahaado.
 
 | Shaashad | Waxa uu leeyahay |
 |---|---|

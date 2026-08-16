@@ -309,6 +309,13 @@ export async function removeStudent(studentId) {
   return updateStudent(studentId, { status: 'left' });
 }
 
+/* Tirtirid dhab ah — `on delete cascade` ayaa xaadiriska iyo lacagta
+   la qaadaya. */
+export async function deleteStudent(studentId) {
+  const { error } = await client().from('students').delete().eq('id', studentId);
+  guard(error);
+}
+
 /* Jidku wuxuu ku bilaabmaa class_id si RLS-ku `can_touch_class` u hubiyo */
 export async function setStudentPhoto(studentId, dataUri, classId) {
   const path = `${classId}/${studentId}.jpg`;
@@ -395,14 +402,30 @@ export async function updateProfile(userId, { fullName, phone, subject, bio, pho
 
 /* ---------- casuumaadda ---------- */
 
+/* Casuumaadda: Edge Function ayaa emailka dirta (furaha service-role
+   server-ka ayuu ku jiraa, weligiis app-ka ma imaan karo). Haddii
+   Function-ka la habayn, casuumaadda weli waa la abuurayaa — maamuluhuna
+   gacanta ayuu koodhka ku diri karaa. */
 export async function createInvite({ fullName, email, classIds }) {
-  const { error } = await client().rpc('create_invite', {
+  const db = client();
+
+  const { data, error } = await db.functions.invoke('invite-teacher', {
+    body: { full_name: fullName, email, class_ids: classIds || [] },
+  });
+
+  if (!error) return { emailed: data?.emailed !== false, code: data?.code };
+
+  /* Function-ka ma jiro/ma shaqaynin — RPC-ga toos u isticmaal */
+  const { error: rpcErr } = await db.rpc('create_invite', {
     p_full_name: fullName,
     p_email: email,
     p_class_ids: classIds || [],
   });
-  guard(error);
+  guard(rpcErr);
+  return { emailed: false };
 }
+
+export const emailDelivery = 'auto';
 
 export async function revokeInvite(inviteId) {
   const { error } = await client().from('invites')

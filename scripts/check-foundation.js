@@ -563,7 +563,132 @@ check('hal email hal casuumaad furan ayuu haystaa', () => {
   assertEqual(M.inviteState(again.invite), 'pending');
 });
 
-/* ---------- 8. Caawiyayaasha taariikhda ---------- */
+/* ---------- 8. Fasalka macalinka iyo tirtiridda ardayga ---------- */
+console.log('\nFasalka macalinka iyo tirtiridda');
+
+check('macalinku fasal wuu samayn karaa — KIISA ayuuna noqonayaa', () => {
+  let { store: s, adminId } = storeWithAdmin();
+  const r = M.createInvite(s, { fullName: 'Macalin', email: 'm@k.so', createdBy: adminId });
+  const redeemed = M.redeemInvite(r.store, { code: r.invite.code, email: 'm@k.so', password: 'kaabe123' });
+  s = redeemed.store;
+  const teacher = redeemed.user;
+
+  /* macalinku cid kale fasal uma samayn karo */
+  const owner = M.ownerForNewClass(teacher, 'user_qof_kale');
+  assertEqual(owner, teacher.user_id, 'macalinku had iyo jeer kiisa');
+
+  s = M.addClass(s, { name: 'Fasalka 3C', monthlyFee: 20, teacherId: owner });
+  const klass = s.classes[0];
+  assertEqual(klass.teacher_id, teacher.user_id);
+  assertEqual(M.classesForUser(s, M.findUserByEmail(s, 'm@k.so')).length, 1);
+});
+
+check('maamuluhu fasal cid kale ayuu u samayn karaa', () => {
+  let { store: s, adminId } = storeWithAdmin();
+  const admin = M.findUserByEmail(s, 'admin@k.so');
+  const r = M.createInvite(s, { fullName: 'Macalin', email: 'm@k.so', createdBy: adminId });
+  const redeemed = M.redeemInvite(r.store, { code: r.invite.code, email: 'm@k.so', password: 'kaabe123' });
+  s = redeemed.store;
+
+  const owner = M.ownerForNewClass(admin, redeemed.user.user_id);
+  assertEqual(owner, redeemed.user.user_id, 'maamuluhu cidda uu doorto');
+});
+
+check('macalinku fasalka qof kale wax kama beddeli karo', () => {
+  let { store: s, adminId } = storeWithAdmin();
+  const a = M.createInvite(s, { fullName: 'Macalin A', email: 'a@k.so', createdBy: adminId });
+  s = M.redeemInvite(a.store, { code: a.invite.code, email: 'a@k.so', password: 'kaabe123' }).store;
+  const b = M.createInvite(s, { fullName: 'Macalin B', email: 'b@k.so', createdBy: adminId });
+  s = M.redeemInvite(b.store, { code: b.invite.code, email: 'b@k.so', password: 'kaabe123' }).store;
+
+  const teacherA = M.findUserByEmail(s, 'a@k.so');
+  const teacherB = M.findUserByEmail(s, 'b@k.so');
+  s = M.addClass(s, { name: 'Fasalka 1A', monthlyFee: 10, teacherId: teacherA.user_id });
+  const klass = M.getClassById(s, s.classes[0].class_id);
+
+  assert(M.canEditClass(teacherA, klass), 'macalinka leh wuu beddeli karaa');
+  assert(!M.canEditClass(teacherB, klass), 'macalinka kale ma beddeli karo');
+  assert(M.canEditClass(M.findUserByEmail(s, 'admin@k.so'), klass), 'maamuluhu wuu beddeli karaa');
+});
+
+check('macalimiintu isku ma dhex qasmayaan', () => {
+  let { store: s, adminId } = storeWithAdmin();
+  const a = M.createInvite(s, { fullName: 'A', email: 'a@k.so', createdBy: adminId });
+  s = M.redeemInvite(a.store, { code: a.invite.code, email: 'a@k.so', password: 'kaabe123' }).store;
+  const b = M.createInvite(s, { fullName: 'B', email: 'b@k.so', createdBy: adminId });
+  s = M.redeemInvite(b.store, { code: b.invite.code, email: 'b@k.so', password: 'kaabe123' }).store;
+
+  const A = M.findUserByEmail(s, 'a@k.so');
+  const B = M.findUserByEmail(s, 'b@k.so');
+  s = M.addClass(s, { name: 'Fasalka A1', monthlyFee: 10, teacherId: A.user_id });
+  s = M.addClass(s, { name: 'Fasalka B1', monthlyFee: 10, teacherId: B.user_id });
+  s = M.addStudent(s, { classId: s.classes[0].class_id, fullName: 'Arday A' });
+  s = M.addStudent(s, { classId: s.classes[1].class_id, fullName: 'Arday B' });
+
+  const freshA = M.findUserByEmail(s, 'a@k.so');
+  const freshB = M.findUserByEmail(s, 'b@k.so');
+  assertEqual(M.classesForUser(s, freshA).length, 1, 'A');
+  assertEqual(M.classesForUser(s, freshB).length, 1, 'B');
+  assert(!M.canAccessClass(freshA, s.classes[1].class_id), 'A ma galo fasalka B');
+  assert(!M.canAccessClass(freshB, s.classes[0].class_id), 'B ma galo fasalka A');
+});
+
+check('tirtiridda ardaygu way la baxdaa xaadiriska iyo lacagta', () => {
+  let s = freshStore();
+  s = M.addClass(s, { name: 'Fasalka 1A', monthlyFee: 10 });
+  const classId = s.classes[0].class_id;
+  s = M.addStudent(s, { classId, fullName: 'Arday Kow' });
+  s = M.addStudent(s, { classId, fullName: 'Arday Laba' });
+  const [a, b] = s.students.map((x) => x.student_internal_id);
+
+  s = M.saveRegister(s, { classId, date: '2026-08-10', register: { [a]: 'present', [b]: 'absent' } });
+  s = M.setPayment(s, { studentInternalId: a, month: '2026-08', amountPaid: 10 });
+  s = M.setPayment(s, { studentInternalId: b, month: '2026-08', amountPaid: 5 });
+
+  s = M.deleteStudent(s, a);
+  assertEqual(s.students.length, 1, 'ardayda');
+  assertEqual(s.attendance.length, 1, 'xaadiriska');
+  assertEqual(s.fees.length, 1, 'lacagaha');
+  /* kii kale waa inuu sidiisii ahaado */
+  assertEqual(M.classFeeSummary(s, classId, '2026-08').paid, 5);
+});
+
+check('ka saariddu taariikhda way haysaa, tirtiriddu way qaadaysaa', () => {
+  let s = freshStore();
+  s = M.addClass(s, { name: 'Fasalka 1A', monthlyFee: 10 });
+  const classId = s.classes[0].class_id;
+  s = M.addStudent(s, { classId, fullName: 'Arday Kow' });
+  const sid = s.students[0].student_internal_id;
+  s = M.saveRegister(s, { classId, date: '2026-08-10', register: { [sid]: 'present' } });
+
+  const softed = M.removeStudent(s, sid);
+  assertEqual(softed.attendance.length, 1, 'ka saarid: xaadiriska wuu haray');
+  assertEqual(M.studentsByClass(softed, classId).length, 0, 'liiska firfircoon');
+
+  const hard = M.deleteStudent(s, sid);
+  assertEqual(hard.attendance.length, 0, 'tirtirid: xaadiriska wuu baxay');
+  assertEqual(hard.students.length, 0);
+});
+
+check('lacagta ardayga mar walba waa la beddeli karaa', () => {
+  let s = freshStore();
+  s = M.addClass(s, { name: 'Fasalka 1A', monthlyFee: 10 });
+  const classId = s.classes[0].class_id;
+  s = M.addStudent(s, { classId, fullName: 'Arday Kow' });
+  const sid = s.students[0].student_internal_id;
+
+  assertEqual(M.classFeeSummary(s, classId, '2026-08').due, 10);
+  s = M.updateStudent(s, sid, { monthly_fee: 25 });
+  assertEqual(M.classFeeSummary(s, classId, '2026-08').due, 25, 'qiimo cusub');
+
+  /* lacagta fasalkuna waa la beddeli karaa */
+  s = M.updateClass(s, classId, { monthly_fee: 30 });
+  assertEqual(M.getClassById(s, classId).monthly_fee, 30);
+  /* ardaydii hore qiimahoodu ma beddelmayo — mid walba kiisa ayuu leeyahay */
+  assertEqual(M.classFeeSummary(s, classId, '2026-08').due, 25, 'ardaygii hore');
+});
+
+/* ---------- 9. Caawiyayaasha taariikhda ---------- */
 console.log('\nTaariikhda');
 
 check('shiftMonth wuxuu si sax ah u gudbaa sanadka', () => {

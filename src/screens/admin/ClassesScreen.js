@@ -1,94 +1,45 @@
 /* ============================================================
-   KAABE — Maamulka fasalada (maamulaha guud oo keliya)
-   Abuur fasal, u qoondee macalin, beddel lacagta bisha.
+   KAABE — Maamulka fasalada (maamulaha guud)
+
+   Maamuluhu wuu abuuraa fasal, macalinna wuu u qoondayn karaa.
+   Macalinkuna fasalkiisa wuu samayn karaa (eeg TeacherHomeScreen) —
+   laakiin kiisa oo keliya.
    ============================================================ */
 import React, { useMemo, useState } from 'react';
-import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal,
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../../context/AppContext';
 import { teachers as allTeachers, studentsByClass, formatMoney } from '../../services/model';
-import { Card, Button, Field, Badge, EmptyState, Avatar } from '../../components/ui';
-import { confirm, notify } from '../../utils/dialog';
-import { colors, radius, spacing } from '../../theme/theme';
+import { Card, Button, Badge, EmptyState } from '../../components/ui';
+import ClassFormModal from '../ClassFormModal';
+import { colors, spacing, type } from '../../theme/theme';
 
 export default function ClassesScreen({ navigation }) {
-  const { store, ops, busy } = useApp();
+  const { store } = useApp();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ name: '', level: '', monthlyFee: '', teacherId: null });
 
   const teacherList = useMemo(() => allTeachers(store), [store]);
   const currency = store.school.currency;
 
-  const openNew = () => {
-    setEditing(null);
-    setForm({ name: '', level: '', monthlyFee: '', teacherId: null });
-    setOpen(true);
-  };
-
-  const openEdit = (klass) => {
-    setEditing(klass);
-    setForm({
-      name: klass.name,
-      level: klass.level || '',
-      monthlyFee: String(klass.monthly_fee || ''),
-      teacherId: klass.teacher_id || null,
-    });
-    setOpen(true);
-  };
-
-  const save = async () => {
-    try {
-      if (editing) {
-        await ops.updateClass(editing.class_id, {
-          level: form.level.trim(),
-          monthly_fee: Number(form.monthlyFee) || 0,
-          teacher_id: form.teacherId,
-        });
-      } else {
-        if (!form.name.trim()) throw new Error('Magaca fasalka waa qasab.');
-        await ops.addClass({
-          name: form.name,
-          level: form.level,
-          monthlyFee: form.monthlyFee,
-          teacherId: form.teacherId,
-        });
-      }
-      setOpen(false);
-    } catch (e) {
-      notify('Khalad', e.message);
-    }
-  };
-
-  const confirmDelete = (klass) => confirm({
-    title: 'Tirtir fasalka',
-    message: `${klass.name} iyo dhammaan ardaydiisa, xaadiriskiisa iyo lacagihiisa waa la tirtirayaa. Ma hubtaa?`,
-    confirmLabel: 'Haa, tirtir',
-    destructive: true,
-    onConfirm: async () => {
-      try {
-        await ops.deleteClass(klass.class_id);
-        setOpen(false);
-      } catch (e) {
-        notify('Khalad', e.message);
-      }
-    },
-  });
+  const openNew = () => { setEditing(null); setOpen(true); };
+  const openEdit = (klass) => { setEditing(klass); setOpen(true); };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <Text style={styles.title}>Fasalada</Text>
-        <Text style={styles.sub}>Abuur fasal, ka dibna macalin u qoondee.</Text>
+        <Text style={styles.sub}>
+          Abuur fasal oo macalin u qoondee. Macalinkuna fasalkiisa wuu samayn karaa.
+        </Text>
 
         <Button title="+ Fasal cusub" onPress={openNew} style={{ marginTop: spacing.md }} />
 
         {(store.classes || []).length === 0 ? (
           <EmptyState
             title="Weli fasal ma jiro"
-            text="Fasal kasta wuxuu leeyahay magac, lacag bileed iyo hal macalin."
+            text="Fasal kastaa wuxuu leeyahay magac, lacag bileed iyo hal macalin."
           />
         ) : (
           <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
@@ -110,24 +61,25 @@ export default function ClassesScreen({ navigation }) {
                         </Text>
                       </View>
                       <Badge
-                        label={teacher ? teacher.full_name : 'Macalin la\'aan'}
+                        label={teacher ? teacher.full_name : "Macalin la'aan"}
                         bg={teacher ? colors.greenSoft : colors.amberSoft}
                         fg={teacher ? colors.green : colors.amber}
                       />
                     </View>
                   </TouchableOpacity>
+
                   <View style={styles.actions}>
-                    <Button
-                      title="Wax ka beddel"
-                      variant="ghost"
-                      onPress={() => openEdit(klass)}
-                      style={{ flex: 1 }}
-                    />
-                    <Button
-                      title="Fur fasalka"
+                    <TouchableOpacity style={styles.action} onPress={() => openEdit(klass)}>
+                      <Ionicons name="create-outline" size={16} color={colors.primary} />
+                      <Text style={styles.actionText}>Wax ka beddel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.action, styles.actionPrimary]}
                       onPress={() => navigation.navigate('ClassDetail', { classId: klass.class_id })}
-                      style={{ flex: 1 }}
-                    />
+                    >
+                      <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
+                      <Text style={[styles.actionText, { color: '#FFFFFF' }]}>Fur fasalka</Text>
+                    </TouchableOpacity>
                   </View>
                 </Card>
               );
@@ -136,90 +88,7 @@ export default function ClassesScreen({ navigation }) {
         )}
       </ScrollView>
 
-      <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalSheet}>
-            <ScrollView keyboardShouldPersistTaps="handled">
-              <Text style={styles.modalTitle}>{editing ? editing.name : 'Fasal cusub'}</Text>
-
-              {!editing && (
-                <Field
-                  label="Magaca fasalka"
-                  placeholder="Tusaale: Fasalka 1A"
-                  value={form.name}
-                  onChangeText={(v) => setForm({ ...form, name: v })}
-                />
-              )}
-
-              <Field
-                label="Heerka (ikhtiyaari)"
-                placeholder="Tusaale: Dugsi Hoose"
-                value={form.level}
-                onChangeText={(v) => setForm({ ...form, level: v })}
-              />
-              <Field
-                label="Lacagta bisha"
-                placeholder="0"
-                hint="Tani waa qiimaha caadiga ah ee arday walba."
-                value={form.monthlyFee}
-                onChangeText={(v) => setForm({ ...form, monthlyFee: v })}
-                keyboardType="numeric"
-              />
-
-              <Text style={styles.fieldLabel}>Macalinka mas'uulka ah</Text>
-              {teacherList.length === 0 ? (
-                <Text style={styles.noTeachers}>
-                  Weli macalin isma diiwaan gelin. Macalinku wuxuu naftiisa ku diiwaan gelin karaa
-                  bogga "Isdiiwaan geli".
-                </Text>
-              ) : (
-                <View style={{ gap: spacing.sm, marginBottom: spacing.md }}>
-                  {teacherList.map((t) => {
-                    const active = form.teacherId === t.user_id;
-                    return (
-                      <TouchableOpacity
-                        key={t.user_id}
-                        style={[styles.teacherRow, active && styles.teacherRowActive]}
-                        onPress={() => setForm({ ...form, teacherId: active ? null : t.user_id })}
-                        activeOpacity={0.85}
-                      >
-                        <Avatar name={t.full_name} photoUri={t.photo_uri} size={34} />
-                        <View style={{ flex: 1 }}>
-                          <Text style={styles.teacherName}>{t.full_name}</Text>
-                          <Text style={styles.teacherMeta}>{t.phone}</Text>
-                        </View>
-                        <View style={[styles.check, active && styles.checkActive]}>
-                          {active && <Text style={styles.checkMark}>✓</Text>}
-                        </View>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              )}
-
-              <Button
-                title={busy ? 'Sugaya…' : editing ? 'Kaydi beddelka' : 'Abuur fasalka'}
-                onPress={save}
-                disabled={busy}
-              />
-              {editing && (
-                <Button
-                  title="Tirtir fasalka"
-                  variant="danger"
-                  onPress={() => confirmDelete(editing)}
-                  style={{ marginTop: spacing.sm }}
-                />
-              )}
-              <Button
-                title="Jooji"
-                variant="ghost"
-                onPress={() => setOpen(false)}
-                style={{ marginTop: spacing.sm }}
-              />
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+      <ClassFormModal visible={open} klass={editing} onClose={() => setOpen(false)} />
     </SafeAreaView>
   );
 }
@@ -227,11 +96,11 @@ export default function ClassesScreen({ navigation }) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
-  title: { fontSize: 22, fontWeight: '800', color: colors.ink },
-  sub: { fontSize: 13, color: colors.muted, marginTop: 4 },
+  title: { ...type.h3, color: colors.ink },
+  sub: { ...type.b2, color: colors.muted, marginTop: 4, lineHeight: 19 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  className: { fontSize: 16, fontWeight: '700', color: colors.ink },
-  classMeta: { fontSize: 12, color: colors.muted, marginTop: 3 },
+  className: { ...type.h6, color: colors.ink },
+  classMeta: { ...type.b2, color: colors.muted, marginTop: 3 },
   actions: {
     flexDirection: 'row',
     gap: spacing.sm,
@@ -240,43 +109,16 @@ const styles = StyleSheet.create({
     borderTopColor: colors.line,
     paddingTop: spacing.md,
   },
-  fieldLabel: { fontSize: 13, fontWeight: '600', color: colors.ink2, marginBottom: 8 },
-  noTeachers: {
-    fontSize: 12.5,
-    color: colors.muted,
-    lineHeight: 18,
-    marginBottom: spacing.md,
-    backgroundColor: colors.amberSoft,
-    padding: spacing.md,
-    borderRadius: radius.sm,
-  },
-  teacherRow: {
+  action: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius.sm,
-    padding: spacing.sm,
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 11,
+    borderRadius: 10,
+    backgroundColor: colors.primarySoft,
   },
-  teacherRowActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
-  teacherName: { fontSize: 14, fontWeight: '700', color: colors.ink },
-  teacherMeta: { fontSize: 12, color: colors.muted, marginTop: 2 },
-  check: {
-    width: 24, height: 24, borderRadius: 12,
-    borderWidth: 1.5, borderColor: colors.line,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  checkActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  checkMark: { color: '#FFFFFF', fontSize: 13, fontWeight: '800' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(16,26,40,0.45)', justifyContent: 'flex-end' },
-  modalSheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    padding: spacing.lg,
-    paddingBottom: spacing.xl + 12,
-    maxHeight: '88%',
-  },
-  modalTitle: { fontSize: 18, fontWeight: '800', color: colors.ink, marginBottom: spacing.lg },
+  actionPrimary: { backgroundColor: colors.primary },
+  actionText: { ...type.b2Bold, color: colors.primary },
 });

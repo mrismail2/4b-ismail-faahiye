@@ -100,6 +100,48 @@ karo. Sidoo kale:
 - `for update` ayaa xiraya safka si laba qof aysan isku koodh u aqbalin
 - hal email hal casuumaad furan ayuu haysan karaa (unique index)
 
+## 7. Emailka casuumaadda (Edge Function)
+
+Emailka **lama diri karo app-ka gudihiisa**: furaha `service_role` iyo
+furaha adeegga emailka waa in ay server-ka ku jiraan. Sidaas awgeed waxaa
+jira Edge Function.
+
+```bash
+supabase secrets set RESEND_API_KEY=re_xxxxx
+supabase secrets set KAABE_FROM_EMAIL="KAABE <no-reply@iskuulkaaga.so>"
+supabase functions deploy invite-teacher
+```
+
+`supabase/functions/invite-teacher/index.ts` waxay:
+
+1. Ka hubisaa qofka wacaya inuu **super_admin** yahay (token-kiisa ayay
+   isticmaashaa, sidaas RLS wuu khusayaa)
+2. `create_invite()` ku abuurtaa casuumaadda
+3. Emailka macalinka u dirta (Resend), koodhka iyo tilmaamaha oo ku jira
+
+Haddii `RESEND_API_KEY` la banayo — ama emailku fashilmo — casuumaaddu
+**weli waa la abuurayaa**, `emailed: false` ayayna soo celinaysaa.
+App-ku wuxuu maamulaha tusayaa koodhka iyo badhan **"Email u dir"**
+oo app-ka emailka fura (mailto).
+
+## 8. Macalinku fasalkiisa ayuu samaystaa
+
+Ku shub `migrations/20260815000003_kaabe_teacher_classes.sql`.
+
+Hore: maamulaha guud oo keliya ayaa fasal abuuri karay.
+Hadda: macalinkuna wuu samayn karaa — **kiisa oo keliya**:
+
+| Tallaabo | Macalin | Maamule |
+|---|---|---|
+| Fasal abuur | Haa (`teacher_id = auth.uid()`) | Haa (cidduu doorto) |
+| Fasalkiisa beddel | Haa | Haa |
+| Fasalka qof kale beddel | **Maya** | Haa |
+| Macalin kale u wareeji | **Maya** (trigger) | Haa |
+
+`guard_class_owner` trigger ayaa siinaya farriin cad marka macalin isku
+dayo inuu fasal wareejiyo — RLS keligiis khalad aan la fahmi karin ayuu
+soo celin lahaa.
+
 ---
 
 ## Sida ammaanku u shaqeeyo (RLS)
@@ -114,6 +156,8 @@ qariya. Xitaa haddii qof toos u wacdo API-ga, isla xeerarka ayaa khusaya.
 | `attendance` | fasaladiisa **oo keliya** | dhammaan iskuulka |
 | `fees` | fasaladiisa **oo keliya** | dhammaan iskuulka |
 | `profiles` | kiisa + liiska iskuulka | wuu maamulaa kuwa iskuulka |
+| `classes` | **kiisa** wuu abuuraa/beddelaa/tirtiraa | dhammaan iskuulka |
+| `invites` | ma arko | **isaga oo keliya** ayaa casuumi kara |
 
 Xudunta waa `can_touch_class(class_id)`:
 

@@ -118,6 +118,7 @@ export const assignTeacher = (classId, teacherId) => apply((s) => M.assignTeache
 export const addStudent = (args) => apply((s) => M.addStudent(s, args));
 export const updateStudent = (id, patch) => apply((s) => M.updateStudent(s, id, patch));
 export const removeStudent = (id) => apply((s) => M.removeStudent(s, id));
+export const deleteStudent = (id) => apply((s) => M.deleteStudent(s, id));
 export const setStudentPhoto = (id, uri) => apply((s) => M.setStudentPhoto(s, id, uri));
 
 /* ---------- xaadiriska iyo lacagta ---------- */
@@ -131,5 +132,8 @@ export const updateProfile = (userId, patch) => apply((s) => M.updateProfile(s, 
 
 /* ---------- casuumaadda ---------- */
 
+/* Habka tijaabada email lama diri karo — casuumaadda ayaa la abuuraa,
+   maamuluhuna gacanta ayuu ku diraa (mailto / WhatsApp). */
 export const createInvite = (args) => apply((s) => M.createInvite(s, args).store);
+export const emailDelivery = 'manual';
 export const revokeInvite = (inviteId) => apply((s) => M.revokeInvite(s, inviteId));

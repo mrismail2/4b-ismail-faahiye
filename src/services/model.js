@@ -305,7 +305,9 @@ export function teachers(store) {
 
 /* ---------- fasalada ---------- */
 
-export function addClass(store, { name, level, monthlyFee, teacherId }) {
+/* Macalinkuna fasal wuu samayn karaa — kiisa ayuu noqonayaa. Maamuluhu
+   wuu samayn karaa mid uu cid kale u qoondeeyo. */
+export function addClass(store, { name, level, monthlyFee, teacherId, createdBy }) {
   if (!name?.trim()) throw new Error('Magaca fasalka waa qasab.');
   const schoolId = store.school.school_id;
   const classId = makeClassId(schoolId, name);
@@ -326,6 +328,23 @@ export function addClass(store, { name, level, monthlyFee, teacherId }) {
   let next = { ...store, classes: [...(store.classes || []), klass] };
   if (teacherId) next = assignTeacher(next, classId, teacherId);
   return next;
+}
+
+/* Yaa fasal samayn kara? Labadaba — laakiin macalinka kiisa ayaa noqonaya.
+   Halkan waxaa lagu go'aamiyaa `teacher_id` ee sax ah. */
+export function ownerForNewClass(user, requestedTeacherId) {
+  if (!user) return null;
+  /* Macalinku cid kale fasal uma samayn karo — had iyo jeer kiisa. */
+  if (user.role === ROLES.TEACHER) return user.user_id;
+  return requestedTeacherId || null;
+}
+
+/* Fasalka ma qofkan baa wax ka beddeli kara? Maamuluhu dhammaan;
+   macalinkuna kiisa oo keliya. */
+export function canEditClass(user, klass) {
+  if (!user || !klass) return false;
+  if (user.role === ROLES.SUPER_ADMIN) return true;
+  return klass.teacher_id === user.user_id;
 }
 
 export function updateClass(store, classId, patch) {
@@ -436,9 +455,20 @@ export function updateStudent(store, internalId, patch) {
   };
 }
 
-/* Ardayga lama tirtiro — waxaa loo calaamadiyaa 'left' si taariikhdu u haray */
+/* Laba jid ayaa jira:
+     · removeStudent — waxaa loo calaamadiyaa 'left'; taariikhdu way haraysaa
+     · deleteStudent — waa la tirtiraa isaga iyo taariikhdiisa oo dhan */
 export function removeStudent(store, internalId) {
   return updateStudent(store, internalId, { status: 'left' });
+}
+
+export function deleteStudent(store, internalId) {
+  return {
+    ...store,
+    students: (store.students || []).filter((s) => s.student_internal_id !== internalId),
+    attendance: (store.attendance || []).filter((a) => a.student_internal_id !== internalId),
+    fees: (store.fees || []).filter((f) => f.student_internal_id !== internalId),
+  };
 }
 
 /* ---------- xaadiriska ---------- */

@@ -7,7 +7,7 @@
    ============================================================ */
 import React, { useMemo, useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Share, Platform,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,7 +28,7 @@ const TABS = [
 ];
 
 export default function TeachersScreen({ navigation }) {
-  const { store, ops, busy } = useApp();
+  const { store, ops, busy, emailDelivery } = useApp();
   const [tab, setTab] = useState('teachers');
 
   return (
@@ -45,7 +45,7 @@ export default function TeachersScreen({ navigation }) {
 
       {tab === 'teachers'
         ? <TeacherList store={store} ops={ops} navigation={navigation} />
-        : <InviteList store={store} ops={ops} busy={busy} />}
+        : <InviteList store={store} ops={ops} busy={busy} emailDelivery={emailDelivery} />}
     </SafeAreaView>
   );
 }
@@ -198,7 +198,7 @@ function TeacherList({ store, ops, navigation }) {
 /* ============================================================
    Casuumaadaha
    ============================================================ */
-function InviteList({ store, ops, busy }) {
+function InviteList({ store, ops, busy, emailDelivery }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ fullName: '', email: '', classIds: [] });
   const [created, setCreated] = useState(null);
@@ -222,25 +222,41 @@ function InviteList({ store, ops, busy }) {
 
   const submit = async () => {
     try {
-      const next = await ops.createInvite(form);
+      const result = await ops.createInvite(form);
       /* koodhka cusub waa kan ugu dambeeyay ee la abuuray */
-      const fresh = listInvites(next)[0];
-      setCreated(fresh);
+      const fresh = listInvites(result.store)[0];
+      setCreated({ ...fresh, emailed: result.emailed === true });
     } catch (e) {
       notify('Khalad', e.message);
     }
   };
 
-  const shareCode = async (invite) => {
-    const message = `Ku soo biir KAABE.\n\nMagac: ${invite.full_name}\nEmail: ${invite.email}\nKoodhka: ${invite.code}\n\nApp-ka fur → "Koodh casuumaad" → geli koodhka.`;
+  /* Emailka gacanta ku dir — app-ka emailka ayaa la furayaa, qoraalkuna
+     wuu diyaar yahay. Tan waxaa loo isticmaalaa habka tijaabada, iyo
+     marka Edge Function-ka emailku fashilmo. */
+  const mailInvite = async (invite) => {
+    const subject = `Ku soo dhawoow KAABE — ${store.school.name}`;
+    const body = [
+      `Salaan ${invite.full_name},`,
+      '',
+      `Waxaan kuugu casumay inaad macalin ka noqoto ${store.school.name}.`,
+      '',
+      `Koodhkaaga: ${invite.code}`,
+      '',
+      '1. Fur app-ka KAABE',
+      '2. Dooro "Koodh casuumaad"',
+      '3. Koodhka geli, kadibna fure sirta ah oo adiga kuu gaar ah samayso',
+      '',
+      'Koodhku wuxuu shaqaynayaa 14 maalmood, hal marna wuu shaqaynayaa.',
+    ].join('\n');
+
+    const url = `mailto:${invite.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     try {
-      if (Platform.OS === 'web') {
-        notify('Koodhka casuumaadda', message);
-      } else {
-        await Share.share({ message });
-      }
+      const ok = await Linking.canOpenURL(url);
+      if (ok) await Linking.openURL(url);
+      else notify('Koodhka casuumaadda', `${invite.email}\n\n${invite.code}`);
     } catch (e) {
-      // qofku wuu joojiyay
+      notify('Koodhka casuumaadda', `${invite.email}\n\n${invite.code}`);
     }
   };
 
@@ -314,9 +330,9 @@ function InviteList({ store, ops, busy }) {
                 {state === 'pending' && (
                   <View style={styles.inviteActions}>
                     <Button
-                      title="U dir"
+                      title="Email u dir"
                       variant="ghost"
-                      onPress={() => shareCode(invite)}
+                      onPress={() => mailInvite(invite)}
                       style={{ flex: 1 }}
                     />
                     <Button
@@ -342,9 +358,13 @@ function InviteList({ store, ops, busy }) {
                   <View style={styles.successIcon}>
                     <Ionicons name="checkmark" size={26} color="#FFFFFF" />
                   </View>
-                  <Text style={styles.modalTitle}>Casuumaaddu waa diyaar</Text>
+                  <Text style={styles.modalTitle}>
+                    {created.emailed ? 'Emailku wuu baxay' : 'Casuumaaddu waa diyaar'}
+                  </Text>
                   <Text style={styles.modalSub}>
-                    Koodhkan {created.full_name} u dir. Wuxuu shaqaynayaa 14 maalmood.
+                    {created.emailed
+                      ? `Koodhka waxaa loo diray ${created.email}. Wuxuu shaqaynayaa 14 maalmood.`
+                      : `Koodhkan ${created.full_name} u dir. Wuxuu shaqaynayaa 14 maalmood.`}
                   </Text>
 
                   <View style={styles.bigCode}>
@@ -352,10 +372,21 @@ function InviteList({ store, ops, busy }) {
                   </View>
 
                   <Text style={styles.successNote}>
-                    Emailka {created.email} ayuu ku soo gali doonaa — koodhku qof kale uma shaqeeyo.
+                    Emailka {created.email} ayuu ku soo gali doonaa — koodhku qof
+                    kale uma shaqeeyo. Furaha sirta ah isaga ayaa samaysanaya.
                   </Text>
 
-                  <Button title="U dir" onPress={() => shareCode(created)} />
+                  {!created.emailed && emailDelivery === 'auto' && (
+                    <Text style={styles.mailWarn}>
+                      Adeegga emailka lama habayn (RESEND_API_KEY). Koodhka
+                      gacanta u dir ilaa la habeeyo.
+                    </Text>
+                  )}
+
+                  <Button
+                    title={created.emailed ? 'Mar kale u dir' : 'Email u dir'}
+                    onPress={() => mailInvite(created)}
+                  />
                   <Button
                     title="Diyaar"
                     variant="ghost"
@@ -367,8 +398,9 @@ function InviteList({ store, ops, busy }) {
                 <>
                   <Text style={styles.modalTitle}>Casuun macalin</Text>
                   <Text style={styles.modalSub}>
-                    Koodh ayaa la abuurayaa. Macalinku emailkan ayuu ku isticmaali karaa,
-                    doorkiisuna waa "Macalin" — isagu ma dooran karo.
+                    {emailDelivery === 'auto'
+                      ? 'Koodh ayaa la abuurayaa, emailkana toos ayaa loo dirayaa. Macalinku fure sirta ah oo isaga u gaar ah ayuu samaysanayaa.'
+                      : 'Koodh ayaa la abuurayaa. Emailka ayaad ku dirtaa, macalinkuna fure isaga u gaar ah ayuu samaysanayaa.'}
                   </Text>
 
                   <Field
@@ -565,6 +597,15 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.primary,
     letterSpacing: 4,
+  },
+  mailWarn: {
+    fontSize: 12,
+    color: colors.amber,
+    backgroundColor: colors.amberSoft,
+    padding: spacing.md,
+    borderRadius: radius.sm,
+    marginBottom: spacing.md,
+    lineHeight: 17,
   },
   successNote: {
     fontSize: 12,
